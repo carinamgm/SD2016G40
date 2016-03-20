@@ -1,18 +1,15 @@
 # Projeto de Sistemas Distribuídos 2015-2016 #
 
-Grupo de SD ... - Campus ...
-*(preencher com número do grupo de SD no Fénix e depois apagar esta linha)*
+Grupo de SD 40 - Campus Alameda
 
-... ... ...
+João Santos 67011 phoenix-2000@hotmail.com
 
-... ... ...
+Diogo Ferreira 79018 diogo.lopes.ferreira@tecnico.ulisboa.pt
 
-... ... ...
-*(preencher com nome, número e email de membro do grupo e depois apagar esta linha)*
-
+Carina Martins 79153 carinamartins@outlook.com
 
 Repositório:
-[tecnico-distsys/C_XX-project](https://github.com/tecnico-distsys/C_XX-project/)
+[tecnico-distsys/A_40-project](https://github.com/tecnico-distsys/A_40-project/)
 
 -------------------------------------------------------------------------------
 
@@ -23,8 +20,7 @@ Repositório:
 
 [0] Iniciar sistema operativo
 
-Indicar Windows ou Linux
-*(escolher um dos dois, que esteja disponível nos laboratórios, e depois apagar esta linha)*
+Linux
 
 
 [1] Iniciar servidores de apoio
