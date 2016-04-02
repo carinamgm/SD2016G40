@@ -4,11 +4,10 @@ import pt.upa.broker.ws.BrokerPortType;
 import pt.upa.broker.ws.BrokerService;
 import pt.upa.broker.ws.cli.BrokerClient;
 
-import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
-
+import javax.xml.ws.BindingProvider;
 import java.util.Map;
 
-import javax.xml.ws.BindingProvider;
+import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
 public class BrokerClientApplication {
 
@@ -34,10 +33,9 @@ public class BrokerClientApplication {
         Map<String, Object> requestContext = bindingProvider.getRequestContext();
         requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
 
-
         BrokerClient bc = new BrokerClient(port);
 
-        System.out.println(bc.ping("Sexy"));
+        System.out.println(bc.ping("TestPing"));
 
 
 	}

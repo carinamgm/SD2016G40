@@ -26,10 +26,12 @@ public class TransporterApplication {
 		String name = args[1];
 		String url = args[2];
 
+		System.out.println(name);
+
 		Endpoint endpoint = null;
 		UDDINaming uddiNaming = null;
 		try {
-			TransporterPort port = new TransporterPort();
+			TransporterPort port = new TransporterPort(regions, name);
 			endpoint = Endpoint.create(port);
 
 			// publish endpoint
@@ -70,8 +72,6 @@ public class TransporterApplication {
 				System.out.printf("Caught exception when deleting: %s%n", e);
 			}
 		}
-
-		//TransporterPort tp = new TransporterPort(regions, name);
 
 	}
 

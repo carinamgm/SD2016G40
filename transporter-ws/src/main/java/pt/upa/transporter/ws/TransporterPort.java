@@ -47,8 +47,8 @@ public class TransporterPort implements TransporterPortType {
     }
 
     @Override
-    public String ping(String name){
-        return name;
+    public String ping(String message){
+        return _companyName + " " + "ping result: " + message;
     }
 
     @Override

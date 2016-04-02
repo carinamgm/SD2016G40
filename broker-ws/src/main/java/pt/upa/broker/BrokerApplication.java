@@ -4,7 +4,9 @@ import javax.xml.ws.Endpoint;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.broker.ws.BrokerPort;
-import pt.upa.transporter.TransporterClientApplication;
+import pt.upa.transporter.ws.cli.TransporterClient;
+
+import java.util.Collection;
 
 public class BrokerApplication {
 
@@ -26,7 +28,10 @@ public class BrokerApplication {
 		Endpoint endpoint = null;
 		UDDINaming uddiNaming = null;
 		try {
-			BrokerPort port = new BrokerPort();
+			uddiNaming = new UDDINaming(uddiURL);
+			Collection<String> wsUrls = uddiNaming.list("UpaTransporter"+"%");
+			BrokerPort port = new BrokerPort(new TransporterClient(wsUrls));
+
 			endpoint = Endpoint.create(port);
 
 			// publish endpoint
@@ -35,7 +40,6 @@ public class BrokerApplication {
 
 			// publish to UDDI
 			System.out.printf("Publishing '%s' to UDDI at %s%n", name, uddiURL);
-			uddiNaming = new UDDINaming(uddiURL);
 			uddiNaming.rebind(name, url);
 
 			// wait

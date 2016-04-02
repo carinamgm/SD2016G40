@@ -2,14 +2,30 @@ package pt.upa.transporter.ws.cli;
 
 import pt.upa.transporter.ws.*;
 
-import java.util.ArrayList;
+import javax.xml.ws.BindingProvider;
+import java.util.*;
+
+import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
 public class TransporterClient {
 
-    private static ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();
+    private ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();
+    private ArrayList<JobView> _tracking = new ArrayList<JobView>();
 
-	public TransporterClient(ArrayList<TransporterPortType> ports){
-        _ports = ports;
+	public TransporterClient(Collection<String> wsUrls){
+        for(String wsEndpoint : wsUrls){
+            TransporterService ts = new TransporterService();
+            TransporterPortType port = ts.getTransporterPort();
+            _ports.add(port);
+        }
+
+        Object[] ws = wsUrls.toArray();
+        for(int i = 0; i < wsUrls.size(); i++){
+            //System.out.println("Setting endpoint address ..." + ws[i]);
+            BindingProvider bindingProvider = (BindingProvider) _ports.get(i);
+            Map<String, Object> requestContext = bindingProvider.getRequestContext();
+            requestContext.put(ENDPOINT_ADDRESS_PROPERTY, ws[i]);
+        }
     }
 
     public ArrayList<JobView> requestJob(String origin, String destination, int price) throws BadPriceFault_Exception {
@@ -41,14 +57,29 @@ public class TransporterClient {
 
         if(jv == null)
             throw new BadJobFault_Exception("Não existe tal trabalho", new BadJobFault());
+
+        _tracking.add(jv);
+
+        Timer t = new Timer();
+        t.schedule(new ChangeState(jv),generateRandomLong());
+
         return jv;
     }
 
-
-    public void changeState(){
-
+    public ArrayList<JobView> getTracking(){
+        return _tracking;
     }
 
+    public String ping(String message){
+        String output = "";
+        for(TransporterPortType tp : _ports)
+            output += tp.ping(message) + "\n";
+        return output;
+    }
 
+    private long generateRandomLong(){
+        Random random = new Random();
+        return  1 + (long)(random.nextDouble()*(5 - 1));
+    }
 
 }

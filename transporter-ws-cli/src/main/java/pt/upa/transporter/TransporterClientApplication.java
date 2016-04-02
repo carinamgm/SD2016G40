@@ -15,11 +15,9 @@ import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
 public class TransporterClientApplication {
 
-	private static ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();
-
 	public static void main(String[] args) throws Exception {
 		System.out.println(TransporterClientApplication.class.getSimpleName() + " starting...");
-
+		/*
 		// Check arguments
 		if (args.length < 2) {
 			System.err.println("Argument(s) missing!");
@@ -35,20 +33,7 @@ public class TransporterClientApplication {
 
 		System.out.println(args[1]);
 		Collection<String> wsUrls = uddiNaming.list(name+"%");
-
-		for(String wsEndpoint : wsUrls){
-			TransporterService ts = new TransporterService();
-			TransporterPortType port = ts.getTransporterPort();
-			_ports.add(port);
-		}
-
-		Object[] ws = wsUrls.toArray();
-		for(int i = 0; i < wsUrls.size(); i++){
-			System.out.println("Setting endpoint address ..." + ws[i]);
-			BindingProvider bindingProvider = (BindingProvider) _ports.get(i);
-			Map<String, Object> requestContext = bindingProvider.getRequestContext();
-			requestContext.put(ENDPOINT_ADDRESS_PROPERTY, ws[i]);
-		}
+		*/
 
 	}
 }
