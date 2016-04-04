@@ -68,9 +68,13 @@ public class TransporterPort implements TransporterPortType {
                 }
                 return jv;
             }
-            throw new BadPriceFault_Exception("Prices can't be negative", new BadPriceFault());
+            BadPriceFault bf = new BadPriceFault();
+            bf.setPrice(price);
+            throw new BadPriceFault_Exception("Prices can't be negative", bf);
         }
-        throw new BadLocationFault_Exception("Invalidas rotas" + origin + " " + destination, new BadLocationFault());
+        BadLocationFault blf = new BadLocationFault();
+        blf.setLocation(origin + " " + destination);
+        throw new BadLocationFault_Exception("Invalidas rotas" + origin + " " + destination, blf);
     }
 
     private int makeOffer(int price){

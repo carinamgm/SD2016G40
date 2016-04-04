@@ -28,19 +28,16 @@ public class TransporterClient {
         }
     }
 
-    public ArrayList<JobView> requestJob(String origin, String destination, int price) throws BadPriceFault_Exception {
+    public ArrayList<JobView> requestJob(String origin, String destination, int price) throws BadPriceFault_Exception, BadLocationFault_Exception {
         ArrayList<JobView> proposals = new ArrayList<JobView>();
         JobView jv = null;
 
         for (TransporterPortType tp : _ports) {
-            try {
-                jv = tp.requestJob(origin, destination, price);
-            } catch (BadLocationFault_Exception e) {
-            } finally {
-                if (jv != null)
+            jv = tp.requestJob(origin, destination, price);
+            if (jv != null)
                     proposals.add(jv);
             }
-        }
+
         return proposals.size() == 0 ? null : proposals;
     }
 
