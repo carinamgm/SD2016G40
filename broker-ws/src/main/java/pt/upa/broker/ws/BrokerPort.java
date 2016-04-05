@@ -1,6 +1,7 @@
 package pt.upa.broker.ws;
 
 
+
 import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.BadLocationFault_Exception;
 import pt.upa.transporter.ws.BadPriceFault_Exception;
