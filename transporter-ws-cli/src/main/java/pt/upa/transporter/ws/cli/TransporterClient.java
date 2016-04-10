@@ -43,7 +43,7 @@ public class TransporterClient {
         return proposals.size() == 0 ? null : proposals;
     }
 
-    public JobView decideJob(String id, boolean accept) throws BadJobFault_Exception{
+    public void decideJob(String id, boolean accept) throws BadJobFault_Exception{
         JobView jv = null;
 
         for(TransporterPortType tp : _ports){
@@ -62,7 +62,6 @@ public class TransporterClient {
         Timer t = new Timer();
         t.schedule(new ChangeState(jv),generateRandomLong());
 
-        return jv;
     }
 
     public ArrayList<JobView> getTracking(){
@@ -80,14 +79,14 @@ public class TransporterClient {
         Random random = new Random();
         return  1 + (long)(random.nextDouble()*(5 - 1));
     }
-    
+
     public JobView viewState(String id){
         for(JobView jv : _tracking)
             if(jv.getJobIdentifier() == id)
                 return jv;
         return null;
     }
-    
+
     public void clearTransports(){
         for(TransporterPortType tp :_ports)
             tp.clearJobs();
