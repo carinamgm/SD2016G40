@@ -45,6 +45,10 @@ public class TransporterPort implements TransporterPortType {
             for(int j = 0; j < regions[i].length; j++)
                 _regions.add(regions[i][j]);
     }
+    
+    public int getTransporterNumber(){
+    	return _transporterNumber;
+    }
 
     public String getCompanyName(){
         return _companyName;
