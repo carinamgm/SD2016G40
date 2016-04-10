@@ -23,8 +23,6 @@ import javax.jws.WebService;
 )
 public class BrokerPort implements BrokerPortType {
 	
-	//private final ArrayList<String> _regions = new ArrayList<String>();
-
 	private ArrayList<TransportView> _tvs = new ArrayList<TransportView>();
     private TransporterClient _tca;
 
@@ -60,63 +58,55 @@ public class BrokerPort implements BrokerPortType {
      * @throws UnavailableTransportFault_Exception
      */
     @Override
-    public String requestTransport(String origin, String destination, int price) throws UnknownLocationFault_Exception, InvalidPriceFault_Exception, UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception{
-        String output = "";
+    public String requestTransport(String origin, String destination, int price) throws UnknownLocationFault_Exception, InvalidPriceFault_Exception, UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception {
         ArrayList<JobView> proposals = null;
         TransportView tv = new TransportView();
-        JobView jv = null;
-        
-        //INITIALIZE TRANSPORTVIEW
+        JobView chosenJobView = null;
+          
         tv.setState(TransportStateView.REQUESTED);
-        tv.setDestination(destination);
-        tv.setOrigin(origin);
+		tv.setOrigin(origin);
+		tv.setDestination(destination);
         
         try{
             proposals = _tca.requestJob(origin,destination,price);
         }
         catch(BadPriceFault_Exception e){
-        	//tv.setState(TransportStateView.FAILED);
             InvalidPriceFault ipf = new InvalidPriceFault();
             ipf.setPrice(e.getFaultInfo().getPrice());
             throw new InvalidPriceFault_Exception(e.getMessage(),ipf);
         }
         catch(BadLocationFault_Exception e){
-        	//tv.setState(TransportStateView.FAILED);
             throw new UnknownLocationFault_Exception("Origin and destination can't be resolved",new UnknownLocationFault());
         }
         
         
         if(proposals == null){
-        	//tv.setState(TransportStateView.FAILED);
         	throw new UnavailableTransportFault_Exception("There are no transports available", new UnavailableTransportFault());
         }
         
         tv.setState(TransportStateView.BUDGETED);
-        jv = searchBestOffer(proposals);
+        chosenJobView = searchBestOffer(proposals);
         
-        if(jv.getJobPrice() <= price){
-        	tv.setPrice(jv.getJobPrice());
-        	tv.setDestination(jv.getCompanyName());
-        	tv.setId(jv.getJobIdentifier());
-        	_tvs.add(tv);
-        	
+        tv.setPrice(chosenJobView.getJobPrice());
+    	tv.setTransporterCompany(chosenJobView.getCompanyName());
+    	tv.setId(chosenJobView.getJobIdentifier());
+    	_tvs.add(tv);
+    	
+        if(chosenJobView.getJobPrice() <= price){
         	try {
-				jv = _tca.decideJob(jv.getJobIdentifier(), true);
+				chosenJobView = _tca.decideJob(chosenJobView.getJobIdentifier(), true);
 			} catch (BadJobFault_Exception e) {
-				output = "Unsuccessful";
-			} finally { 
-        		
-        	}
+				tv.setState(TransportStateView.FAILED);
+			}
+        	tv.setState(TransportStateView.BOOKED);
         }
         
         else{
         	tv.setState(TransportStateView.FAILED);
         	throw new UnavailableTransportPriceFault_Exception("There are no transports available for that price", new UnavailableTransportPriceFault());
         }
-        
-        output = "Success"; //FIXME don't know what to write lolz
-
-        return output;
+       
+        return tv.getId();
     }
     
 
@@ -145,10 +135,38 @@ public class BrokerPort implements BrokerPortType {
      */
     @Override
     public TransportView viewTransport(String id) throws UnknownTransportFault_Exception{
-        return null;
+        JobView jv = new JobView();
+    	for(TransportView tv : _tvs){
+        	if(tv.getId() == id)
+        		jv = _tca.viewState(id);
+        		switch (jv.getJobState()) {
+	        		
+        			case PROPOSED:
+	        			tv.setState(TransportStateView.BUDGETED);
+	        			break;
+	        		case ACCEPTED:
+	        			tv.setState(TransportStateView.BOOKED);
+	        			break;
+	        		case REJECTED:
+	        			tv.setState(TransportStateView.FAILED);
+	        			break;
+	        		case HEADING:
+	        			tv.setState(TransportStateView.HEADING);
+	        			break;
+	        		case ONGOING:
+	        			tv.setState(TransportStateView.ONGOING);
+	        			break;
+	        		case COMPLETED:
+	        			tv.setState(TransportStateView.COMPLETED);
+	        			break;
+        		}
+        		
+        		return tv;
+        }
+        throw new UnknownTransportFault_Exception(id, new UnknownTransportFault());
     }
-
-
+    
+    
     /**
      *
      * @return
@@ -158,9 +176,8 @@ public class BrokerPort implements BrokerPortType {
     public List<TransportView> listTransports() {
         List<TransportView> lista = new ArrayList<TransportView>();
         for (int i = 0;i < _tvs.size(); i++){
-        //	lista.add(_tvs.get(i).getState());
-        }
-        
+        	lista.add(_tvs.get(i));
+        }   
         return lista;
     }
 
@@ -171,7 +188,8 @@ public class BrokerPort implements BrokerPortType {
     @Override
     public void clearTransports(){
     	_tvs.clear();
-    	//TODO ask transporter to clean all my data
+    	_tca.clearAllBrokerData();
+    	//FIXEME
     }
 
 }

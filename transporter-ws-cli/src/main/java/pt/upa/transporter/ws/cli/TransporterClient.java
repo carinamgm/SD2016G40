@@ -78,5 +78,13 @@ public class TransporterClient {
         Random random = new Random();
         return  1 + (long)(random.nextDouble()*(5 - 1));
     }
+    
+    public JobView viewState(String id){
+    	return null;
+    }
+    
+    public void clearAllBrokerData(){
+    	//FIXME
+    }
 
 }
