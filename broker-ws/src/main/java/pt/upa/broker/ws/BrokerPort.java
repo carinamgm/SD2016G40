@@ -32,31 +32,11 @@ public class BrokerPort implements BrokerPortType {
         _tca = tca;
     }
 
-
-    /**
-     *
-     * @param message
-     * @return
-     *     returns java.lang.String
-     */
     @Override
 	public String ping(String message){
         return message;
     }
 
-
-    /**
-     *
-     * @param price
-     * @param origin
-     * @param destination
-     * @return
-     *     returns java.lang.String
-     * @throws UnknownLocationFault_Exception
-     * @throws InvalidPriceFault_Exception
-     * @throws UnavailableTransportPriceFault_Exception
-     * @throws UnavailableTransportFault_Exception
-     */
     @Override
     public String requestTransport(String origin, String destination, int price) throws UnknownLocationFault_Exception, InvalidPriceFault_Exception, UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception {
         ArrayList<JobView> proposals = null;
@@ -76,12 +56,16 @@ public class BrokerPort implements BrokerPortType {
             throw new InvalidPriceFault_Exception(e.getMessage(),ipf);
         }
         catch(BadLocationFault_Exception e){
-            throw new UnknownLocationFault_Exception("Origin and destination can't be resolved",new UnknownLocationFault());
+            UnknownLocationFault ulf = new UnknownLocationFault();
+            ulf.setLocation(e.getFaultInfo().getLocation());
+            throw new UnknownLocationFault_Exception(e.getMessage(),ulf);
         }
         
-        
         if(proposals == null){
-        	throw new UnavailableTransportFault_Exception("There are no transports available", new UnavailableTransportFault());
+            UnavailableTransportFault utf = new UnavailableTransportFault();
+            utf.setDestination(destination);
+            utf.setOrigin(origin);
+        	throw new UnavailableTransportFault_Exception("There are no transports available", utf);
         }
         
         tv.setState(TransportStateView.BUDGETED);
@@ -94,16 +78,17 @@ public class BrokerPort implements BrokerPortType {
     	
         if(chosenJobView.getJobPrice() <= price){
         	try {
-				chosenJobView = _tca.decideJob(chosenJobView.getJobIdentifier(), true);
+				_tca.decideJob(chosenJobView.getJobIdentifier(), true);
 			} catch (BadJobFault_Exception e) {
 				tv.setState(TransportStateView.FAILED);
 			}
         	tv.setState(TransportStateView.BOOKED);
         }
-        
         else{
         	tv.setState(TransportStateView.FAILED);
-        	throw new UnavailableTransportPriceFault_Exception("There are no transports available for that price", new UnavailableTransportPriceFault());
+            UnavailableTransportPriceFault utp = new UnavailableTransportPriceFault();
+            utp.setBestPriceFound(price);
+        	throw new UnavailableTransportPriceFault_Exception("There are no transports available for that price", utp);
         }
        
         return tv.getId();
@@ -125,71 +110,53 @@ public class BrokerPort implements BrokerPortType {
         return jvbo;
     }
 
-
-    /**
-     *
-     * @param id
-     * @return
-     *     returns pt.upa.broker.ws.TransportView
-     * @throws UnknownTransportFault_Exception
-     */
     @Override
     public TransportView viewTransport(String id) throws UnknownTransportFault_Exception{
-        JobView jv = new JobView();
+        UnknownTransportFault utf = new UnknownTransportFault();
+        utf.setId(id);
+
+        JobView jv = null;
     	for(TransportView tv : _tvs){
-        	if(tv.getId() == id)
+        	if(tv.getId() == id){
         		jv = _tca.viewState(id);
-        		switch (jv.getJobState()) {
-	        		
-        			case PROPOSED:
-	        			tv.setState(TransportStateView.BUDGETED);
-	        			break;
-	        		case ACCEPTED:
-	        			tv.setState(TransportStateView.BOOKED);
-	        			break;
-	        		case REJECTED:
-	        			tv.setState(TransportStateView.FAILED);
-	        			break;
-	        		case HEADING:
-	        			tv.setState(TransportStateView.HEADING);
-	        			break;
-	        		case ONGOING:
-	        			tv.setState(TransportStateView.ONGOING);
-	        			break;
-	        		case COMPLETED:
-	        			tv.setState(TransportStateView.COMPLETED);
-	        			break;
-        		}
-        		
-        		return tv;
+                if(jv != null) {
+                    switch (jv.getJobState()) {
+                        case PROPOSED:
+                            tv.setState(TransportStateView.BUDGETED);
+                            break;
+                        case ACCEPTED:
+                            tv.setState(TransportStateView.BOOKED);
+                            break;
+                        case REJECTED:
+                            tv.setState(TransportStateView.FAILED);
+                            break;
+                        case HEADING:
+                            tv.setState(TransportStateView.HEADING);
+                            break;
+                        case ONGOING:
+                            tv.setState(TransportStateView.ONGOING);
+                            break;
+                        case COMPLETED:
+                            tv.setState(TransportStateView.COMPLETED);
+                            break;
+                    }
+                    return tv;
+                }
+                throw new UnknownTransportFault_Exception(id, utf);
+            }
         }
-        throw new UnknownTransportFault_Exception(id, new UnknownTransportFault());
+        throw new UnknownTransportFault_Exception(id, utf);
     }
-    
-    
-    /**
-     *
-     * @return
-     *     returns java.util.List<pt.upa.broker.ws.TransportView>
-     */
+
     @Override
     public List<TransportView> listTransports() {
-        List<TransportView> lista = new ArrayList<TransportView>();
-        for (int i = 0;i < _tvs.size(); i++){
-        	lista.add(_tvs.get(i));
-        }   
-        return lista;
+        return _tvs;
     }
 
-
-    /**
-     *
-     */
     @Override
     public void clearTransports(){
     	_tvs.clear();
     	_tca.clearTransports();
-    	//FIXEME
     }
 
 }
