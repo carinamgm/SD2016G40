@@ -26,7 +26,12 @@ public class RequestJobTest {
 
     @Before
     public void setUp() {
-    	tp = new TransporterPort();
+    	
+    	String[][] regions = {{"Porto", "Braga", "Viana do Castelo", "Vila Real", "Bragança"},
+    			{"Lisboa","Leiria", "Santarém", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"},
+    			{"Setúbal", "Évora", "Portalegre", "Beja", "Faro"}};
+    	
+    	tp = new TransporterPort(regions, "UpaTransporter2");
     }
 
     @After
@@ -63,7 +68,7 @@ public class RequestJobTest {
     @Test
     public void successCenter() throws BadPriceFault_Exception, BadLocationFault_Exception {
     	JobView jv = new JobView();
-    	jv.setCompanyName("UpaTransporter14");
+    	jv.setCompanyName("UpaTransporter2");
     	jv.setJobDestination("Lisboa");
     	jv.setJobOrigin("Santarém");
     	jv.setJobState(JobStateView.PROPOSED);
