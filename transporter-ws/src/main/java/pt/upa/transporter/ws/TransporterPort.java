@@ -17,10 +17,10 @@ import java.util.*;
 public class TransporterPort implements TransporterPortType {
 
     private final ArrayList<String> _regions = new ArrayList<String>();
+    private ArrayList<JobView> _jobsList = new ArrayList<JobView>();
+    private final String _defaultName = "UpaTransporter";
     private int _transporterNumber;
     private String _companyName;
-    private ArrayList<JobView> _jobsList = new ArrayList<JobView>();
-    private int _identifier = 0;
 
     public TransporterPort(){
     }
@@ -31,7 +31,7 @@ public class TransporterPort implements TransporterPortType {
     }
 
     private void init(String[][] regions){
-        String defaultName = "UpaTransporter";
+        String defaultName = _defaultName;
         _transporterNumber = Integer.parseInt(_companyName.substring(defaultName.length()));
 
         if(_transporterNumber % 2 == 0)
@@ -44,6 +44,10 @@ public class TransporterPort implements TransporterPortType {
         for(int i = begin; i < limit; i++)
             for(int j = 0; j < regions[i].length; j++)
                 _regions.add(regions[i][j]);
+    }
+
+    public String getCompanyName(){
+        return _companyName;
     }
 
     @Override
@@ -63,7 +67,6 @@ public class TransporterPort implements TransporterPortType {
                     jv.setJobDestination(destination);
                     jv.setJobOrigin(origin);
                     jv.setJobPrice(priceOffer);
-                    jv.setJobIdentifier(generateId());
                     _jobsList.add(jv);
                 }
                 return jv;
@@ -107,7 +110,9 @@ public class TransporterPort implements TransporterPortType {
                 return jv;
             }
         }
-        throw new BadJobFault_Exception("Não existe tal trabalho", new BadJobFault());
+        BadJobFault bjf = new BadJobFault();
+        bjf.setId(id);
+        throw new BadJobFault_Exception("Não existe tal trabalho", bjf);
     }
 
     @Override
@@ -129,10 +134,5 @@ public class TransporterPort implements TransporterPortType {
         _jobsList.clear();
     }
 
-    private String generateId(){
-        int toGive = _identifier;
-        _identifier++;
-        return String.valueOf(toGive);
-    }
 
 }

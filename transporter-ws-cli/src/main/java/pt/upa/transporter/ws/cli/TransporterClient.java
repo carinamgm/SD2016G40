@@ -11,6 +11,7 @@ public class TransporterClient {
 
     private ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();
     private ArrayList<JobView> _tracking = new ArrayList<JobView>();
+    private int _identifier = 0;
 
 	public TransporterClient(Collection<String> wsUrls){
         for(String wsEndpoint : wsUrls){
@@ -21,22 +22,23 @@ public class TransporterClient {
 
         Object[] ws = wsUrls.toArray();
         for(int i = 0; i < wsUrls.size(); i++){
-            //System.out.println("Setting endpoint address ..." + ws[i]);
             BindingProvider bindingProvider = (BindingProvider) _ports.get(i);
             Map<String, Object> requestContext = bindingProvider.getRequestContext();
             requestContext.put(ENDPOINT_ADDRESS_PROPERTY, ws[i]);
         }
     }
 
-    public ArrayList<JobView> requestJob(String origin, String destination, int price) throws BadPriceFault_Exception, BadLocationFault_Exception {
+    public ArrayList<JobView> requestJob(String origin, String destination, int price) throws BadPriceFault_Exception, BadLocationFault_Exception{
         ArrayList<JobView> proposals = new ArrayList<JobView>();
         JobView jv = null;
 
         for (TransporterPortType tp : _ports) {
             jv = tp.requestJob(origin, destination, price);
-            if (jv != null)
-                    proposals.add(jv);
+            if (jv != null) {
+                jv.setJobIdentifier(generateId());
+                proposals.add(jv);
             }
+        }
 
         return proposals.size() == 0 ? null : proposals;
     }
@@ -80,11 +82,22 @@ public class TransporterClient {
     }
     
     public JobView viewState(String id){
-    	return null;
+        for(JobView jv : _tracking)
+            if(jv.getJobIdentifier() == id)
+                return jv;
+        return null;
     }
     
-    public void clearAllBrokerData(){
-    	//FIXME
+    public void clearTransports(){
+        for(TransporterPortType tp :_ports)
+            tp.clearJobs();
+        _tracking.clear();
+    }
+
+    private String generateId(){
+        int toGive = _identifier;
+        _identifier++;
+        return String.valueOf(toGive);
     }
 
 }

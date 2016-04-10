@@ -41,7 +41,7 @@ public class BrokerPort implements BrokerPortType {
      */
     @Override
 	public String ping(String message){
-        return _tca.ping(message);
+        return message;
     }
 
 
@@ -188,7 +188,7 @@ public class BrokerPort implements BrokerPortType {
     @Override
     public void clearTransports(){
     	_tvs.clear();
-    	_tca.clearAllBrokerData();
+    	_tca.clearTransports();
     	//FIXEME
     }
 
