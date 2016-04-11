@@ -21,6 +21,7 @@ public class TransporterPort implements TransporterPortType {
     private final String _defaultName = "UpaTransporter";
     private int _transporterNumber;
     private String _companyName;
+    private int _identifier = 0;
 
     public TransporterPort(){
     }
@@ -75,6 +76,7 @@ public class TransporterPort implements TransporterPortType {
                     jv.setJobDestination(destination);
                     jv.setJobOrigin(origin);
                     jv.setJobPrice(priceOffer);
+                    jv.setJobIdentifier(generateId());
                     _jobsList.add(jv);
                 }
                 return jv;
@@ -146,5 +148,11 @@ public class TransporterPort implements TransporterPortType {
         _jobsList.clear();
     }
 
+
+    private String generateId(){
+        int toGive = _identifier;
+        _identifier++;
+        return String.valueOf(toGive);
+    }
 
 }

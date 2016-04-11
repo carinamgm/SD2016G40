@@ -69,7 +69,6 @@ public class RequestJobTest {
     
     @Test
     public void pSuccessCenter() throws BadPriceFault_Exception, BadLocationFault_Exception {
-        // Id's are set in Transporter Client, so to test this we need to set the identifier
         JobView toCompare = tpp.requestJob("Santarém", "Lisboa", 0);
 
         // We can't compair objects because they will be different
@@ -78,6 +77,7 @@ public class RequestJobTest {
         assertEquals("Santarém",toCompare.getJobOrigin());
         assertEquals(JobStateView.PROPOSED,toCompare.getJobState());
         assertEquals(0,toCompare.getJobPrice());
+        assertEquals("0",toCompare.getJobIdentifier());
     }
 
     @Test
@@ -127,7 +127,6 @@ public class RequestJobTest {
 
     @Test
     public void iSuccessCenter() throws BadPriceFault_Exception, BadLocationFault_Exception {
-        // Id's are set in Transporter Client, so to test this we need to set the identifier
         JobView toCompare = tpi.requestJob("Coimbra", "Aveiro", 0);
 
         // We can't compair objects because they will be different
@@ -136,6 +135,7 @@ public class RequestJobTest {
         assertEquals("Coimbra",toCompare.getJobOrigin());
         assertEquals(JobStateView.PROPOSED,toCompare.getJobState());
         assertEquals(0,toCompare.getJobPrice());
+        assertEquals("0",toCompare.getJobIdentifier());
     }
 
     @Test
