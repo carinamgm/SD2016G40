@@ -117,7 +117,7 @@ public class BrokerPort implements BrokerPortType {
         JobView jv = null;
     	for(TransportView tv : _tvs){
         	if(tv.getId() == id){
-        		jv = _tca.viewState(id);
+        		jv = _tca.jobStatus(id);
                 if(jv != null) {
                     switch (jv.getJobState()) {
                         case PROPOSED:

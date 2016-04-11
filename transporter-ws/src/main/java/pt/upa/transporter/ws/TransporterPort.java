@@ -17,7 +17,7 @@ import java.util.Random;
 public class TransporterPort implements TransporterPortType {
 
     private final ArrayList<String> _regions = new ArrayList<String>();
-    private ArrayList<JobView> _jobsList = new ArrayList<JobView>();
+    private List<JobView> _jobsList = new ArrayList<JobView>();
     private final String _defaultName = "UpaTransporter";
     private int _transporterNumber;
     private String _companyName;
@@ -60,7 +60,7 @@ public class TransporterPort implements TransporterPortType {
 
     @Override
     public String ping(String message){
-        return _companyName + " " + "ping result: " + message;
+        return _companyName + ": " + message;
     }
 
     @Override
@@ -130,7 +130,7 @@ public class TransporterPort implements TransporterPortType {
     @Override
     public JobView jobStatus(String id){
         for(JobView jv : _jobsList){
-            if(id == jv.getJobIdentifier())
+            if(jv.getJobIdentifier().equals(id))
                 return jv;
         }
         return null;

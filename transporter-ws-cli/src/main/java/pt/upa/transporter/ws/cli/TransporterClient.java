@@ -28,8 +28,12 @@ public class TransporterClient {
         }
     }
 
-    public ArrayList<JobView> requestJob(String origin, String destination, int price) throws BadPriceFault_Exception, BadLocationFault_Exception{
-        ArrayList<JobView> proposals = new ArrayList<JobView>();
+    public ArrayList<TransporterPortType> getPorts(){
+        return _ports;
+    }
+
+    public List<JobView> requestJob(String origin, String destination, int price) throws BadPriceFault_Exception, BadLocationFault_Exception{
+        List<JobView> proposals = new ArrayList<JobView>();
         JobView jv = null;
 
         for (TransporterPortType tp : _ports) {
@@ -80,11 +84,14 @@ public class TransporterClient {
         return  1 + (long)(random.nextDouble()*(5 - 1));
     }
 
-    public JobView viewState(String id){
-        for(JobView jv : _tracking)
-            if(jv.getJobIdentifier() == id)
+    public JobView jobStatus(String id){
+        JobView jv = null;
+        for(TransporterPortType tp : _ports) {
+            jv = tp.jobStatus(id);
+            if (jv != null)
                 return jv;
-        return null;
+        }
+        return jv;
     }
 
     public void clearTransports(){
