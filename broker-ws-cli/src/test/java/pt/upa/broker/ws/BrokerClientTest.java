@@ -23,7 +23,7 @@ public class BrokerClientTest {
     }
 
 
-    // members
+    // memberstest
 
 
     // initialization and clean-up for each test

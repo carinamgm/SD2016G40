@@ -4,7 +4,6 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.transporter.ws.TransporterPort;
 
 import javax.xml.ws.Endpoint;
-import java.util.Random;
 
 public class TransporterApplication {
 

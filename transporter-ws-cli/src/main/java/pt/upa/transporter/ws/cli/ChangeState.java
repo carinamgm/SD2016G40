@@ -4,8 +4,8 @@ import pt.upa.transporter.ws.JobStateView;
 import pt.upa.transporter.ws.JobView;
 
 import java.util.Random;
-import java.util.TimerTask;
 import java.util.Timer;
+import java.util.TimerTask;
 
 public class ChangeState extends TimerTask {
 

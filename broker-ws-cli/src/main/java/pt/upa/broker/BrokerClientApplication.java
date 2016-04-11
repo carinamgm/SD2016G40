@@ -11,6 +11,9 @@ import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
 public class BrokerClientApplication {
 
+    private static BrokerClient _bc;
+    private static String _endpointAddress;
+
 	public static void main(String[] args) throws Exception {
 
 		// Check arguments
@@ -20,9 +23,12 @@ public class BrokerClientApplication {
 			return;
 		}
 
-        String endpointAddress = args[0];
+        _endpointAddress = args[0];
+        setup();
+	}
 
-        System.out.println("EndPointAddress: " + endpointAddress);
+    public static void setup(){
+        System.out.println("EndPointAddress: " + _endpointAddress);
 
         System.out.println("Creating stub ...");
         BrokerService service = new BrokerService();
@@ -31,13 +37,9 @@ public class BrokerClientApplication {
         System.out.println("Setting endpoint address ...");
         BindingProvider bindingProvider = (BindingProvider) port;
         Map<String, Object> requestContext = bindingProvider.getRequestContext();
-        requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
+        requestContext.put(ENDPOINT_ADDRESS_PROPERTY, _endpointAddress);
 
-        BrokerClient bc = new BrokerClient(port);
-
-        System.out.println(bc.ping("TestPing"));
-
-
-	}
+        _bc = new BrokerClient(port);
+    }
 
 }

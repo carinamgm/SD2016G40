@@ -1,13 +1,13 @@
 package pt.upa.transporter.ws;
 
 import org.junit.*;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 
 
 public class DecideJobTest {
 
     // static members
-
 
     // one-time initialization and clean-up
 
@@ -20,7 +20,6 @@ public class DecideJobTest {
     public static void oneTimeTearDown() {
 
     }
-
 
     // members
     private TransporterPort tp;
@@ -41,7 +40,6 @@ public class DecideJobTest {
     	tp.clearJobs();
     	tp = null;
     }
-
 
     // tests
 
