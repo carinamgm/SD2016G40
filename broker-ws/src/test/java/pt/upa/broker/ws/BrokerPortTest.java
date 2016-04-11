@@ -48,7 +48,7 @@ public class BrokerPortTest {
     public void tearDown() {
     	
     }
-*/
+
 
     // tests
 
@@ -64,11 +64,11 @@ public class BrokerPortTest {
     //	transporter = new TransporterPortType("Lisboa, Castelo Branco", "UpaTransporte1");
     	ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();
     	Collection<String> wsUrls;
-    /*	UpaTransporter1;
+	UpaTransporter1;
     	UpaTransporter2;
     	transport;
     	wsUrls.add();
-    */	
+	
     	BrokerPort broker = new BrokerPort(transClient);
     	
     	// Getting a NullPointerException
@@ -171,7 +171,7 @@ public class BrokerPortTest {
     	
     }
     
-/*    @Test
+    @Test
     public void clearAllData() {
     
        	ArrayList<TransportView> _tvs = new ArrayList<TransportView>();
