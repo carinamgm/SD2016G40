@@ -8,7 +8,6 @@ public class DecideJobTest {
 
     // static members
 
-
     // one-time initialization and clean-up
 
     @BeforeClass
@@ -20,7 +19,6 @@ public class DecideJobTest {
     public static void oneTimeTearDown() {
 
     }
-
 
     // members
     private TransporterPort tp;
@@ -41,7 +39,6 @@ public class DecideJobTest {
     	tp.clearJobs();
     	tp = null;
     }
-
 
     // tests
 
