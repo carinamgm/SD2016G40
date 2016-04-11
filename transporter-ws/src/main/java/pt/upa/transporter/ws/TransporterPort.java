@@ -54,6 +54,10 @@ public class TransporterPort implements TransporterPortType {
         return _companyName;
     }
 
+    public ArrayList<String> getRegions(){
+        return  _regions;
+    }
+
     @Override
     public String ping(String message){
         return _companyName + " " + "ping result: " + message;
@@ -75,13 +79,17 @@ public class TransporterPort implements TransporterPortType {
                 }
                 return jv;
             }
-            BadPriceFault bf = new BadPriceFault();
-            bf.setPrice(price);
-            throw new BadPriceFault_Exception("Prices can't be negative", bf);
+            else {
+                BadPriceFault bf = new BadPriceFault();
+                bf.setPrice(price);
+                throw new BadPriceFault_Exception("Prices can't be negative", bf);
+            }
         }
-        BadLocationFault blf = new BadLocationFault();
-        blf.setLocation(origin + " " + destination);
-        throw new BadLocationFault_Exception("Invalidas rotas" + origin + " " + destination, blf);
+        else {
+            BadLocationFault blf = new BadLocationFault();
+            blf.setLocation(origin + " " + destination);
+            throw new BadLocationFault_Exception("Invalidas rotas" + origin + " " + destination, blf);
+        }
     }
 
     private int makeOffer(int price){
