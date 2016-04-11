@@ -44,7 +44,7 @@ public class ListTransportsIT {
     @Test
     public void successfullTransportView() {
     	//List<TransportView> result = new List<TransportView>;
-    	ArrayList<TransportView> result = new ArrayList<TransportView>();
+    //	ArrayList<TransportView> result = new ArrayList<TransportView>();
     	
     	//result = _broker.listTransports();
     }

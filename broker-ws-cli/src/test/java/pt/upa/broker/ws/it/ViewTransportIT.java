@@ -32,10 +32,10 @@ public class ViewTransportIT {
     @AfterClass
     public static void oneTimeTearDown() {
 
-    	_broker = null;
+    //	_broker = null;
     }
 
-
+/*
     // members
     // initialization and clean-up for each test
     @Before
@@ -76,5 +76,5 @@ public class ViewTransportIT {
     	
     	_broker.viewTransport("&$&/(%=");
     }
-    
+*/ 
 }

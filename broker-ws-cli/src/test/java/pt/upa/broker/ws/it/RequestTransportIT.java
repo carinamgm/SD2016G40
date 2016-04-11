@@ -23,7 +23,7 @@ public class RequestTransportIT {
 
     @AfterClass
     public static void oneTimeTearDown() {
-    	_broker = null;
+    //	_broker = null;
     }
 
     // members
@@ -38,7 +38,7 @@ public class RequestTransportIT {
 
 
     // tests
-
+/*
     @Test
     public void successfullyRequestTransport() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
     		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
@@ -71,6 +71,6 @@ public class RequestTransportIT {
     	
     	_broker.requestTransport("Porto", null, 50);
     }
-
+*/
     
 }
