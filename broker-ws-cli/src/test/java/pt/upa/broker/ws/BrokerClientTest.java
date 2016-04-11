@@ -1,18 +1,14 @@
-package pt.upa.broker.ws.it;
+package pt.upa.broker.ws;
 
 import org.junit.*;
 import static org.junit.Assert.*;
+import mockit.*;
 
-/**
- *  Integration Test example
- *  
- *  Invoked by Maven in the "verify" life-cycle phase
- *  Should invoke "live" remote servers 
- */
-public class ExampleIT {
 
+public class BrokerClientTest {
+
+	//IS THIS EVEN NEEDED????
     // static members
-
 
     // one-time initialization and clean-up
 

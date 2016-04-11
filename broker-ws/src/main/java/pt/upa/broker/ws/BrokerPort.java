@@ -42,11 +42,11 @@ public class BrokerPort implements BrokerPortType {
         ArrayList<JobView> proposals = null;
         TransportView tv = new TransportView();
         JobView chosenJobView = null;
-          
+
         tv.setState(TransportStateView.REQUESTED);
 		tv.setOrigin(origin);
 		tv.setDestination(destination);
-        
+		
         try{
             proposals = _tca.requestJob(origin,destination,price);
         }
@@ -74,6 +74,7 @@ public class BrokerPort implements BrokerPortType {
         tv.setPrice(chosenJobView.getJobPrice());
     	tv.setTransporterCompany(chosenJobView.getCompanyName());
     	tv.setId(chosenJobView.getJobIdentifier());
+
     	_tvs.add(tv);
     	
         if(chosenJobView.getJobPrice() <= price){
@@ -148,6 +149,7 @@ public class BrokerPort implements BrokerPortType {
         throw new UnknownTransportFault_Exception(id, utf);
     }
 
+    //FIXME? List or ArrayList???
     @Override
     public List<TransportView> listTransports() {
         return _tvs;

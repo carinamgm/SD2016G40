@@ -1,21 +1,16 @@
-package pt.upa.broker.ws;
+package pt.upa.broker.ws.it;
 
 import org.junit.*;
 import static org.junit.Assert.*;
 
-/**
- *  Unit Test example
- *  
- *  Invoked by Maven in the "test" life-cycle phase
- *  If necessary, should invoke "mock" remote servers 
- */
-public class ExampleTest {
+
+
+public class BrokerPortIT {
 
     // static members
 
-
+	
     // one-time initialization and clean-up
-
     @BeforeClass
     public static void oneTimeSetUp() {
 
@@ -26,12 +21,8 @@ public class ExampleTest {
 
     }
 
-
     // members
-
-
     // initialization and clean-up for each test
-
     @Before
     public void setUp() {
     }
@@ -44,10 +35,11 @@ public class ExampleTest {
     // tests
 
     @Test
-    public void test() {
+    public void successfullBrokerPort() {
 
-        // assertEquals(expected, actual);
-        // if the assert fails, the test fails
+    	// This??? This IT needs to be done???
+    	// _broket = new BrokerPort();
+
     }
 
 }
