@@ -1,17 +1,15 @@
 package pt.upa.broker.ws;
 
 
-
 import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.BadLocationFault_Exception;
 import pt.upa.transporter.ws.BadPriceFault_Exception;
 import pt.upa.transporter.ws.JobView;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
+import javax.jws.WebService;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.jws.WebService;
 
 @WebService(
         endpointInterface="pt.upa.broker.ws.BrokerPortType",

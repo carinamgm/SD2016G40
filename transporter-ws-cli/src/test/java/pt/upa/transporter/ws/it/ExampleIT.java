@@ -1,7 +1,6 @@
 package pt.upa.transporter.ws.it;
 
 import org.junit.*;
-import static org.junit.Assert.*;
 
 /**
  *  Integration Test example

@@ -1,9 +1,9 @@
 package pt.upa.transporter.ws;
 
-import jdk.nashorn.internal.scripts.JO;
-
 import javax.jws.WebService;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 
 @WebService(
