@@ -2,58 +2,44 @@ package pt.upa.transporter.ws.it;
 
 import org.junit.*;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-import static org.junit.Assert.assertEquals;
-
+import pt.upa.transporter.TransporterClientApplication;
 import pt.upa.transporter.ws.*;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 public class RequestJobIT{
     // static members
-    private static final String _uddiURL= "http://localhost:9090";
-    private static final String _serviceName = "UpaTransporter";
-    private static TransporterClient _tc;
-    private static ArrayList<String> _transporterNames = new ArrayList<String>();
+    private static TransporterClientApplication _tc;
 
     // one-time initialization and clean-up
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        UDDINaming uddi = null;
-        try {
-            uddi = new UDDINaming(_uddiURL);
-            Collection<String> wsUrls = uddi.list(_serviceName + "%");
-            for(String s : wsUrls){
-                String aux = s.substring(s.lastIndexOf(":"));
-                _transporterNames.add(_serviceName + aux.substring(4,aux.indexOf('/')));
-            }
-            _tc = new TransporterClient(wsUrls);
-
-        } catch (Exception e) {
-            System.out.printf("Caught exception: %s%n", e);
-            e.printStackTrace();
-        }
     }
 
     @AfterClass
     public static void oneTimeTearDown() {
-        _tc = null;
     }
 
     // members
-
 
     // initialization and clean-up for each test
 
     @Before
     public void setUp() {
+        _tc = new TransporterClientApplication();
+        _tc.setup();
     }
 
     @After
     public void tearDown() {
-        _tc.clearTransports();
+        _tc.clean();
+        _tc = null;
     }
 
 
@@ -61,22 +47,54 @@ public class RequestJobIT{
 
     @Test
     public void sucess() throws BadPriceFault_Exception, BadLocationFault_Exception {
-        /*
-        ArrayList<JobView> proposals = _tc.requestJob("Lisboa","Coimbra",0);
-        for(JobView jv :proposals)
-            System.out.println(jv.getJobOrigin());
+        _tc.getTransporterClient().requestJob("Lisboa","Coimbra",0);
 
-
-        /System.out.println("ssssssssssssssssssssssssssssss");
-
-
-        JobView result = _tc.jobStatus("0");
-        System.out.println(result.getJobOrigin());
-
-        System.out.println("ssssssssssssssssssssssssssssss");*/
-
-
-
+        int i = 0;
+        for(TransporterPortType tp : _tc.getTransporterClient().getPorts()){
+            JobView jv = tp.jobStatus("0");
+            assertEquals("0",jv.getJobIdentifier());
+            assertEquals(0,jv.getJobPrice());
+            assertEquals("Lisboa",jv.getJobOrigin());
+            assertEquals("Coimbra",jv.getJobDestination());
+            assertEquals(_tc.getTransporterNames().get(i),jv.getCompanyName());
+            assertEquals(JobStateView.PROPOSED,jv.getJobState());
+            i++;
+        }
     }
+
+    @Test
+    public void sucesss() throws BadPriceFault_Exception, BadLocationFault_Exception {
+        _tc.getTransporterClient().requestJob("Porto","Lisboa",0);
+    }
+
+    @Test(expected = BadLocationFault_Exception.class)
+    public void failLocation() throws BadPriceFault_Exception, BadLocationFault_Exception {
+        _tc.getTransporterClient().requestJob("Paris","Ibiza",0);
+    }
+
+    @Test
+    public void failPriceAbove100() throws BadPriceFault_Exception, BadLocationFault_Exception {
+        assertNull(_tc.getTransporterClient().requestJob("Lisboa","Coimbra",140));
+    }
+
+    @Test(expected = BadPriceFault_Exception.class)
+    public void failPriceNegative() throws BadPriceFault_Exception, BadLocationFault_Exception {
+        _tc.getTransporterClient().requestJob("Coimbra","Lisboa",-1);
+    }
+
+
+
+    private ArrayList<TransporterPortType> getPortsAccordingToParity(int rest){
+        ArrayList<TransporterPortType> outputPorts = new ArrayList<TransporterPortType>();
+        int index = 0;
+        for(TransporterPortType tp : _tc.getTransporterClient().getPorts()){
+            char number = _tc.getTransporterNames().get(index).charAt(_tc.getTransporterNames().get(index).length()-1);
+            if(Character.getNumericValue(number) % 2 == rest)
+                outputPorts.add(tp);
+            index++;
+        }
+        return outputPorts;
+    }
+
 
 }
