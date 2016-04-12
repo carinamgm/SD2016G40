@@ -8,6 +8,7 @@ import pt.upa.transporter.ws.TransporterPortType;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class JobStatusIT {
     // static members
@@ -36,6 +37,16 @@ public class JobStatusIT {
         for (TransporterPortType tp : _tc.getTransporterClient().getPorts()) {
             try {
                 tp.requestJob("Lisboa", "Leiria", 0);
+
+                tp.requestJob("Porto", "Lisboa", 10);
+                tp.requestJob("Porto", "Lisboa", 33);
+                tp.requestJob("Porto", "Lisboa", 100);
+                tp.requestJob("Porto", "Lisboa", 101);
+
+                tp.requestJob("Beja", "Lisboa", 10);
+                tp.requestJob("Beja", "Lisboa", 33);
+                tp.requestJob("Beja", "Lisboa", 100);
+                tp.requestJob("Beja", "Lisboa", 101);
             } catch (Exception e) {
             }
         }
@@ -52,17 +63,21 @@ public class JobStatusIT {
 
     @Test
     public void sucess() {
-        int i = 0;
+        boolean valid = false;
         for (TransporterPortType tp : _tc.getTransporterClient().getPorts()) {
-            JobView jv = tp.jobStatus("0");
-            assertEquals("0", jv.getJobIdentifier());
-            assertEquals(0, jv.getJobPrice());
-            assertEquals("Lisboa", jv.getJobOrigin());
-            assertEquals("Leiria", jv.getJobDestination());
-            assertEquals(_tc.getTransporterNames().get(i), jv.getCompanyName());
-            assertEquals(JobStateView.PROPOSED, jv.getJobState());
-            i++;
+            valid = false;
+            for (int i = 0; i < _tc.getTransporterClient().getJobs().size(); i++) {
+                valid = _tc.getTransporterClient().equalsJobView(_tc.getTransporterClient().getJobs().get(String.valueOf(i)),
+                        tp.jobStatus(_tc.getTransporterClient().getJobs().get(String.valueOf(i)).getJobIdentifier()));
+                if(valid){
+                    _tc.getTransporterClient().getJobs().remove(i);
+                    break;
+                }
+            }
         }
+        assertEquals(0,_tc.getTransporterClient().getJobs().size());
+
+
     }
 
     @Test
