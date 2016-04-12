@@ -1,6 +1,5 @@
 package pt.upa.broker.ws;
 
-
 import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.BadLocationFault_Exception;
 import pt.upa.transporter.ws.BadPriceFault_Exception;
@@ -66,33 +65,39 @@ public class BrokerPort implements BrokerPortType {
         	throw new UnavailableTransportFault_Exception("There are no transports available", utf);
         }
         
-        tv.setState(TransportStateView.BUDGETED);
+        tv.setState(TransportStateView.BOOKED);
         chosenJobView = searchBestOffer(proposals);
         
         tv.setPrice(chosenJobView.getJobPrice());
     	tv.setTransporterCompany(chosenJobView.getCompanyName());
     	tv.setId(chosenJobView.getJobIdentifier());
 
-    	_tvs.add(tv);
-    	
+
+    	System.out.println("BEFORE I CHECK PRICES!!!!!!!!!!!!!!!!!!");
         if(chosenJobView.getJobPrice() <= price){
         	try {
+                System.out.println("THEY SEE ME ROLLIN' THEY HATIN'!!!!!!!!!!");
 				_tca.decideJob(chosenJobView.getJobIdentifier(), true);
+                tv.setState(TransportStateView.BOOKED);
+                System.out.println("SUPPOSEDLY HAS BEEN ACCEPTED, BITCHES!!!!");
 			} catch (BadJobFault_Exception e) {
 				tv.setState(TransportStateView.FAILED);
 			}
-        	tv.setState(TransportStateView.BOOKED);
+
         }
         else{
         	tv.setState(TransportStateView.FAILED);
+            System.out.println("I GO THROUGH HERE BITCHES!!!!!!!!!!!!!");
             UnavailableTransportPriceFault utp = new UnavailableTransportPriceFault();
             utp.setBestPriceFound(price);
         	throw new UnavailableTransportPriceFault_Exception("There are no transports available for that price", utp);
         }
-       
+
+        System.out.printf("STATE: %s\n", tv.getState());
+        _tvs.add(tv);
         return tv.getId();
     }
-    
+
 
     private JobView searchBestOffer(ArrayList<JobView> proposals){
     	JobView jvbo = null;
@@ -116,9 +121,11 @@ public class BrokerPort implements BrokerPortType {
 
         JobView jv = null;
     	for(TransportView tv : _tvs){
-        	if(tv.getId() == id){
+        	if(tv.getId().equals(id)){
         		jv = _tca.jobStatus(id);
                 if(jv != null) {
+                    System.out.println("I LIKE THIS SHIT!!!!!!");
+                    System.out.printf("STATING SHIT: %s\n", jv.getJobState());
                     switch (jv.getJobState()) {
                         case PROPOSED:
                             tv.setState(TransportStateView.BUDGETED);
@@ -147,7 +154,6 @@ public class BrokerPort implements BrokerPortType {
         throw new UnknownTransportFault_Exception(id, utf);
     }
 
-    //FIXME? List or ArrayList???
     @Override
     public List<TransportView> listTransports() {
         return _tvs;

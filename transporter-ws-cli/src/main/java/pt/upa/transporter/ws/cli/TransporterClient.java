@@ -2,6 +2,7 @@ package pt.upa.transporter.ws.cli;
 
 import pt.upa.transporter.ws.*;
 
+import pt.upa.transporter.ws.JobView;
 import javax.xml.ws.BindingProvider;
 import java.util.*;
 
@@ -32,8 +33,8 @@ public class TransporterClient {
         return _ports;
     }
 
-    public List<JobView> requestJob(String origin, String destination, int price) throws BadPriceFault_Exception, BadLocationFault_Exception{
-        List<JobView> proposals = new ArrayList<JobView>();
+    public ArrayList<JobView> requestJob(String origin, String destination, int price) throws BadPriceFault_Exception, BadLocationFault_Exception{
+        ArrayList<JobView> proposals = new ArrayList<JobView>();
         JobView jv = null;
 
         for (TransporterPortType tp : _ports) {
@@ -98,6 +99,7 @@ public class TransporterClient {
         for(TransporterPortType tp :_ports)
             tp.clearJobs();
         _tracking.clear();
+        _identifier = 0;
     }
 
     private String generateId(){

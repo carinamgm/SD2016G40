@@ -18,15 +18,15 @@ public class ChangeState extends TimerTask {
     @Override
     public void run() {
         Timer t = new Timer();
-        if(_jv.getJobState() == JobStateView.ACCEPTED){
+        if(JobStateView.ACCEPTED.equals(_jv.getJobState())){
             _jv.setJobState(JobStateView.HEADING);
             t.schedule(new ChangeState(_jv),generateRandomLong());
         }
-        else if(_jv.getJobState() == JobStateView.HEADING){
+        else if(JobStateView.HEADING.equals(_jv.getJobState())){
             _jv.setJobState(JobStateView.ONGOING);
             t.schedule(new ChangeState(_jv),generateRandomLong());
         }
-        else if(_jv.getJobState() == JobStateView.ONGOING)
+        else if(JobStateView.ONGOING.equals(_jv.getJobState()))
             _jv.setJobState(JobStateView.COMPLETED);
     }
 

@@ -64,7 +64,7 @@ public class JobStatusIT{
 
     // tests
 
-    @Test
+ /*   @Test
     public void sucess() {
         JobView jvBraga = _tc.jobStatus("0");
         JobView toBeCompared = null;
@@ -77,5 +77,5 @@ public class JobStatusIT{
     public void fail(){
         assertNull(_tc.jobStatus("-1"));
     }
-
+*/
 }

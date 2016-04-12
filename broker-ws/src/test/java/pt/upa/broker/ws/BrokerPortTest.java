@@ -7,15 +7,16 @@ import mockit.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import pt.upa.broker.ws.BrokerPortType;
-import pt.upa.transporter.ws.TransporterPortType;
+//import pt.upa.broker.ws.BrokerPortType;
+//import pt.upa.transporter.ws.TransporterPortType;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
 
 public class BrokerPortTest {
 
 	// static members
-	
+
+    BrokerPort _broker;
 	// one-time initialization and clean-up
 
 /* --- UNUSED

@@ -14,12 +14,12 @@ public class BrokerClient {
         return _upaBroker.ping(msg);
     }
 
-    public void schedule(String origin, String destination, int price) throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception{
-        _upaBroker.requestTransport(origin, destination, price);
+    public String schedule(String origin, String destination, int price) throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception{
+        return _upaBroker.requestTransport(origin, destination, price);
     }
 
-    public void checkTransportState(String id) throws UnknownTransportFault_Exception{
-        _upaBroker.viewTransport(id);
+    public TransportView checkTransportState(String id) throws UnknownTransportFault_Exception{
+        return _upaBroker.viewTransport(id);
     }
 
     public void listScheduleTransports(){
