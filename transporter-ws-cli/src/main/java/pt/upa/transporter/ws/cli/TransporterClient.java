@@ -113,7 +113,7 @@ public class TransporterClient {
         return null;
     }
 
-    private boolean equalsJobView(JobView jv1, JobView jv2){
+    public boolean equalsJobView(JobView jv1, JobView jv2){
         return jv1.getJobIdentifier().equals(jv2.getJobIdentifier()) && jv1.getJobState().equals(jv2.getJobState()) &&
                 jv1.getCompanyName().equals(jv2.getCompanyName()) && jv1.getJobDestination().equals(jv2.getJobDestination()) &&
                 jv1.getJobOrigin().equals(jv2.getJobOrigin()) && jv1.getJobPrice() == jv2.getJobPrice();
@@ -130,6 +130,10 @@ public class TransporterClient {
         int toGive = _identifier;
         _identifier++;
         return String.valueOf(toGive);
+    }
+
+    public ConcurrentHashMap<String,JobView> getJobs(){
+        return _idsConversion;
     }
 
 }

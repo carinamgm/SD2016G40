@@ -47,6 +47,10 @@ public class TransporterClientApplication {
 		return _transporterNames;
 	}
 
+	public static String getServiceName(){
+		return _serviceName;
+	}
+
 
 
 
