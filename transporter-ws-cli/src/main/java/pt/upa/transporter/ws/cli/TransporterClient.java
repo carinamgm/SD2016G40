@@ -8,13 +8,17 @@ import java.util.*;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
+import java.util.concurrent.ConcurrentHashMap;
+
+
 public class TransporterClient {
 
     private ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();
-    private ArrayList<JobView> _tracking = new ArrayList<JobView>();
+    private ConcurrentHashMap<String,JobView> _tracking = new ConcurrentHashMap<String,JobView>();
+    private ConcurrentHashMap<String,JobView> _idsConversion = new ConcurrentHashMap<String,JobView>();
     private int _identifier = 0;
 
-	public TransporterClient(Collection<String> wsUrls){
+    public TransporterClient(Collection<String> wsUrls){
         for(String wsEndpoint : wsUrls){
             TransporterService ts = new TransporterService();
             TransporterPortType port = ts.getTransporterPort();
@@ -36,13 +40,25 @@ public class TransporterClient {
     public ArrayList<JobView> requestJob(String origin, String destination, int price) throws BadPriceFault_Exception, BadLocationFault_Exception{
         ArrayList<JobView> proposals = new ArrayList<JobView>();
         JobView jv = null;
+        int nBadLocations = 0;
 
         for (TransporterPortType tp : _ports) {
-            jv = tp.requestJob(origin, destination, price);
-            if (jv != null) {
-                jv.setJobIdentifier(generateId());
-                proposals.add(jv);
+            try {
+                jv = tp.requestJob(origin, destination, price);
+                if (jv != null) {
+                    _idsConversion.put(generateId(), jv);
+                    proposals.add(jv);
+                }
             }
+            catch(BadLocationFault_Exception e){
+                nBadLocations++;
+            }
+        }
+
+        if(nBadLocations == _ports.size()){
+            BadLocationFault blf = new BadLocationFault();
+            blf.setLocation(origin + " " + destination);
+            throw new BadLocationFault_Exception("Invalidas rotas" + origin + " " + destination, blf);
         }
 
         return proposals.size() == 0 ? null : proposals;
@@ -53,24 +69,24 @@ public class TransporterClient {
 
         for(TransporterPortType tp : _ports){
             try{
-                jv = tp.decideJob(id,accept);
+                jv = tp.decideJob(_idsConversion.get(id).getJobIdentifier(),accept);
+                _idsConversion.get(id).setJobState(jv.getJobState());
             }
             catch(BadJobFault_Exception e){
             }
         }
 
-        if(jv == null)
-            throw new BadJobFault_Exception("Não existe tal trabalho", new BadJobFault());
+        if(jv == null) {
+            BadJobFault bjf = new BadJobFault();
+            bjf.setId(id);
+            throw new BadJobFault_Exception("Não existe tal trabalho", bjf);
+        }
 
-        _tracking.add(jv);
+        _tracking.put(id,_idsConversion.get(id));
 
         Timer t = new Timer();
         t.schedule(new ChangeState(jv),generateRandomLong());
 
-    }
-
-    public ArrayList<JobView> getTracking(){
-        return _tracking;
     }
 
     public String ping(String message){
@@ -86,13 +102,21 @@ public class TransporterClient {
     }
 
     public JobView jobStatus(String id){
-        JobView jv = null;
-        for(TransporterPortType tp : _ports) {
-            jv = tp.jobStatus(id);
-            if (jv != null)
-                return jv;
+        JobView jv;
+        for(Map.Entry<String,JobView> entry : _idsConversion.entrySet()){
+            for(TransporterPortType tp : _ports){
+                jv = tp.jobStatus(entry.getValue().getJobIdentifier());
+                if(equalsJobView(entry.getValue(),jv))
+                    return entry.getValue();
+            }
         }
-        return jv;
+        return null;
+    }
+
+    private boolean equalsJobView(JobView jv1, JobView jv2){
+        return jv1.getJobIdentifier().equals(jv2.getJobIdentifier()) && jv1.getJobState().equals(jv2.getJobState()) &&
+                jv1.getCompanyName().equals(jv2.getCompanyName()) && jv1.getJobDestination().equals(jv2.getJobDestination()) &&
+                jv1.getJobOrigin().equals(jv2.getJobOrigin()) && jv1.getJobPrice() == jv2.getJobPrice();
     }
 
     public void clearTransports(){
