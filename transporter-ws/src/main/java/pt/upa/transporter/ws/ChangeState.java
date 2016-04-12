@@ -1,7 +1,4 @@
-package pt.upa.transporter.ws.cli;
-
-import pt.upa.transporter.ws.JobStateView;
-import pt.upa.transporter.ws.JobView;
+package pt.upa.transporter.ws;
 
 import java.util.Random;
 import java.util.Timer;
@@ -12,7 +9,7 @@ public class ChangeState extends TimerTask {
     private JobView _jv;
 
     public ChangeState(JobView jv){
-        _jv = jv;
+      _jv = jv;
     }
 
     @Override
@@ -35,5 +32,6 @@ public class ChangeState extends TimerTask {
         long randomValue = 1 + (long)(random.nextDouble()*(5 - 1));
         return randomValue;
     }
+
 
 }

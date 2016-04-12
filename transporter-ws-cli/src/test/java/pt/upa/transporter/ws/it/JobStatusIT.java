@@ -2,13 +2,10 @@ package pt.upa.transporter.ws.it;
 
 import org.junit.*;
 import pt.upa.transporter.TransporterClientApplication;
-import pt.upa.transporter.ws.JobStateView;
-import pt.upa.transporter.ws.JobView;
 import pt.upa.transporter.ws.TransporterPortType;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class JobStatusIT {
     // static members

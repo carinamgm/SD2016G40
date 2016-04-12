@@ -1,18 +1,16 @@
 package pt.upa.transporter.ws.it;
 
 import org.junit.*;
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.transporter.TransporterClientApplication;
-import pt.upa.transporter.ws.*;
-import pt.upa.transporter.ws.cli.TransporterClient;
+import pt.upa.transporter.ws.BadLocationFault_Exception;
+import pt.upa.transporter.ws.BadPriceFault_Exception;
+import pt.upa.transporter.ws.JobView;
+import pt.upa.transporter.ws.TransporterPortType;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class RequestJobIT{
     // static members

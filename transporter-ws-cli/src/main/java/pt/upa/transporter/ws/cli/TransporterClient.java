@@ -2,13 +2,13 @@ package pt.upa.transporter.ws.cli;
 
 import pt.upa.transporter.ws.*;
 
-import pt.upa.transporter.ws.JobView;
 import javax.xml.ws.BindingProvider;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 
 public class TransporterClient {
@@ -84,8 +84,6 @@ public class TransporterClient {
 
         _tracking.put(id,_idsConversion.get(id));
 
-        Timer t = new Timer();
-        t.schedule(new ChangeState(jv),generateRandomLong());
 
     }
 
@@ -94,11 +92,6 @@ public class TransporterClient {
         for(TransporterPortType tp : _ports)
             output += tp.ping(message) + "\n";
         return output;
-    }
-
-    private long generateRandomLong(){
-        Random random = new Random();
-        return  1 + (long)(random.nextDouble()*(5 - 1));
     }
 
     public JobView jobStatus(String id){
@@ -134,6 +127,10 @@ public class TransporterClient {
 
     public ConcurrentHashMap<String,JobView> getJobs(){
         return _idsConversion;
+    }
+
+    protected void changeStatus(){
+
     }
 
 }
