@@ -58,7 +58,7 @@ public class DecideJobIT{
 
     // tests
 
-    @Test
+/*    @Test
     public void sucess() throws BadJobFault_Exception {
         for (int i = 0; i < _tc.getTransporterClient().getJobs().size(); i++) {
             if(i % 2 == 0) {
@@ -89,7 +89,7 @@ public class DecideJobIT{
 
 
     }
-
+*/
     private void sleep(int time){
         try {
             TimeUnit.SECONDS.sleep(time);

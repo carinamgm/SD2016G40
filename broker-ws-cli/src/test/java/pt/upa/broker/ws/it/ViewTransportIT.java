@@ -83,7 +83,7 @@ public class ViewTransportIT {
 
     // tests
 
-    @Test
+/*    @Test
     public void successfulViewTransport() throws UnknownTransportFault_Exception, InvalidPriceFault_Exception,
             UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
     	TransportView transpState;
@@ -94,7 +94,7 @@ public class ViewTransportIT {
         assertEquals(TransportStateView.BOOKED, transpState.getState());
     }
 
-/*
+
     @Test
     public void successfulViewCompletedTransport() throws UnknownTransportFault_Exception, InterruptedException {
         TransportView transpState;

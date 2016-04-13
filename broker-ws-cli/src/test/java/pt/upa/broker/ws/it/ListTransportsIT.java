@@ -69,7 +69,7 @@ public class ListTransportsIT {
     @Before
     public void setUp() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
-        _bc.schedule("Porto", "Lisboa", 40);
+       /* _bc.schedule("Porto", "Lisboa", 40);
         _bc.schedule("Lisboa", "Faro", 51);
 
         try {
@@ -78,7 +78,7 @@ public class ListTransportsIT {
         try {
             _bc.schedule("Beja", "Viseu", 16);
         } catch (UnavailableTransportPriceFault_Exception e) {}
-
+*/
     }
 
     @After
@@ -89,15 +89,18 @@ public class ListTransportsIT {
 
     // tests
 
-    @Test
+ /*   @Test
     public void simpleStatesTransportView() {
 
     	_result = _bc.listScheduleTransports();
+    	printf("LISTING TRANSPORTS: %s\n", _result);
     }
 
     @Test
     public void varyingAndSimpleStatesTransportView() {
 
         _result = _bc.listScheduleTransports();
+        printf("LISTING TRANSPORTS: %s\n", _result);
     }
+*/
 }

@@ -7,8 +7,8 @@ import mockit.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-//import pt.upa.broker.ws.BrokerPortType;
-//import pt.upa.transporter.ws.TransporterPortType;
+import pt.upa.broker.ws.BrokerPort;
+import pt.upa.transporter.ws.TransporterPort;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
 
@@ -16,10 +16,9 @@ public class BrokerPortTest {
 
 	// static members
 
-    BrokerPort _broker;
+    BrokerPort _bp;
 	// one-time initialization and clean-up
 
-/* --- UNUSED
 
     @BeforeClass
     public static void oneTimeSetUp() {
@@ -30,7 +29,6 @@ public class BrokerPortTest {
     public static void oneTimeTearDown() {
 
     }
-*/
 
     // members
 
@@ -45,16 +43,28 @@ public class BrokerPortTest {
     			{"Setúbal", "Évora", "Portalegre", "Beja", "Faro"}};   	
     }
 
- /*   @After
+   @After
     public void tearDown() {
     	
     }
 
 
+    // Mocking Transporters, Transporter clis
+    /*
+
+
+
+
+
+
+
+
+
+    */
     // tests
 
     @Test(expected = UnknownLocationFault_Exception.class)
-    public void wrongOrigin(@Mocked final TransporterClient transClient, @Mocked final TransporterPortType transport)
+    public void wrongOrigin(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport)
     		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
     		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception{
     	
@@ -63,12 +73,12 @@ public class BrokerPortTest {
     	final int PRICE = 30;    	
     	
     //	transporter = new TransporterPortType("Lisboa, Castelo Branco", "UpaTransporte1");
-    	ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();
+    	ArrayList<TransporterPort> _ports = new ArrayList<TransporterPort>();
     	Collection<String> wsUrls;
-	UpaTransporter1;
-    	UpaTransporter2;
-    	transport;
-    	wsUrls.add();
+	//UpaTransporter1;
+    //	UpaTransporter2;
+    //	transport;
+    //	wsUrls.add();
 	
     	BrokerPort broker = new BrokerPort(transClient);
     	
@@ -77,7 +87,7 @@ public class BrokerPortTest {
     }
      
     @Test(expected = InvalidPriceFault_Exception.class)
-    public void wrongPrice(@Mocked final TransporterClient transClient, @Mocked final TransporterPortType transport)
+    public void wrongPrice(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport)
     		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
     		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
     	
@@ -91,7 +101,7 @@ public class BrokerPortTest {
     }
    
     @Test(expected = UnavailableTransportFault_Exception.class)
-    public void nonAvailableTransportForTrip(@Mocked final TransporterClient transClient, @Mocked final TransporterPortType transport)
+    public void nonAvailableTransportForTrip(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport)
     		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
     		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
     	
@@ -105,7 +115,7 @@ public class BrokerPortTest {
     }
      
     @Test(expected = UnavailableTransportPriceFault_Exception.class)
-    public void nonAvailableTransportByPrice(@Mocked final TransporterClient transClient, @Mocked final TransporterPortType transport)
+    public void nonAvailableTransportByPrice(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport)
     		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
     		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
     	
@@ -122,7 +132,7 @@ public class BrokerPortTest {
     }
     
     @Test
-    public void gettingTransport(@Mocked final TransporterClient transClient, @Mocked final TransporterPortType transport)
+    public void gettingTransport(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport)
     		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
     		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
     	
@@ -137,7 +147,7 @@ public class BrokerPortTest {
     }
     
     @Test
-    public void twoTransportsSamePrice(@Mocked final TransporterClient transClient, @Mocked final TransporterPortType transport)
+    public void twoTransportsSamePrice(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport)
     		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
     		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
     	
@@ -159,7 +169,7 @@ public class BrokerPortTest {
     }
     
     @Test
-    public void listingTransportsStates(@Mocked final TransporterClient transClient, @Mocked final TransporterPortType transport) {
+    public void listingTransportsStates(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport) {
     	
     	ArrayList<TransportView> _tvs = new ArrayList<TransportView>();
     	// 4 different transporters, 1 for each 4 different states
@@ -174,12 +184,12 @@ public class BrokerPortTest {
     
     @Test
     public void clearAllData() {
-    
-       	ArrayList<TransportView> _tvs = new ArrayList<TransportView>();
-    	//Mock a couple transporters, then ask to clear data???
-    	clearTransports();
+
+        ArrayList<TransportView> _tvs = new ArrayList<TransportView>();
+        //Mock a couple transporters, then ask to clear data???
+        _bp.clearTransports();
     }
-  */  
+
 }
 
 

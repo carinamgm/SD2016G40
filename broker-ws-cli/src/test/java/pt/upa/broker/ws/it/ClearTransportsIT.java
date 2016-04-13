@@ -85,7 +85,7 @@ public class ClearTransportsIT {
     public void successfulClearTransports() {
         //	_bc.clearTransports();
         // Expected null, or someway to say "emptylist"?
-        // 	assertEquals(null ,_bc.listTransports());
+        // 	assertEquals("" ,_bc.listScheduleTransports());
     }
 
 }

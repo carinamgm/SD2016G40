@@ -79,7 +79,7 @@ public class RequestTransportIT {
 
     // tests
 
-    @Test
+/*    @Test
     public void successfullyRequestTransport() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
 
@@ -187,5 +187,5 @@ public class RequestTransportIT {
 
         _bc.schedule("Porto", "Faro", 50);
     }
-    
+*/
 }
