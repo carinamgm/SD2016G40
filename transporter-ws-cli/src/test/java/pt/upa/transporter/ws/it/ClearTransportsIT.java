@@ -1,12 +1,8 @@
 package pt.upa.transporter.ws.it;
 
 import org.junit.*;
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.transporter.TransporterClientApplication;
 import pt.upa.transporter.ws.TransporterPortType;
-import pt.upa.transporter.ws.cli.TransporterClient;
-
-import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 

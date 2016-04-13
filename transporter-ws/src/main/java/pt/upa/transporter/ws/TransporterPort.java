@@ -4,6 +4,7 @@ import javax.jws.WebService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
 
 
 @WebService(
@@ -117,8 +118,11 @@ public class TransporterPort implements TransporterPortType {
     public JobView decideJob(String id, boolean accept) throws BadJobFault_Exception{
         for(JobView jv : _jobsList){
             if(jv.getJobIdentifier().equals(id) && JobStateView.PROPOSED.equals(jv.getJobState())) {
-                if(accept)
+                if(accept) {
                     jv.setJobState(JobStateView.ACCEPTED);
+                    Timer t = new Timer();
+                    t.schedule(new ChangeState(jv),generateRandomLong());
+                }
                 else
                     jv.setJobState(JobStateView.REJECTED);
                 return jv;
@@ -149,11 +153,16 @@ public class TransporterPort implements TransporterPortType {
         _identifier = 0;
     }
 
-
     private String generateId(){
         int toGive = _identifier;
         _identifier++;
         return String.valueOf(toGive);
     }
+
+    private long generateRandomLong(){
+        Random random = new Random();
+        return  1 + (long)(random.nextDouble()*(5 - 1));
+    }
+
 
 }
