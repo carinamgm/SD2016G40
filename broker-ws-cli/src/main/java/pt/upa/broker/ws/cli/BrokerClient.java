@@ -2,6 +2,8 @@ package pt.upa.broker.ws.cli;
 
 import pt.upa.broker.ws.*;
 
+import java.util.List;
+
 public class BrokerClient {
 
     private BrokerPortType _upaBroker;
@@ -14,7 +16,10 @@ public class BrokerClient {
         return _upaBroker.ping(msg);
     }
 
-    public String schedule(String origin, String destination, int price) throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception{
+    public String schedule(String origin, String destination, int price)
+            throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception{
+
         return _upaBroker.requestTransport(origin, destination, price);
     }
 
@@ -22,9 +27,7 @@ public class BrokerClient {
         return _upaBroker.viewTransport(id);
     }
 
-    public void listScheduleTransports(){
-        _upaBroker.listTransports();
-    }
+    public List<TransportView> listScheduleTransports(){ return _upaBroker.listTransports(); }
 
     public void clearTransports(){
         _upaBroker.clearTransports();
