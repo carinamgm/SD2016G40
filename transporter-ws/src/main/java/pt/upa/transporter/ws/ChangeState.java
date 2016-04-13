@@ -30,7 +30,7 @@ public class ChangeState extends TimerTask {
     private long generateRandomLong(){
         Random random = new Random();
         long randomValue = 1 + (long)(random.nextDouble()*(5 - 1));
-        return randomValue;
+        return randomValue*1000;
     }
 
 

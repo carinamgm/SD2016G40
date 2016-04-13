@@ -4,8 +4,8 @@ import org.junit.*;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 //import pt.upa.broker.ws.BrokerPort;
-import pt.upa.broker.ws.BrokerPortType;
-import pt.upa.broker.ws.BrokerService;
+import pt.upa.broker.BrokerClientApplication;
+import pt.upa.broker.ws.*;
 import pt.upa.broker.ws.cli.BrokerClient;
 //import pt.upa.transporter.ws.cli.TransporterClient;
 
@@ -22,70 +22,44 @@ import static org.junit.Assert.*;
 public class ClearTransportsIT {
 
     // static members
-    private static BrokerClient _bc;
-    private static final String _uddiURL= "http://localhost:9090";
-    private static final String _serviceName = "UpaBroker";
-	
+    private static BrokerClientApplication _bcp;
+
     // one-time initialization and clean-up
     @BeforeClass
     public static void oneTimeSetUp() {
-        UDDINaming uddiNaming = null;
-        String endpointAddress;
-
-        System.out.println("----------------------");
-        System.out.println("------- TESTING ------");
-        System.out.println("-- CLEAR TRANSPORTS --");
-
-        try {
-            uddiNaming = new UDDINaming(_uddiURL);
-            endpointAddress = uddiNaming.lookup(_serviceName);
-
-            System.out.println("EndPointAddress: " + endpointAddress);
-
-            System.out.println("Creating stub ...");
-            BrokerService service = new BrokerService();
-            BrokerPortType port = service.getBrokerPort();
-
-            System.out.println("Setting endpoint address ...");
-            BindingProvider bindingProvider = (BindingProvider) port;
-            Map<String, Object> requestContext = bindingProvider.getRequestContext();
-            requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
-
-            _bc = new BrokerClient(port);
-
-        } catch (Exception e) {
-            System.out.printf("Caught exception: %s%n", e);
-            e.printStackTrace();
-        }
-;
+        _bcp = new BrokerClientApplication();
     }
 
     @AfterClass
     public static void oneTimeTearDown() {
-        _bc = null;
+        _bcp = null;
     }
 
     // members
     // initialization and clean-up for each test
     @Before
-    public void setUp() {
-    	
-    	// Maybe not even needed
-    	// _broker.requestTransport("Porto", "Lisboa", 30);    	
+    public void setUp() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
+
+        _bcp = new BrokerClientApplication();
+        _bcp.testSetup();
+
+        _bcp.getBrokerClient().schedule("Porto", "Lisboa", 40);
+        _bcp.getBrokerClient().schedule("Lisboa", "Faro", 51);
     }
 
     @After
     public void tearDown() {
+        _bcp = null;
     }
-
 
     // tests
 
     @Test
     public void successfulClearTransports() {
-        //	_bc.clearTransports();
-        // Expected null, or someway to say "emptylist"?
-        // 	assertEquals("" ,_bc.listScheduleTransports());
+        assertEquals(2, _bcp.getBrokerClient().listScheduleTransports().size());
+        _bcp.getBrokerClient().clearTransports();
+        assertEquals(0, _bcp.getBrokerClient().listScheduleTransports().size());
     }
 
 }

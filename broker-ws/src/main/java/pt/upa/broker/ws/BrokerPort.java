@@ -70,7 +70,7 @@ public class BrokerPort implements BrokerPortType {
         
         tv.setState(TransportStateView.BOOKED);
         chosenJobView = searchBestOffer(proposals);
-        
+
         tv.setPrice(chosenJobView.getJobPrice());
     	tv.setTransporterCompany(chosenJobView.getCompanyName());
     	tv.setId(chosenJobView.getJobIdentifier());
@@ -97,7 +97,7 @@ public class BrokerPort implements BrokerPortType {
 
 
     private JobView searchBestOffer(ArrayList<JobView> proposals){
-    	JobView jvbo = null;
+        JobView jvbo = null;
     	int highestPrice = 100;
     	int jobPrice;
     	
@@ -159,5 +159,6 @@ public class BrokerPort implements BrokerPortType {
     	_tvs.clear();
     	_tca.clearTransports();
     }
+
 
 }

@@ -45,7 +45,7 @@ public class RequestJobIT{
 
     // test for parity - pair
 
- /*   @Test
+    @Test
     public void sucessPair() throws BadPriceFault_Exception, BadLocationFault_Exception{
         testSucess("Porto","Lisboa",0,0);
     }
@@ -159,7 +159,7 @@ public class RequestJobIT{
         greaterPrices("Lisboa","Coimbra",53,0);
         underPrices("Lisboa","Coimbra",53,1);
     }
-*/
+
     // Aux functions to grant parity tests
 
     private void priceLessThan(int price) {

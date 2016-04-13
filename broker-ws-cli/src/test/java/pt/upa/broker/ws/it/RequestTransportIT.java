@@ -3,12 +3,15 @@ package pt.upa.broker.ws.it;
 import org.junit.*;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.upa.broker.BrokerClientApplication;
 import pt.upa.broker.ws.*;
 import pt.upa.broker.ws.cli.BrokerClient;
 
 //import java.util.List;
 
 import javax.xml.ws.BindingProvider;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
@@ -19,86 +22,67 @@ import static org.junit.Assert.*;
 public class RequestTransportIT {
 
     // static members
-    private static BrokerClient _bc;
-    // private static List<TransportView> _tvs;
-    private static final String _uddiURL= "http://localhost:9090";
-    private static final String _serviceName = "UpaBroker";
-	
+    private static BrokerClientApplication _bcp;
+
     // one-time initialization and clean-up
     @BeforeClass
     public static void oneTimeSetUp() {
-        UDDINaming uddiNaming = null;
-        String endpointAddress;
-
-        System.out.println("----------------------");
-        System.out.println("------- TESTING ------");
-        System.out.println("-- REQUESTTRANSPORT --");
-
-        try {
-            uddiNaming = new UDDINaming(_uddiURL);
-            endpointAddress = uddiNaming.lookup(_serviceName);
-
-            System.out.println("EndPointAddress: " + endpointAddress);
-
-            System.out.println("Creating stub ...");
-            BrokerService service = new BrokerService();
-            BrokerPortType port = service.getBrokerPort();
-
-            System.out.println("Setting endpoint address ...");
-            BindingProvider bindingProvider = (BindingProvider) port;
-            Map<String, Object> requestContext = bindingProvider.getRequestContext();
-            requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
-
-            _bc = new BrokerClient(port);
-            //_tvs = _bc.listScheduleTransports();
-
-        } catch (Exception e) {
-            System.out.printf("Caught exception: %s%n", e);
-            e.printStackTrace();
-        }
-
+        _bcp = new BrokerClientApplication();
     }
 
     @AfterClass
     public static void oneTimeTearDown() {
-    	_bc = null;
-        //_tvs = null;
+    	_bcp = null;
     }
 
     // members
     // initialization and clean-up for each test
     @Before
     public void setUp() {
+        _bcp = new BrokerClientApplication();
+        _bcp.testSetup();
+
     }
 
     @After
     public void tearDown() {
-        _bc.clearTransports();
+        _bcp.getBrokerClient().clearTransports();
+        _bcp = null;
     }
 
 
     // tests
 
-/*    @Test
+    @Test
     public void successfullyRequestTransport() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
 
         String result;
 
-        result = _bc.schedule("Porto", "Lisboa", 50);
-        assertEquals("0", result);
+        result = _bcp.getBrokerClient().schedule("Porto", "Lisboa", 0);
+        List<TransportView> tvs = _bcp.getBrokerClient().listScheduleTransports();
+
+        for(TransportView tv : tvs){
+            if(tv.getId().equals(result))
+                assertTrue(transporterViewsComparator(tv, "Porto", "Lisboa", 0, 0, TransportStateView.BOOKED));
+        }
     }
 
-   @Test
+    @Test
     public void successfullyRequestMultipleDifferentTransporters() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
 
-       String result1, result2;
-       result1 = _bc.schedule("Faro", "Lisboa", 55);
-       result2 = _bc.schedule("Lisboa", "Porto", 50);
+        String result1, result2;
+        result1 = _bcp.getBrokerClient().schedule("Faro", "Lisboa", 55);
+        result2 = _bcp.getBrokerClient().schedule("Lisboa", "Porto", 50);
 
-       assertEquals("0", result1);
-       assertEquals("0", result2);
+        for (TransportView tv : _bcp.getBrokerClient().listScheduleTransports()) {
+            if (tv.getId().equals(result1))
+                assertTrue(transporterViewsComparator(tv, "Faro", "Lisboa", 55, 1, TransportStateView.BOOKED));
+
+            if (tv.getId().equals(result2))
+                assertTrue(transporterViewsComparator(tv, "Lisboa", "Porto", 50, 0, TransportStateView.BOOKED));
+        }
     }
 
     @Test
@@ -106,11 +90,16 @@ public class RequestTransportIT {
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
 
         String result1, result2;
-        result1 = _bc.schedule("Porto", "Lisboa", 40);
-        result2 = _bc.schedule("Lisboa", "Porto", 50);
+        result1 = _bcp.getBrokerClient().schedule("Porto", "Lisboa", 40);
+        result2 = _bcp.getBrokerClient().schedule("Lisboa", "Porto", 50);
 
-        assertEquals("0", result1);
-        assertEquals("1", result2);
+        for (TransportView tv : _bcp.getBrokerClient().listScheduleTransports()) {
+            if (tv.getId().equals(result1))
+                assertTrue(transporterViewsComparator(tv, "Porto", "Lisboa", 40, 0, TransportStateView.BOOKED));
+
+            if (tv.getId().equals(result2))
+                assertTrue(transporterViewsComparator(tv, "Lisboa", "Porto", 50, 0, TransportStateView.BOOKED));
+        }
     }
 
     @Test
@@ -118,74 +107,105 @@ public class RequestTransportIT {
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
 
         String result1, result2;
-        result1 = _bc.schedule("Lisboa", "Faro", 35);
-        result2 = _bc.schedule("Faro", "Leiria", 55);
+        result1 = _bcp.getBrokerClient().schedule("Lisboa", "Faro", 35);
+        result2 = _bcp.getBrokerClient().schedule("Faro", "Leiria", 55);
 
-        assertEquals("0", result1);
-        assertEquals("1", result2);
+        for (TransportView tv : _bcp.getBrokerClient().listScheduleTransports()) {
+            if (tv.getId().equals(result1))
+                assertTrue(transporterViewsComparator(tv, "Lisboa", "Faro", 35, 1, TransportStateView.BOOKED));
+
+            if (tv.getId().equals(result2))
+                assertTrue(transporterViewsComparator(tv, "Faro", "Leiria", 55, 1, TransportStateView.BOOKED));
+        }
     }
 
     @Test(expected = UnavailableTransportPriceFault_Exception.class)
     public void oddPriceToEvenTransporter() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
 
-        _bc.schedule("Porto", "Lisboa", 45);
+        _bcp.getBrokerClient().schedule("Porto", "Lisboa", 45);
     }
+
 
     @Test(expected = UnavailableTransportPriceFault_Exception.class)
     public void evenPriceToOddTransporter() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
 
-        _bc.schedule("Leiria", "Faro", 40);
+        _bcp.getBrokerClient().schedule("Leiria", "Faro", 40);
     }
+
 
     @Test(expected = UnknownLocationFault_Exception.class)
     public void sendEmptyOrigin() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
 	UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
 
-        _bc.schedule("", "Leiria", 30);
+        _bcp.getBrokerClient().schedule("", "Leiria", 30);
     }
 
     @Test(expected = UnavailableTransportFault_Exception.class)
     public void sendBigPrice() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
 	UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
-    	
-    	_bc.schedule("Leiria", "Lisboa", 999999999);
+
+        _bcp.getBrokerClient().schedule("Leiria", "Lisboa", 999999999);
     }
 
     @Test(expected = InvalidPriceFault_Exception.class)
     public void sendNegativePrice() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
 
-        _bc.schedule("Porto", "Lisboa", -5);
+        _bcp.getBrokerClient().schedule("Porto", "Lisboa", -5);
     }
 
     @Test(expected = UnknownLocationFault_Exception.class)
     public void sendNullDestination() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
 	UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
     	
-    	_bc.schedule("Porto", null, 50);
+    	_bcp.getBrokerClient().schedule("Porto", null, 50);
     }
 
     @Test(expected = UnknownLocationFault_Exception.class)
     public void sendWrongDestination() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
 
-        _bc.schedule("Lisboa", "Caldas da Rainha", 50);
+        _bcp.getBrokerClient().schedule("Lisboa", "Caldas da Rainha", 50);
     }
 
     @Test(expected = UnknownLocationFault_Exception.class)
     public void sendWeirdSymbolsOrigin() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
 
-        _bc.schedule("!(%#)=", "Viseu", 50);
+        _bcp.getBrokerClient().schedule("!(%#)=", "Viseu", 50);
     }
 
     @Test(expected = UnknownLocationFault_Exception.class)
     public void originDestinationTooFarApart() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
 
-        _bc.schedule("Porto", "Faro", 50);
+        _bcp.getBrokerClient().schedule("Porto", "Faro", 50);
     }
-*/
+
+    // Aux functions
+
+    /* This method is not to be apply for over 100 expected price - so the return false ist just to fill the method signature */
+    private boolean transporterViewsComparator(TransportView tv, String origin, String destination, int expectedPrice, int companyPairity, TransportStateView state) {
+        if (expectedPrice == 0)
+            return tv.getOrigin().equals(origin) && tv.getDestination().equals(destination) && tv.getPrice() == expectedPrice &&
+                    Integer.valueOf(tv.getTransporterCompany().substring(14, tv.getTransporterCompany().length())) % 2 == companyPairity && tv.getState() == state;
+        else if (expectedPrice < 10)
+            return tv.getOrigin().equals(origin) && tv.getDestination().equals(destination) && tv.getPrice() < expectedPrice &&
+                    Integer.valueOf(tv.getTransporterCompany().substring(14, tv.getTransporterCompany().length())) % 2 == companyPairity && tv.getState() == state;
+        else if (expectedPrice % 2 == 0 && expectedPrice <= 100) {
+            if (Integer.valueOf(tv.getTransporterCompany().substring(14, tv.getTransporterCompany().length())) % 2 == 0)
+                return tv.getOrigin().equals(origin) && tv.getDestination().equals(destination) && tv.getPrice() < expectedPrice && tv.getState() == state;
+            else
+                return tv.getOrigin().equals(origin) && tv.getDestination().equals(destination) && tv.getPrice() > expectedPrice && tv.getState() == state;
+        }
+        else if (expectedPrice % 2 == 1 && expectedPrice <= 100) {
+            if (Integer.valueOf(tv.getTransporterCompany().substring(14, tv.getTransporterCompany().length())) % 2 == 0)
+                return tv.getOrigin().equals(origin) && tv.getDestination().equals(destination) && tv.getPrice() > expectedPrice && tv.getState() == state;
+            else
+                return tv.getOrigin().equals(origin) && tv.getDestination().equals(destination) && tv.getPrice() < expectedPrice && tv.getState() == state;
+        }
+        return false;
+    }
 }

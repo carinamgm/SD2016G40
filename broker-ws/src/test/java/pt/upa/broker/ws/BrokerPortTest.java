@@ -58,9 +58,9 @@ public class BrokerPortTest {
 
 
 
+/*
 
 
-    */
     // tests
 
     @Test(expected = UnknownLocationFault_Exception.class)
@@ -189,7 +189,7 @@ public class BrokerPortTest {
         //Mock a couple transporters, then ask to clear data???
         _bp.clearTransports();
     }
-
+*/
 }
 
 
