@@ -35,7 +35,10 @@ public class BrokerPort implements BrokerPortType {
     }
 
     @Override
-    public String requestTransport(String origin, String destination, int price) throws UnknownLocationFault_Exception, InvalidPriceFault_Exception, UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception {
+    public String requestTransport(String origin, String destination, int price)
+            throws UnknownLocationFault_Exception, InvalidPriceFault_Exception,
+            UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception {
+
         ArrayList<JobView> proposals = null;
         TransportView tv = new TransportView();
         JobView chosenJobView = null;
@@ -72,14 +75,10 @@ public class BrokerPort implements BrokerPortType {
     	tv.setTransporterCompany(chosenJobView.getCompanyName());
     	tv.setId(chosenJobView.getJobIdentifier());
 
-
-    	System.out.println("BEFORE I CHECK PRICES!!!!!!!!!!!!!!!!!!");
         if(chosenJobView.getJobPrice() <= price){
         	try {
-                System.out.println("THEY SEE ME ROLLIN' THEY HATIN'!!!!!!!!!!");
 				_tca.decideJob(chosenJobView.getJobIdentifier(), true);
                 tv.setState(TransportStateView.BOOKED);
-                System.out.println("SUPPOSEDLY HAS BEEN ACCEPTED, BITCHES!!!!");
 			} catch (BadJobFault_Exception e) {
 				tv.setState(TransportStateView.FAILED);
 			}
@@ -87,13 +86,11 @@ public class BrokerPort implements BrokerPortType {
         }
         else{
         	tv.setState(TransportStateView.FAILED);
-            System.out.println("I GO THROUGH HERE BITCHES!!!!!!!!!!!!!");
             UnavailableTransportPriceFault utp = new UnavailableTransportPriceFault();
             utp.setBestPriceFound(price);
         	throw new UnavailableTransportPriceFault_Exception("There are no transports available for that price", utp);
         }
 
-        System.out.printf("STATE: %s\n", tv.getState());
         _tvs.add(tv);
         return tv.getId();
     }
@@ -124,8 +121,6 @@ public class BrokerPort implements BrokerPortType {
         	if(tv.getId().equals(id)){
         		jv = _tca.jobStatus(id);
                 if(jv != null) {
-                    System.out.println("I LIKE THIS SHIT!!!!!!");
-                    System.out.printf("STATING SHIT: %s\n", jv.getJobState());
                     switch (jv.getJobState()) {
                         case PROPOSED:
                             tv.setState(TransportStateView.BUDGETED);

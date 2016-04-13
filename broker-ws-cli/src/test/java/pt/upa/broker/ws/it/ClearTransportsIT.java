@@ -32,6 +32,10 @@ public class ClearTransportsIT {
         UDDINaming uddiNaming = null;
         String endpointAddress;
 
+        System.out.println("----------------------");
+        System.out.println("------- TESTING ------");
+        System.out.println("-- CLEAR TRANSPORTS --");
+
         try {
             uddiNaming = new UDDINaming(_uddiURL);
             endpointAddress = uddiNaming.lookup(_serviceName);
@@ -58,8 +62,7 @@ public class ClearTransportsIT {
 
     @AfterClass
     public static void oneTimeTearDown() {
-
-    	_bc = null;
+        _bc = null;
     }
 
     // members
@@ -80,11 +83,9 @@ public class ClearTransportsIT {
 
     @Test
     public void successfulClearTransports() {
-
-    //	_broker.clearTransports();
-    	
-    	// Expected null, or someway to say "emptylist"?
-    //	assertEquals(null ,_broker.listTransports());
+        //	_bc.clearTransports();
+        // Expected null, or someway to say "emptylist"?
+        // 	assertEquals(null ,_bc.listTransports());
     }
 
 }

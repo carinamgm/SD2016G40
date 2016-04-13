@@ -3,14 +3,12 @@ package pt.upa.broker.ws.it;
 import org.junit.*;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-//import pt.upa.broker.ws.BrokerPort;
 import pt.upa.broker.ws.*;
 import pt.upa.broker.ws.cli.BrokerClient;
-//import pt.upa.transporter.ws.cli.TransporterClient;
+
+//import java.util.List;
 
 import javax.xml.ws.BindingProvider;
-//import javax.xml.ws.Endpoint;
-//import java.util.Collection;
 import java.util.Map;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
@@ -22,6 +20,7 @@ public class RequestTransportIT {
 
     // static members
     private static BrokerClient _bc;
+    // private static List<TransportView> _tvs;
     private static final String _uddiURL= "http://localhost:9090";
     private static final String _serviceName = "UpaBroker";
 	
@@ -30,6 +29,10 @@ public class RequestTransportIT {
     public static void oneTimeSetUp() {
         UDDINaming uddiNaming = null;
         String endpointAddress;
+
+        System.out.println("----------------------");
+        System.out.println("------- TESTING ------");
+        System.out.println("-- REQUESTTRANSPORT --");
 
         try {
             uddiNaming = new UDDINaming(_uddiURL);
@@ -47,6 +50,7 @@ public class RequestTransportIT {
             requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
 
             _bc = new BrokerClient(port);
+            //_tvs = _bc.listScheduleTransports();
 
         } catch (Exception e) {
             System.out.printf("Caught exception: %s%n", e);
@@ -58,21 +62,17 @@ public class RequestTransportIT {
     @AfterClass
     public static void oneTimeTearDown() {
     	_bc = null;
-        System.out.println("----------------------");
-        System.out.println("-------- TEST --------");
-        System.out.println("----------------------");
+        //_tvs = null;
     }
 
     // members
     // initialization and clean-up for each test
     @Before
     public void setUp() {
-        System.out.println("----------- SETTING UP -------------");
     }
 
     @After
     public void tearDown() {
-        System.out.println("--------------TEARING DOWN -------------");
         _bc.clearTransports();
     }
 
@@ -81,47 +81,111 @@ public class RequestTransportIT {
 
     @Test
     public void successfullyRequestTransport() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
-           UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception, InterruptedException {
- /*
-    	String result;
-        TransportView transp;
-    	
-    	result = _bc.schedule("Porto", "Lisboa", 50);
-        Thread.sleep(10000);
-        transp = _bc.checkTransportState(result);
-        System.out.printf("TRANSPORTER STATE: %s %s %s %d\n", transp.getState(), transp.getOrigin(), transp.getDestination(), transp.getPrice());
-        Thread.sleep(10000);
-        transp = _bc.checkTransportState(result);
-        System.out.printf("TRANSPORTER STATE: %s %s %s %d\n", transp.getState(), transp.getOrigin(), transp.getDestination(), transp.getPrice());
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
 
-        // TIMERS NOT WORKING!!!!!!!!
-        // if the assert fails, the test fails
-         assertEquals("0", result);
-        */
+        String result;
+
+        result = _bc.schedule("Porto", "Lisboa", 50);
+        assertEquals("0", result);
     }
 
+   @Test
+    public void successfullyRequestMultipleDifferentTransporters() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
 
-    /*@Test(expected = UnknownLocationFault_Exception.class)
+       String result1, result2;
+       result1 = _bc.schedule("Faro", "Lisboa", 55);
+       result2 = _bc.schedule("Lisboa", "Porto", 50);
+
+       assertEquals("0", result1);
+       assertEquals("0", result2);
+    }
+
+    @Test
+    public void successfullyRequestMultipleEvenSameTransporter() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
+
+        String result1, result2;
+        result1 = _bc.schedule("Porto", "Lisboa", 40);
+        result2 = _bc.schedule("Lisboa", "Porto", 50);
+
+        assertEquals("0", result1);
+        assertEquals("1", result2);
+    }
+
+    @Test
+    public void successfullyRequestMultipleOddSameTransporter() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
+
+        String result1, result2;
+        result1 = _bc.schedule("Lisboa", "Faro", 35);
+        result2 = _bc.schedule("Faro", "Leiria", 55);
+
+        assertEquals("0", result1);
+        assertEquals("1", result2);
+    }
+
+    @Test(expected = UnavailableTransportPriceFault_Exception.class)
+    public void oddPriceToEvenTransporter() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
+
+        _bc.schedule("Porto", "Lisboa", 45);
+    }
+
+    @Test(expected = UnavailableTransportPriceFault_Exception.class)
+    public void evenPriceToOddTransporter() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
+
+        _bc.schedule("Leiria", "Faro", 40);
+    }
+
+    @Test(expected = UnknownLocationFault_Exception.class)
     public void sendEmptyOrigin() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
 	UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
 
-    	_bc.schedule("", "Leiria", 30);
+        _bc.schedule("", "Leiria", 30);
     }
-*/
-    /*
-    @Test(expected = InvalidPriceFault_Exception.class)
+
+    @Test(expected = UnavailableTransportFault_Exception.class)
     public void sendBigPrice() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
 	UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
     	
-    	_broker.requestTransport("Leiria", "Lisboa", 999999999);
+    	_bc.schedule("Leiria", "Lisboa", 999999999);
     }
-    
-    @Test(expected = NullPointerException.class)
+
+    @Test(expected = InvalidPriceFault_Exception.class)
+    public void sendNegativePrice() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
+
+        _bc.schedule("Porto", "Lisboa", -5);
+    }
+
+    @Test(expected = UnknownLocationFault_Exception.class)
     public void sendNullDestination() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
 	UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
     	
-    	_broker.requestTransport("Porto", null, 50);
+    	_bc.schedule("Porto", null, 50);
     }
-*/
+
+    @Test(expected = UnknownLocationFault_Exception.class)
+    public void sendWrongDestination() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
+
+        _bc.schedule("Lisboa", "Caldas da Rainha", 50);
+    }
+
+    @Test(expected = UnknownLocationFault_Exception.class)
+    public void sendWeirdSymbolsOrigin() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
+
+        _bc.schedule("!(%#)=", "Viseu", 50);
+    }
+
+    @Test(expected = UnknownLocationFault_Exception.class)
+    public void originDestinationTooFarApart() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
+
+        _bc.schedule("Porto", "Faro", 50);
+    }
     
 }

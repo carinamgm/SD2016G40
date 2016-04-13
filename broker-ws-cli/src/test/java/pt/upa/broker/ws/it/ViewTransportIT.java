@@ -2,23 +2,11 @@ package pt.upa.broker.ws.it;
 
 import org.junit.*;
 
-import pt.upa.broker.ws.BrokerPortType;
-import pt.upa.broker.ws.InvalidPriceFault_Exception;
-import pt.upa.broker.ws.UnavailableTransportFault_Exception;
-import pt.upa.broker.ws.UnavailableTransportPriceFault_Exception;
-import pt.upa.broker.ws.UnknownLocationFault_Exception;
-import pt.upa.broker.ws.UnknownTransportFault_Exception;
+import pt.upa.broker.ws.*;
 import pt.upa.broker.ws.cli.BrokerClient;
-
-
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-//import pt.upa.broker.ws.BrokerPort;
-import pt.upa.broker.ws.BrokerService;
-//import pt.upa.transporter.ws.cli.TransporterClient;
 
 import javax.xml.ws.BindingProvider;
-//import javax.xml.ws.Endpoint;
-//import java.util.Collection;
 import java.util.Map;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
@@ -34,15 +22,19 @@ public class ViewTransportIT {
     private static BrokerClient _bc;
     private static final String _uddiURL= "http://localhost:9090";
     private static final String _serviceName = "UpaBroker";
-    private static String transpId;
+    private static String _transpId;
 
 
     // one-time initialization and clean-up
     @BeforeClass
     public static void oneTimeSetUp() {
-        transpId = "";
+        _transpId = "";
         UDDINaming uddiNaming = null;
         String endpointAddress;
+
+        System.out.println("----------------------");
+        System.out.println("------- TESTING ------");
+        System.out.println("--- VIEW TRANSPORT ---");
 
         try {
             uddiNaming = new UDDINaming(_uddiURL);
@@ -70,50 +62,71 @@ public class ViewTransportIT {
 
     @AfterClass
     public static void oneTimeTearDown() {
-        transpId = "";
+        _transpId = "";
     	_bc = null;
     }
 
-/*
+
     // members
     // initialization and clean-up for each test
     @Before
     public void setUp() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
 	UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
-    	ticketId = _broker.requestTransport("Porto", "Lisboa", 40);
     }
 
     @After
     public void tearDown() {
-    	ticketId = null;
+        _bc.clearTransports();
+        _transpId = "";
     }
 
 
     // tests
 
     @Test
-    public void successfullViewTransport() throws UnknownTransportFault_Exception {
-    	
-    	_broker.viewTransport(ticketId);
-    	//TODO: assertEquals, to what?
+    public void successfulViewTransport() throws UnknownTransportFault_Exception, InvalidPriceFault_Exception,
+            UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
+    	TransportView transpState;
+
+        _transpId = _bc.schedule("Porto", "Lisboa", 40);
+    	transpState = _bc.checkTransportState(_transpId);
+
+        assertEquals(TransportStateView.BOOKED, transpState.getState());
     }
-    
-    @Test(expected = NullPointerException.class)
+
+/*
+    @Test
+    public void successfulViewCompletedTransport() throws UnknownTransportFault_Exception, InterruptedException {
+        TransportView transpState;
+
+        Thread.sleep(15000);
+        transpState = _bc.checkTransportState(transpId);
+
+        assertEquals(TransportStateView.COMPLETED, transpState.getState());
+    }
+*/
+    @Test(expected = UnknownTransportFault_Exception.class)
+    public void sendNegativeIdViewTransport() throws UnknownTransportFault_Exception {
+
+        _bc.checkTransportState("-5");
+    }
+
+    @Test(expected = UnknownTransportFault_Exception.class)
     public void sendNullViewTransport() throws UnknownTransportFault_Exception {
     	
-    	_broker.viewTransport(null);
+    	_bc.checkTransportState(null);
     }
     
     @Test(expected = UnknownTransportFault_Exception.class)
     public void sendEmptyStringViewTransport() throws UnknownTransportFault_Exception {
     	
-    	_broker.viewTransport("");
+    	_bc.checkTransportState("");
     }
 
     @Test(expected = UnknownTransportFault_Exception.class)
     public void sendWeirdCharactersViewTransport() throws UnknownTransportFault_Exception {
     	
-    	_broker.viewTransport("&$&/(%=");
+    	_bc.checkTransportState("&$&/(%=");
     }
-*/ 
+
 }

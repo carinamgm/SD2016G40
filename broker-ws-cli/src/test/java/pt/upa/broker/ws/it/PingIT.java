@@ -30,6 +30,10 @@ public class PingIT {
     	UDDINaming uddiNaming = null;
     	String endpointAddress;
 
+        System.out.println("----------------------");
+        System.out.println("------- TESTING ------");
+        System.out.println("-------- PING --------");
+
         try {
         	uddiNaming = new UDDINaming(_uddiURL);
 			endpointAddress = uddiNaming.lookup(_serviceName);
@@ -51,17 +55,12 @@ public class PingIT {
             System.out.printf("Caught exception: %s%n", e);
             e.printStackTrace();
         }
-    	
-    	
 
-    	//need to setup a caller for the BrokerPort Service
-    	//	_broker = new BrokerPort();
     }
 
     @AfterClass
     public static void oneTimeTearDown() {
-
-    	_bc = null;
+        _bc = null;
     }
     
 
@@ -69,20 +68,21 @@ public class PingIT {
 
     @Test
     public void successfulpinging() {
-
         assertEquals("Stuff happens!", _bc.ping("Stuff happens!"));
     }
     
     @Test
     public void sendNullPing() {
-    	
     	assertEquals(null, _bc.ping(null));
     }
     
     @Test
     public void sendEmptyStringPing() {
-    	
     	assertEquals("", _bc.ping(""));
     }
 
+    @Test
+    public void sendWeirdSymbolsPing() {
+        assertEquals("#$&//%", _bc.ping("#$&//%"));
+    }
 }
