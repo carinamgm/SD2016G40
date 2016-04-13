@@ -14,8 +14,7 @@ import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 public class TransporterClient {
 
     private ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();
-    private ConcurrentHashMap<String,JobView> _tracking = new ConcurrentHashMap<String,JobView>();
-    private ConcurrentHashMap<String,JobView> _idsConversion = new ConcurrentHashMap<String,JobView>();
+    private ConcurrentHashMap<String,Identifier> _jobsMap = new ConcurrentHashMap<String,Identifier>();
     private int _identifier = 0;
 
     public TransporterClient(Collection<String> wsUrls){
@@ -41,13 +40,25 @@ public class TransporterClient {
         ArrayList<JobView> proposals = new ArrayList<JobView>();
         JobView jv = null;
         int nBadLocations = 0;
+        String id;
 
         for (TransporterPortType tp : _ports) {
             try {
                 jv = tp.requestJob(origin, destination, price);
                 if (jv != null) {
-                    _idsConversion.put(generateId(), jv);
-                    proposals.add(jv);
+                    id = generateId();
+                    _jobsMap.put(id, new Identifier(jv,tp));
+
+                    JobView jv2 = new JobView();
+                    jv2.setJobOrigin(jv.getJobOrigin());
+                    jv2.setJobDestination(jv.getJobDestination());
+                    jv2.setJobState(jv.getJobState());
+                    jv2.setCompanyName(jv.getCompanyName());
+                    jv2.setJobPrice(jv.getJobPrice());
+                    jv2.setJobIdentifier(id);
+
+                    proposals.add(jv2);
+
                 }
             }
             catch(BadLocationFault_Exception e){
@@ -65,26 +76,13 @@ public class TransporterClient {
     }
 
     public void decideJob(String id, boolean accept) throws BadJobFault_Exception{
-        JobView jv = null;
-
-        for(TransporterPortType tp : _ports){
-            try{
-                jv = tp.decideJob(_idsConversion.get(id).getJobIdentifier(),accept);
-                _idsConversion.get(id).setJobState(jv.getJobState());
-            }
-            catch(BadJobFault_Exception e){
-            }
-        }
-
-        if(jv == null) {
+        if(_jobsMap.get(id) == null) {
             BadJobFault bjf = new BadJobFault();
             bjf.setId(id);
             throw new BadJobFault_Exception("Não existe tal trabalho", bjf);
         }
 
-        _tracking.put(id,_idsConversion.get(id));
-
-
+        _jobsMap.get(id).getCompany().decideJob(_jobsMap.get(id).getJobView().getJobIdentifier(),accept);
     }
 
     public String ping(String message){
@@ -95,15 +93,10 @@ public class TransporterClient {
     }
 
     public JobView jobStatus(String id){
-        JobView jv;
-        for(Map.Entry<String,JobView> entry : _idsConversion.entrySet()){
-            for(TransporterPortType tp : _ports){
-                jv = tp.jobStatus(entry.getValue().getJobIdentifier());
-                if(equalsJobView(entry.getValue(),jv))
-                    return entry.getValue();
-            }
-        }
-        return null;
+        if(_jobsMap.get(id) == null)
+            return null;
+
+        return _jobsMap.get(id).getCompany().jobStatus(_jobsMap.get(id).getJobView().getJobIdentifier());
     }
 
     public boolean equalsJobView(JobView jv1, JobView jv2){
@@ -115,7 +108,7 @@ public class TransporterClient {
     public void clearTransports(){
         for(TransporterPortType tp :_ports)
             tp.clearJobs();
-        _tracking.clear();
+        _jobsMap.clear();
         _identifier = 0;
     }
 
@@ -125,12 +118,9 @@ public class TransporterClient {
         return String.valueOf(toGive);
     }
 
-    public ConcurrentHashMap<String,JobView> getJobs(){
-        return _idsConversion;
+    public ConcurrentHashMap<String,Identifier> getJobs(){
+        return _jobsMap;
     }
 
-    protected void changeStatus(){
-
-    }
 
 }

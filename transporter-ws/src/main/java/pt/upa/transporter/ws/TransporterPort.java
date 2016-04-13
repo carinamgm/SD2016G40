@@ -117,14 +117,15 @@ public class TransporterPort implements TransporterPortType {
     @Override
     public JobView decideJob(String id, boolean accept) throws BadJobFault_Exception{
         for(JobView jv : _jobsList){
-            if(jv.getJobIdentifier().equals(id) && JobStateView.PROPOSED.equals(jv.getJobState())) {
+            if(jv.getJobIdentifier().equals(id) && JobStateView.PROPOSED == jv.getJobState()) {
                 if(accept) {
                     jv.setJobState(JobStateView.ACCEPTED);
                     Timer t = new Timer();
                     t.schedule(new ChangeState(jv),generateRandomLong());
                 }
-                else
+                else {
                     jv.setJobState(JobStateView.REJECTED);
+                }
                 return jv;
             }
         }

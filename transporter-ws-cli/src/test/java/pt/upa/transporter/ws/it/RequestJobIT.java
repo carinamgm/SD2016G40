@@ -127,7 +127,7 @@ public class RequestJobIT{
     public void sucess() throws BadPriceFault_Exception, BadLocationFault_Exception {
         _tc.getTransporterClient().requestJob("Lisboa","Coimbra",0);
         for (int i = 0; i < _tc.getTransporterClient().getJobs().size(); i++)
-            assertTrue(_tc.getTransporterClient().getJobs().get(String.valueOf(i)).getJobPrice() == 0);
+            assertTrue(_tc.getTransporterClient().getJobs().get(String.valueOf(i)).getJobView().getJobPrice() == 0);
     }
 
     @Test(expected = BadPriceFault_Exception.class)
@@ -164,12 +164,12 @@ public class RequestJobIT{
 
     private void priceLessThan(int price) {
         for (int i = 0; i < _tc.getTransporterClient().getJobs().size(); i++)
-            assertTrue(_tc.getTransporterClient().getJobs().get(String.valueOf(i)).getJobPrice() < price);
+            assertTrue(_tc.getTransporterClient().getJobs().get(String.valueOf(i)).getJobView().getJobPrice() < price);
     }
 
     private void priceGreaterThan(int price) {
         for (int i = 0; i < _tc.getTransporterClient().getJobs().size(); i++)
-            assertTrue(_tc.getTransporterClient().getJobs().get(String.valueOf(i)).getJobPrice() > price);
+            assertTrue(_tc.getTransporterClient().getJobs().get(String.valueOf(i)).getJobView().getJobPrice() > price);
     }
 
     private void underPrices(String origem, String destino, int price, int parity) throws BadPriceFault_Exception, BadLocationFault_Exception{
@@ -205,7 +205,7 @@ public class RequestJobIT{
             for (int i = 0; i < _tc.getTransporterClient().getJobs().size(); i++) {
                 checkEquality = false;
                 for (JobView j : jv) {
-                    checkEquality = _tc.getTransporterClient().equalsJobView(_tc.getTransporterClient().getJobs().get(String.valueOf(i)), j);
+                    checkEquality = _tc.getTransporterClient().equalsJobView(_tc.getTransporterClient().getJobs().get(String.valueOf(i)).getJobView(), j);
                     if(checkEquality) {
                         jv.remove(j);
                         break;
@@ -224,7 +224,7 @@ public class RequestJobIT{
 
         _tc.getTransporterClient().requestJob(origem,destino,price);
         for(int i = 0 ; i < _tc.getTransporterClient().getJobs().size(); i++) {
-            companyName = _tc.getTransporterClient().getJobs().get(String.valueOf(i)).getCompanyName();
+            companyName = _tc.getTransporterClient().getJobs().get(String.valueOf(i)).getJobView().getCompanyName();
             if(Integer.valueOf(companyName.substring(_tc.getServiceName().length(), companyName.length())) % 2 == pair){
                 fail = true;
             }

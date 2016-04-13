@@ -3,9 +3,13 @@ package pt.upa.transporter.ws.it;
 import org.junit.*;
 import pt.upa.transporter.TransporterClientApplication;
 import pt.upa.transporter.ws.TransporterPortType;
+import pt.upa.transporter.ws.cli.Identifier;
+
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class JobStatusIT {
     // static members
@@ -60,21 +64,11 @@ public class JobStatusIT {
 
     @Test
     public void sucess() {
-        boolean valid = false;
-        for (TransporterPortType tp : _tc.getTransporterClient().getPorts()) {
-            valid = false;
-            for (int i = 0; i < _tc.getTransporterClient().getJobs().size(); i++) {
-                valid = _tc.getTransporterClient().equalsJobView(_tc.getTransporterClient().getJobs().get(String.valueOf(i)),
-                        tp.jobStatus(_tc.getTransporterClient().getJobs().get(String.valueOf(i)).getJobIdentifier()));
-                if(valid){
-                    _tc.getTransporterClient().getJobs().remove(i);
-                    break;
-                }
-            }
+        for(Map.Entry<String,Identifier> entry : _tc.getTransporterClient().getJobs().entrySet()){
+            assertTrue(_tc.getTransporterClient().equalsJobView(entry.getValue().getJobView(),
+                    entry.getValue().getCompany().jobStatus(entry.getValue().getJobView().getJobIdentifier())
+            ));
         }
-        assertEquals(0,_tc.getTransporterClient().getJobs().size());
-
-
     }
 
     @Test
