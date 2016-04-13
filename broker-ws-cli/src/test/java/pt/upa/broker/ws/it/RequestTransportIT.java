@@ -1,22 +1,14 @@
 package pt.upa.broker.ws.it;
 
 import org.junit.*;
-
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.broker.BrokerClientApplication;
 import pt.upa.broker.ws.*;
-import pt.upa.broker.ws.cli.BrokerClient;
+
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 //import java.util.List;
-
-import javax.xml.ws.BindingProvider;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
-
-import static org.junit.Assert.*;
 
 
 public class RequestTransportIT {

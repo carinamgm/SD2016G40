@@ -1,18 +1,10 @@
 package pt.upa.broker.ws.it;
 
 import org.junit.*;
-
 import pt.upa.broker.BrokerClientApplication;
 import pt.upa.broker.ws.*;
-import pt.upa.broker.ws.cli.BrokerClient;
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 
-import javax.xml.ws.BindingProvider;
-import java.util.Map;
-
-import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 
 

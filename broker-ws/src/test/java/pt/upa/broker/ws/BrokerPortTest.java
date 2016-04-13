@@ -1,15 +1,9 @@
 package pt.upa.broker.ws;
 
-import org.junit.*;
-import static org.junit.Assert.*;
-import mockit.*;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
-import pt.upa.broker.ws.BrokerPort;
-import pt.upa.transporter.ws.TransporterPort;
-import pt.upa.transporter.ws.cli.TransporterClient;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 
 public class BrokerPortTest {

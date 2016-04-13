@@ -19,7 +19,7 @@ public class BrokerClientApplication {
 
 	public static void main(String[] args) throws Exception {
 
-		// Check arguments
+        // args[0] - webservice url
 		if (args.length < 1) {
 			System.err.println("Argument(s) missing!");
 			System.err.printf("Missing: EndPointAddress %n", BrokerClient.class.getName());

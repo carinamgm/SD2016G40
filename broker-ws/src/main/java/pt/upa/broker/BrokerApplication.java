@@ -13,7 +13,9 @@ public class BrokerApplication {
 		System.out.println(BrokerApplication.class.getSimpleName() + " starting...");
 
 
-		// Check arguments
+		// args[0] - uddi url
+		// args[1] - webservice name
+		// args[2] - webservice url
 		if (args.length < 3) {
 			System.err.println("Argument(s) missing!");
 			System.err.printf("Usage: java %s uddiURL wsName wsURL%n", BrokerPort.class.getName());

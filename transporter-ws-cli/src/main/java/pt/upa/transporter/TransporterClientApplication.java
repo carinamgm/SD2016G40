@@ -9,14 +9,19 @@ import java.util.Collection;
 
 public class TransporterClientApplication {
 
-	private static final String _uddiURL= "http://localhost:9090";
-	private static final String _serviceName = "UpaTransporter";
 	private static TransporterClient _tc;
+	private static String _uddiURL= "http://localhost:9090";
+	private static String _serviceName = "UpaTransporter";
 	private static ArrayList<String> _transporterNames = new ArrayList<String>();
 
+	// The main class is useless since is the broker who creates the instance of TransporterClient directly
 	public static void main(String[] args) throws Exception {
-		System.out.println(TransporterClientApplication.class.getSimpleName() + " starting...");
+		// The args are not used for nothing but:
+		// arg[0] - uddiURL
+		// arg[1] - wsName
 	}
+
+	// Functions for the IT tests
 
 	public static void setup(){
 		UDDINaming uddi = null;
@@ -38,11 +43,6 @@ public class TransporterClientApplication {
 		return _tc;
 	}
 
-	public static void clean(){
-		_transporterNames.clear();
-		_tc.clearTransports();
-	}
-
 	public static ArrayList<String> getTransporterNames(){
 		return _transporterNames;
 	}
@@ -51,7 +51,10 @@ public class TransporterClientApplication {
 		return _serviceName;
 	}
 
-
+	public static void clean(){
+		_transporterNames.clear();
+		_tc.clearTransports();
+	}
 
 
 }

@@ -1,19 +1,17 @@
 package pt.upa.transporter.ws.it;
 
 import org.junit.*;
-import org.omg.PortableInterceptor.Interceptor;
 import pt.upa.transporter.TransporterClientApplication;
-import pt.upa.transporter.ws.*;
-import pt.upa.transporter.ws.cli.Identifier;
+import pt.upa.transporter.ws.BadJobFault_Exception;
+import pt.upa.transporter.ws.JobStateView;
+import pt.upa.transporter.ws.JobView;
 
-import java.util.Date;
 import java.util.Timer;
-
-import java.util.Map;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class DecideJobIT{
     private static final int _maxRunTime = 15000; // 15 sec in milisecs

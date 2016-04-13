@@ -1,22 +1,15 @@
 package pt.upa.broker.ws.it;
 
 import org.junit.*;
-
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-//import pt.upa.broker.ws.BrokerPort;
 import pt.upa.broker.BrokerClientApplication;
 import pt.upa.broker.ws.*;
-import pt.upa.broker.ws.cli.BrokerClient;
-//import pt.upa.transporter.ws.cli.TransporterClient;
 
-import javax.xml.ws.BindingProvider;
+import static org.junit.Assert.assertEquals;
+
+//import pt.upa.broker.ws.BrokerPort;
+//import pt.upa.transporter.ws.cli.TransporterClient;
 //import javax.xml.ws.Endpoint;
 //import java.util.Collection;
-import java.util.Map;
-
-import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
-
-import static org.junit.Assert.*;
 
 
 public class ClearTransportsIT {
