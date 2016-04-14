@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
@@ -15,10 +16,10 @@ public class TransporterClient {
 
     private ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();
     private ConcurrentHashMap<String,Identifier> _jobsMap = new ConcurrentHashMap<String,Identifier>();
-    private int _identifier = 0;
+    private AtomicInteger _identifier = new AtomicInteger(0);
 
     public TransporterClient(Collection<String> wsUrls){
-        for(String wsEndpoint : wsUrls){
+        for(int i = 0; i < wsUrls.size(); i++){
             TransporterService ts = new TransporterService();
             TransporterPortType port = ts.getTransporterPort();
             _ports.add(port);
@@ -109,13 +110,11 @@ public class TransporterClient {
         for(TransporterPortType tp :_ports)
             tp.clearJobs();
         _jobsMap.clear();
-        _identifier = 0;
+        _identifier.set(0);
     }
 
     private String generateId(){
-        int toGive = _identifier;
-        _identifier++;
-        return String.valueOf(toGive);
+        return Integer.toString(_identifier.getAndIncrement());
     }
 
     public ConcurrentHashMap<String,Identifier> getJobs(){

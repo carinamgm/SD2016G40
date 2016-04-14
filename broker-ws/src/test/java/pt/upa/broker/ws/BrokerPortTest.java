@@ -1,15 +1,18 @@
 package pt.upa.broker.ws;
 
 
-import mockit.*;
+import mockit.Mocked;
+import mockit.NonStrictExpectations;
 import org.junit.*;
-import static org.junit.Assert.*;
+import pt.upa.transporter.ws.BadLocationFault_Exception;
+import pt.upa.transporter.ws.BadPriceFault_Exception;
+import pt.upa.transporter.ws.JobStateView;
+import pt.upa.transporter.ws.JobView;
+import pt.upa.transporter.ws.cli.TransporterClient;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
-import pt.upa.transporter.ws.*;
-import pt.upa.transporter.ws.cli.TransporterClient;
+import static org.junit.Assert.assertEquals;
 
 
 
@@ -80,7 +83,7 @@ public List<TransportView> listTransports() {
     public void clearTransports()
 */
     // tests
-
+/*
     @Test
     public void successfullyScheduled() throws BadPriceFault_Exception,
 			BadLocationFault_Exception, InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
@@ -119,7 +122,7 @@ public List<TransportView> listTransports() {
     //	transport;
     //	wsUrls.add();
 
-    }
+    }*/
 
     /*
     @Test(expected = InvalidPriceFault_Exception.class)

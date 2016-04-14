@@ -8,6 +8,7 @@ import pt.upa.transporter.ws.cli.TransporterClient;
 
 import javax.jws.WebService;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @WebService(
@@ -20,7 +21,7 @@ import java.util.List;
 )
 public class BrokerPort implements BrokerPortType {
 	
-	private ArrayList<TransportView> _tvs = new ArrayList<TransportView>();
+	private List<TransportView> _tvs = Collections.synchronizedList(new ArrayList<TransportView>());
     private TransporterClient _tca;
 
     public BrokerPort(){}

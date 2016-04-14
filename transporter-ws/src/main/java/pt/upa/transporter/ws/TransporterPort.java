@@ -1,10 +1,7 @@
 package pt.upa.transporter.ws;
 
 import javax.jws.WebService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Timer;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -19,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TransporterPort implements TransporterPortType {
 
     private final ArrayList<String> _regions = new ArrayList<String>();
-    private List<JobView> _jobsList = new ArrayList<JobView>();
+    private List<JobView> _jobsList = Collections.synchronizedList(new ArrayList<JobView>());
     private final String _defaultName = "UpaTransporter";
     private int _transporterNumber;
     private String _companyName;
@@ -80,7 +77,7 @@ public class TransporterPort implements TransporterPortType {
         else {
             BadLocationFault blf = new BadLocationFault();
             blf.setLocation(origin + " " + destination);
-            throw new BadLocationFault_Exception("Invalidas rotas" + origin + " " + destination, blf);
+            throw new BadLocationFault_Exception("Invalid routes" + origin + " " + destination, blf);
         }
     }
 
@@ -120,7 +117,7 @@ public class TransporterPort implements TransporterPortType {
         }
         BadJobFault bjf = new BadJobFault();
         bjf.setId(id);
-        throw new BadJobFault_Exception("Não existe tal trabalho", bjf);
+        throw new BadJobFault_Exception("There is no such job", bjf);
     }
 
     @Override
