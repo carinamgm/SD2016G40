@@ -1,5 +1,6 @@
 package pt.upa.broker.ws;
 
+
 import mockit.*;
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -9,6 +10,7 @@ import java.util.Collection;
 
 import pt.upa.transporter.ws.*;
 import pt.upa.transporter.ws.cli.TransporterClient;
+
 
 
 public class BrokerPortTest {
@@ -65,7 +67,6 @@ public class BrokerPortTest {
 
     _tca.decideJob(chosenJobView.getJobIdentifier(), true);
 
-
     viewTransport!!!!!!!
 
     jv = _tca.jobStatus(id);
@@ -77,10 +78,7 @@ public List<TransportView> listTransports() {
 
 
     public void clearTransports()
-
-
-
-    */
+*/
     // tests
 
     @Test
@@ -217,7 +215,6 @@ public List<TransportView> listTransports() {
     	// 1 ONGOING
     	
     	// listTransports();
-    	
     }
     
     @Test
@@ -230,7 +227,3 @@ public List<TransportView> listTransports() {
 */
 
 }
-
-
-
-

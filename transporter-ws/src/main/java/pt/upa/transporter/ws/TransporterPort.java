@@ -162,7 +162,7 @@ public class TransporterPort implements TransporterPortType {
 
     private long generateRandomLong(){
         Random random = new Random();
-        return  1 + (long)(random.nextDouble()*(5 - 1));
+        return  (1 + (long)(random.nextDouble()*(5 - 1))) * 1000;
     }
 
 

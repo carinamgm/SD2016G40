@@ -1,67 +1,30 @@
 package pt.upa.broker.ws.it;
 
 import org.junit.*;
-
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.upa.broker.BrokerClientApplication;
 import pt.upa.broker.ws.*;
-import pt.upa.broker.ws.cli.BrokerClient;
 
-import javax.xml.ws.BindingProvider;
-import java.util.Map;
-
-import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class ListTransportsIT {
 
     // static members
-    private static BrokerClient _bc;
-    private static List<TransportView> _result;
-    private static final String _uddiURL= "http://localhost:9090";
-    private static final String _serviceName = "UpaBroker";
+    private static BrokerClientApplication _bcp;
+    private static String _id1;
+    private static String _id2;
 
     // one-time initialization and clean-up
     @BeforeClass
     public static void oneTimeSetUp() {
-        UDDINaming uddiNaming = null;
-        _result = null;
-        String endpointAddress;
-
-        System.out.println("----------------------");
-        System.out.println("------- TESTING ------");
-        System.out.println("--- LISTTRANSPORTS ---");
-
-        try {
-            uddiNaming = new UDDINaming(_uddiURL);
-            endpointAddress = uddiNaming.lookup(_serviceName);
-
-            System.out.println("EndPointAddress: " + endpointAddress);
-
-            System.out.println("Creating stub ...");
-            BrokerService service = new BrokerService();
-            BrokerPortType port = service.getBrokerPort();
-
-            System.out.println("Setting endpoint address ...");
-            BindingProvider bindingProvider = (BindingProvider) port;
-            Map<String, Object> requestContext = bindingProvider.getRequestContext();
-            requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
-
-            _bc = new BrokerClient(port);
-
-        } catch (Exception e) {
-            System.out.printf("Caught exception: %s%n", e);
-            e.printStackTrace();
-        }
-
+        _bcp = new BrokerClientApplication();
+        _bcp.testSetup();
     }
 
     @AfterClass
     public static void oneTimeTearDown() {
-        _bc = null;
+        _bcp = null;
     }
 
     // members
@@ -69,38 +32,44 @@ public class ListTransportsIT {
     @Before
     public void setUp() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
-       /* _bc.schedule("Porto", "Lisboa", 40);
-        _bc.schedule("Lisboa", "Faro", 51);
+        _bcp = new BrokerClientApplication();
+        _bcp.testSetup();
+
+        _id1 = _bcp.getBrokerClient().schedule("Porto", "Lisboa", 40);
+        _id2 = _bcp.getBrokerClient().schedule("Lisboa", "Faro", 51);
 
         try {
-            _bc.schedule("Leiria", "Braga", 35);
+            _bcp.getBrokerClient().schedule("Leiria", "Braga", 35);
         } catch (UnavailableTransportPriceFault_Exception e) {}
         try {
-            _bc.schedule("Beja", "Viseu", 16);
+            _bcp.getBrokerClient().schedule("Beja", "Viseu", 16);
         } catch (UnavailableTransportPriceFault_Exception e) {}
-*/
+
     }
 
     @After
     public void tearDown() {
-        _bc.clearTransports();
+        _bcp.getBrokerClient().clearTransports();
     }
-
 
     // tests
 
- /*   @Test
-    public void simpleStatesTransportView() {
-
-    	_result = _bc.listScheduleTransports();
-    	printf("LISTING TRANSPORTS: %s\n", _result);
-    }
-
     @Test
-    public void varyingAndSimpleStatesTransportView() {
+    public void simpleStatesTransportView() {
+       assertEquals(2,_bcp.getBrokerClient().listScheduleTransports().size());
+       for(TransportView tv : _bcp.getBrokerClient().listScheduleTransports()){
+           if(tv.getId() == _id1){
+               assertTrue(tv.getOrigin().equals("Porto") && tv.getDestination().equals("Lisboa") && tv.getPrice() < 40 &&
+                       Integer.valueOf(tv.getTransporterCompany().substring(14, tv.getTransporterCompany().length())) % 2 == 0 && tv.getState() == TransportStateView.BOOKED);
+           }
+           if(tv.getId() == _id2){
+               assertTrue(tv.getOrigin().equals("Porto") && tv.getDestination().equals("Lisboa") && tv.getPrice() < 51 &&
+                       Integer.valueOf(tv.getTransporterCompany().substring(14, tv.getTransporterCompany().length())) % 2 == 1 && tv.getState() == TransportStateView.BOOKED);
+           }
 
-        _result = _bc.listScheduleTransports();
-        printf("LISTING TRANSPORTS: %s\n", _result);
+       }
     }
-*/
+
+
+
 }

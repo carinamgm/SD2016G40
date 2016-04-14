@@ -69,7 +69,7 @@ public class TransporterClient {
         if(nBadLocations == _ports.size()){
             BadLocationFault blf = new BadLocationFault();
             blf.setLocation(origin + " " + destination);
-            throw new BadLocationFault_Exception("Invalidas rotas " + origin + " " + destination, blf);
+            throw new BadLocationFault_Exception("Invalid Routes " + origin + " " + destination, blf);
         }
 
         return proposals.size() == 0 ? null : proposals;
@@ -79,7 +79,7 @@ public class TransporterClient {
         if(_jobsMap.get(id) == null) {
             BadJobFault bjf = new BadJobFault();
             bjf.setId(id);
-            throw new BadJobFault_Exception("Não existe tal trabalho", bjf);
+            throw new BadJobFault_Exception("There is no such job ", bjf);
         }
 
         _jobsMap.get(id).getCompany().decideJob(_jobsMap.get(id).getJobView().getJobIdentifier(),accept);

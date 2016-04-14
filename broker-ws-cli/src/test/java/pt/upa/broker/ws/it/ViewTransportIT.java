@@ -1,17 +1,10 @@
 package pt.upa.broker.ws.it;
 
 import org.junit.*;
-
+import pt.upa.broker.BrokerClientApplication;
 import pt.upa.broker.ws.*;
-import pt.upa.broker.ws.cli.BrokerClient;
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 
-import javax.xml.ws.BindingProvider;
-import java.util.Map;
-
-import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 
 
@@ -19,78 +12,54 @@ import static org.junit.Assert.*;
 public class ViewTransportIT {
 
     // static members
-    private static BrokerClient _bc;
-    private static final String _uddiURL= "http://localhost:9090";
-    private static final String _serviceName = "UpaBroker";
+    private static BrokerClientApplication _bcp;
     private static String _transpId;
+
+
+    // static members
 
 
     // one-time initialization and clean-up
     @BeforeClass
     public static void oneTimeSetUp() {
-        _transpId = "";
-        UDDINaming uddiNaming = null;
-        String endpointAddress;
-
-        System.out.println("----------------------");
-        System.out.println("------- TESTING ------");
-        System.out.println("--- VIEW TRANSPORT ---");
-
-        try {
-            uddiNaming = new UDDINaming(_uddiURL);
-            endpointAddress = uddiNaming.lookup(_serviceName);
-
-            System.out.println("EndPointAddress: " + endpointAddress);
-
-            System.out.println("Creating stub ...");
-            BrokerService service = new BrokerService();
-            BrokerPortType port = service.getBrokerPort();
-
-            System.out.println("Setting endpoint address ...");
-            BindingProvider bindingProvider = (BindingProvider) port;
-            Map<String, Object> requestContext = bindingProvider.getRequestContext();
-            requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
-
-            _bc = new BrokerClient(port);
-
-        } catch (Exception e) {
-            System.out.printf("Caught exception: %s%n", e);
-            e.printStackTrace();
-        }
-
+        _bcp = new BrokerClientApplication();
     }
 
     @AfterClass
     public static void oneTimeTearDown() {
-        _transpId = "";
-    	_bc = null;
+        _bcp = null;
     }
-
 
     // members
     // initialization and clean-up for each test
     @Before
     public void setUp() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
-	UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
+            UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
+        _bcp = new BrokerClientApplication();
+        _bcp.testSetup();
+
+        _transpId = _bcp.getBrokerClient().schedule("Porto", "Lisboa", 40);
+
+
     }
 
     @After
     public void tearDown() {
-        _bc.clearTransports();
+        _bcp.getBrokerClient().clearTransports();
+        _bcp = null;
         _transpId = "";
     }
 
 
     // tests
 
-/*    @Test
+   @Test
     public void successfulViewTransport() throws UnknownTransportFault_Exception, InvalidPriceFault_Exception,
             UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
+
     	TransportView transpState;
 
-        _transpId = _bc.schedule("Porto", "Lisboa", 40);
-    	transpState = _bc.checkTransportState(_transpId);
-
+       transpState = _bcp.getBrokerClient().checkTransportState(_transpId);
         assertEquals(TransportStateView.BOOKED, transpState.getState());
     }
 
@@ -100,33 +69,33 @@ public class ViewTransportIT {
         TransportView transpState;
 
         Thread.sleep(15000);
-        transpState = _bc.checkTransportState(transpId);
+        transpState = _bcp.getBrokerClient().checkTransportState(_transpId);
 
         assertEquals(TransportStateView.COMPLETED, transpState.getState());
     }
-*/
+
     @Test(expected = UnknownTransportFault_Exception.class)
     public void sendNegativeIdViewTransport() throws UnknownTransportFault_Exception {
 
-        _bc.checkTransportState("-5");
+        _bcp.getBrokerClient().checkTransportState("-5");
     }
 
     @Test(expected = UnknownTransportFault_Exception.class)
     public void sendNullViewTransport() throws UnknownTransportFault_Exception {
-    	
-    	_bc.checkTransportState(null);
+
+        _bcp.getBrokerClient().checkTransportState(null);
     }
     
     @Test(expected = UnknownTransportFault_Exception.class)
     public void sendEmptyStringViewTransport() throws UnknownTransportFault_Exception {
-    	
-    	_bc.checkTransportState("");
+
+        _bcp.getBrokerClient().checkTransportState("");
     }
 
     @Test(expected = UnknownTransportFault_Exception.class)
     public void sendWeirdCharactersViewTransport() throws UnknownTransportFault_Exception {
-    	
-    	_bc.checkTransportState("&$&/(%=");
+
+        _bcp.getBrokerClient().checkTransportState("&$&/(%=");
     }
 
 }
