@@ -70,7 +70,7 @@ public class TransporterClient {
         if(nBadLocations == _ports.size()){
             BadLocationFault blf = new BadLocationFault();
             blf.setLocation(origin + " " + destination);
-            throw new BadLocationFault_Exception("Invalid Routes " + origin + " " + destination, blf);
+            throw new BadLocationFault_Exception("Invalid Routes " + origin + " - " + destination, blf);
         }
 
         return proposals.size() == 0 ? null : proposals;

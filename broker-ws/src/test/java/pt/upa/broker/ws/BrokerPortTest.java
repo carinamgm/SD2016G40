@@ -7,10 +7,7 @@ import mockit.Mocked;
 import mockit.NonStrictExpectations;
 import mockit.Verifications;
 import org.junit.*;
-import pt.upa.transporter.ws.BadLocationFault_Exception;
-import pt.upa.transporter.ws.BadPriceFault_Exception;
-import pt.upa.transporter.ws.JobStateView;
-import pt.upa.transporter.ws.JobView;
+import pt.upa.transporter.ws.*;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
 import java.util.ArrayList;
@@ -28,6 +25,8 @@ public class BrokerPortTest {
     @Mocked TransporterClient _tca;
     private String _upa1 = "UpaTransporter1";
     private String _upa2 = "UpaTransporter2";
+    private String _upa3 = "UpaTransporter3";
+    private String _upa4 = "UpaTransporter4";
 
 	// one-time initialization and clean-up
 
@@ -54,20 +53,17 @@ public class BrokerPortTest {
 
     
     @Test
-    public void simpleAccept() throws Exception {
+    public void simpleEvenAccept() throws Exception {
         // Preparation code not specific to JMockit, if any.
         String origin = "Lisboa";
         String destination = "Porto";
         String id = "0";
-        int price = 0;
-        JobView jv = createJobView(JobStateView.PROPOSED, price, origin, destination, id, _upa2);
+        int budgetPrice = 20;
+        int jobPrice = 10;
+        JobView jv = createJobView(JobStateView.PROPOSED, jobPrice, origin, destination, id, _upa2);
 
-
-        // METES O QUE ESPERAS QUE O TRANSPORTER CLIENT RETORNE AO BROKER OU SEJA QUANDO O BROKER FOR CHAMAR O TRANSPORTER CLIENT O QUE VAI RECEBER PARA OPERAR SOBRE ESSES DADOS
-        // an "expectation block"
-        // One or more invocations to mocked types, causing expectations to be recorded.
         new Expectations() {{
-            _tca.requestJob("Lisboa", "Porto", 0);
+            _tca.requestJob(origin, destination, budgetPrice);
             result = jv;
             _tca.decideJob(id, true);
             jv.setJobState(JobStateView.ACCEPTED);
@@ -75,25 +71,17 @@ public class BrokerPortTest {
             result = jv;
         }};
 
-        // EXECUTAS OS METODOS DO BROKER NORMALMENTE
-        // Unit under test is exercised.
         BrokerPort bp = new BrokerPort(_tca);
 
-
-        String idOfRequestedJob = bp.requestTransport(origin, destination, 0);
+        String idOfRequestedJob = bp.requestTransport(origin, destination, budgetPrice);
         TransportView outputTv = bp.viewTransport(id);
 
-        // O NUMERO DE VEZES QUE PODE SER CHAMADA CADA FUNCAO DO TRANSPORTER CLIENT A PARTIR DO BROKER COM X ARGUMENTOS
-        // One or more invocations to mocked types, causing expectations to be verified.
         new Verifications() {{
-            // Verifies that zero or one invocations occurred, with the specified argument value:
-            _tca.requestJob(origin, destination, price); maxTimes = 1;
+            _tca.requestJob(origin, destination, budgetPrice); maxTimes = 1;
             _tca.decideJob(id, true); maxTimes = 1;
             _tca.jobStatus(id); maxTimes = 1;
         }};
 
-        // FAZES OS TESTES AQUI DOS ASSERTS
-        // Additional verification code, if any, either here or before the verification block.
         assertEquals("The Correct ID was not returned.", id, idOfRequestedJob);
 
         List<TransportView> tvs = bp.listTransports();
@@ -108,184 +96,500 @@ public class BrokerPortTest {
 
     }
 
+    @Test
+    public void simpleOddAccept() throws Exception {
+        String origin = "Faro";
+        String destination = "Lisboa";
+        String id = "0";
+        int budgetPrice = 25;
+        int jobPrice = 12;
+        JobView jv = createJobView(JobStateView.PROPOSED, jobPrice, origin, destination, id, _upa1);
 
-    // Mocking Transporter clis
-    /*
+        new Expectations() {{
+            _tca.requestJob(origin, destination, budgetPrice);
+            result = jv;
+            _tca.decideJob(id, true);
+            jv.setJobState(JobStateView.ACCEPTED);
+            _tca.jobStatus(id);
+            result = jv;
+        }};
 
-	@Mocked TransporterClient transClient
+        BrokerPort bp = new BrokerPort(_tca);
 
-	@Mocked
+        String idOfRequestedJob = bp.requestTransport(origin, destination, budgetPrice);
+        TransportView outputTv = bp.viewTransport(id);
 
-	private ArrayList<TransportView> _tvs = new ArrayList<TransportView>();
-    private TransporterClient _tca;
+        new Verifications() {{
+            // Verifies that zero or one invocations occurred, with the specified argument value:
+            _tca.requestJob(origin, destination, budgetPrice); maxTimes = 1;
+            _tca.decideJob(id, true); maxTimes = 1;
+            _tca.jobStatus(id); maxTimes = 1;
+        }};
 
+        assertEquals("The Correct ID was not returned.", id, idOfRequestedJob);
 
-	requestTransport
+        List<TransportView> tvs = bp.listTransports();
+        assertEquals(1,tvs.size());
 
-    proposals = _tca.requestJob(origin,destination,price);
-
-    _tca.decideJob(chosenJobView.getJobIdentifier(), true);
-
-    viewTransport!!!!!!!
-
-    jv = _tca.jobStatus(id);
-
-
-public List<TransportView> listTransports() {
-        return _tvs;
+        for(TransportView tv : tvs){
+            if(tv.getId().equals(id)){
+                assertTrue(comparateTransportsViews(outputTv,tv));
+                assertEquals(TransportStateView.BOOKED, tv.getState());
+            }
+        }
     }
 
 
-    public void clearTransports()
-*/
-    // tests
-/*
-    @Test
-    public void successfullyScheduled() throws BadPriceFault_Exception,
-			BadLocationFault_Exception, InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
-			UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception{
-
-        BrokerPort _bp = new BrokerPort();
-    	final String ORIGIN = "Lisboa";
-    	final String DEST = "Braga";
-    	final int PRICE = 30;
-		String endresult;
-
-        ArrayList<JobView> offers = new ArrayList<JobView>();
-        JobView jv = new JobView();
-
-        jv.setCompanyName("UpaTransporter2");
-        jv.setJobDestination(DEST);
-        jv.setJobIdentifier("0");
-        jv.setJobOrigin(ORIGIN);
-        jv.setJobPrice(20);
-        jv.setJobState(JobStateView.PROPOSED);
-        offers.add(jv);
-
-		new NonStrictExpectations() {{
-            _tca.requestJob(ORIGIN, DEST, PRICE); result = offers;
-		}};
-
-        endresult = _bp.requestTransport(ORIGIN, DEST, PRICE);
-
-        assertEquals("0", endresult);
-
-	//	ArrayList<TransporterPort> _ports = new ArrayList<TransporterPort>();
-    //	Collection<String> wsUrls;
-
-	//UpaTransporter1;
-    //	UpaTransporter2;
-    //	transport;
-    //	wsUrls.add();
-
-    }*/
-
-    /*
     @Test(expected = InvalidPriceFault_Exception.class)
-    public void wrongPrice(){}
-    		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
-    		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
-    	
-    	final String ORIGIN = "Lisboa";
-    	final String DEST = "Leiria";
-    	final int PRICE = -1;
-    	
-    	BrokerPort broker = new BrokerPort(transClient);
-    	
-    	broker.requestTransport(ORIGIN, DEST, PRICE);
+    public void negativePrice() throws Exception {
+        String origin = "Faro";
+        String destination = "Lisboa";
+        int budgetPrice = -5;
+
+        new Expectations() {{
+            _tca.requestJob(origin, destination, budgetPrice);
+            {
+                BadPriceFault bf = new BadPriceFault();
+                bf.setPrice(budgetPrice);
+                result = new BadPriceFault_Exception("Prices can't be negative", bf);
+            }
+        }};
+
+        BrokerPort bp = new BrokerPort(_tca);
+
+        bp.requestTransport(origin, destination, budgetPrice);
+
+        new Verifications() {{
+            // Verifies that zero or one invocations occurred, with the specified argument value:
+            _tca.requestJob(origin, destination, budgetPrice); maxTimes = 1;
+        }};
+
+        List<TransportView> tvs = bp.listTransports();
+        assertEquals(1,tvs.size());
+
+        for(TransportView tv : tvs){
+            assertEquals(TransportStateView.FAILED, tv.getState());
+        }
     }
-   
+
     @Test(expected = UnavailableTransportFault_Exception.class)
-    public void nonAvailableTransportForTrip(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport)
-    		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
-    		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
-    	
-    	final String ORIGIN = "Porto";
-    	final String DEST = "Faro";
-    	final int PRICE = 30;
-    	
-    	BrokerPort broker = new BrokerPort(transClient);
-    	
-    	broker.requestTransport(ORIGIN, DEST, PRICE);
+    public void nonAvailableTransportForTrip() throws Exception {
+        String origin = "Faro";
+        String destination = "Lisboa";
+        int budgetPrice = 101;
+
+        new Expectations() {{
+            _tca.requestJob(origin, destination, budgetPrice);
+            result = null;
+        }};
+
+        BrokerPort bp = new BrokerPort(_tca);
+
+        bp.requestTransport(origin, destination, budgetPrice);
+
+        new Verifications() {{
+            _tca.requestJob(origin, destination, budgetPrice); maxTimes = 1;
+        }};
+
+        List<TransportView> tvs = bp.listTransports();
+        assertEquals(1, tvs.size());
+
+        for (TransportView tv : tvs) {
+            assertEquals(TransportStateView.FAILED, tv.getState());
+        }
     }
-     
+
+
     @Test(expected = UnavailableTransportPriceFault_Exception.class)
-    public void nonAvailableTransportByPrice(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport)
-    		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
-    		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
-    	
-    	
-    	final String ORIGIN = "Lisboa";
-    	final String DEST = "Beja";
-    	final int PRICE = 30;
-    	
-    	//UpaTransporter makes an offer of 55, price is above budget
-    	
-    	BrokerPort broker = new BrokerPort(transClient);
-    	
-    	broker.requestTransport(ORIGIN, DEST, PRICE);
-    }
-    
-    @Test
-    public void gettingTransport(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport)
-    		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
-    		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
-    	
-    	
-    	final String ORIGIN = "Lisboa";
-    	final String DEST = "Beja";
-    	final int PRICE = 30;
-    	
-    	BrokerPort broker = new BrokerPort(transClient);
-    	
-    	broker.requestTransport(ORIGIN, DEST, PRICE);    	
-    }
-    
-    @Test
-    public void twoTransportsSamePrice(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport)
-    		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
-    		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
-    	
-    	
-    	final String ORIGIN = "Porto";
-    	final String DEST = "Lisboa";
-    	final int PRICE = 30;
-    	
-    	//Need 2 different UpaTransporters to make an offer of 15, in the end must choose 1
-    	
-    	BrokerPort broker = new BrokerPort(transClient);
-    	
-    	broker.requestTransport(ORIGIN, DEST, PRICE); 
+    public void nonAvailableTransportByPrice() throws Exception {
+        String origin = "Setúbal";
+        String destination = "Lisboa";
+        String id = "0";
+        int budgetPrice = 12;
+        int jobPrice = 20;
+        JobView jv = createJobView(JobStateView.PROPOSED, jobPrice, origin, destination, id, _upa1);
+
+        new Expectations() {{
+            _tca.requestJob(origin, destination, budgetPrice);
+            result = jv;
+        }};
+
+        BrokerPort bp = new BrokerPort(_tca);
+
+        bp.requestTransport(origin, destination, budgetPrice);
+
+        new Verifications() {{
+            _tca.requestJob(origin, destination, budgetPrice); maxTimes = 1;
+        }};
+
+        List<TransportView> tvs = bp.listTransports();
+        assertEquals(1, tvs.size());
+
+        for (TransportView tv : tvs) {
+            assertEquals(TransportStateView.FAILED, tv.getState());
+        }
     }
 
     @Test
-    public void pinging() {
-    	// assertEquals("TaxisBetterThanUber" , ping("TaxisBetterThanUber"));
+    public void differentTransportersSameRegion() throws Exception {
+
+    	final String origin = "Leiria";
+    	final String destination = "Santarém";
+        String id = "0";
+    	int budgetPrice = 30;
+        int jobPriceupa1 = 40;
+        int jobPriceupa2 = 10;
+        JobView jv1 = createJobView(JobStateView.PROPOSED, jobPriceupa1, origin, destination, id, _upa1);
+        JobView jv2 = createJobView(JobStateView.PROPOSED, jobPriceupa2, origin, destination, id, _upa2);
+        ArrayList<JobView> listjv = new ArrayList<JobView>();
+        listjv.add(jv1);
+        listjv.add(jv2);
+
+        new Expectations() {{
+            _tca.requestJob(origin, destination, budgetPrice);
+            result = listjv;
+            _tca.decideJob(id, true);
+            jv2.setJobState(JobStateView.ACCEPTED);
+            _tca.jobStatus(id);
+            result = jv2;
+        }};
+
+        BrokerPort bp = new BrokerPort(_tca);
+
+
+        String idOfRequestedJob = bp.requestTransport(origin, destination, budgetPrice);
+        TransportView outputTv = bp.viewTransport(id);
+
+        new Verifications() {{
+            _tca.requestJob(origin, destination, budgetPrice); maxTimes = 1;
+            _tca.decideJob(id, true); maxTimes = 1;
+            _tca.jobStatus(id); maxTimes = 1;
+        }};
+
+        assertEquals("The Correct ID was not returned.", id, idOfRequestedJob);
+
+        List<TransportView> tvs = bp.listTransports();
+        assertEquals(1,tvs.size());
+
+        for(TransportView tv : tvs){
+            if(tv.getId().equals(id)){
+                assertTrue(comparateTransportsViews(outputTv,tv));
+                assertEquals(TransportStateView.BOOKED, tv.getState());
+            }
+        }
     }
-    
+
     @Test
-    public void listingTransportsStates(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport) {
-    	
-    	ArrayList<TransportView> _tvs = new ArrayList<TransportView>();
-    	// 4 different transporters, 1 for each 4 different states
-    	// 1 BUDGETED
-    	// 1 PROPOSED
-    	// 1 FAILED
-    	// 1 ONGOING
-    	
-    	// listTransports();
+    public void OddTransportersSameRegion() throws Exception {
+
+        final String origin = "Faro";
+        final String destination = "Santarém";
+        String id = "0";
+        int budgetPrice = 25;
+        int jobPrice = 10;
+        JobView jv1 = createJobView(JobStateView.PROPOSED, jobPrice, origin, destination, id, _upa1);
+        JobView jv3 = createJobView(JobStateView.PROPOSED, jobPrice, origin, destination, id, _upa3);
+        ArrayList<JobView> listjv = new ArrayList<JobView>();
+        listjv.add(jv1);
+        listjv.add(jv3);
+
+        new Expectations() {{
+            _tca.requestJob(origin, destination, budgetPrice);
+            result = listjv;
+            _tca.decideJob(id, true);
+            jv3.setJobState(JobStateView.ACCEPTED);
+            _tca.jobStatus(id);
+            result = jv3;
+        }};
+
+        BrokerPort bp = new BrokerPort(_tca);
+
+
+        String idOfRequestedJob = bp.requestTransport(origin, destination, budgetPrice);
+        TransportView outputTv = bp.viewTransport(id);
+
+        new Verifications() {{
+            _tca.requestJob(origin, destination, budgetPrice); maxTimes = 1;
+            _tca.decideJob(id, true); maxTimes = 1;
+            _tca.jobStatus(id); maxTimes = 1;
+        }};
+
+        assertEquals("The Correct ID was not returned.", id, idOfRequestedJob);
+
+        List<TransportView> tvs = bp.listTransports();
+        assertEquals(1,tvs.size());
+
+        for(TransportView tv : tvs){
+            if(tv.getId().equals(id)){
+                assertTrue(comparateTransportsViews(outputTv,tv));
+                assertEquals(TransportStateView.BOOKED, tv.getState());
+            }
+        }
     }
-    
+
+    @Test(expected = UnknownLocationFault_Exception.class)
+    public void wrongDestinationCity() throws Exception {
+        String origin = "Lisboa";
+        String destination = "Caldas da Rainha";
+        int budgetPrice = 20;
+
+        new Expectations() {{
+            _tca.requestJob(origin, destination, budgetPrice);
+            {
+                BadLocationFault blf = new BadLocationFault();
+                blf.setLocation(origin + " " + destination);
+                result = new BadLocationFault_Exception("Invalid Routes " + origin + " - " + destination, blf);
+            }
+        }};
+
+        BrokerPort bp = new BrokerPort(_tca);
+
+        bp.requestTransport(origin, destination, budgetPrice);
+
+        new Verifications() {{
+            _tca.requestJob(origin, destination, budgetPrice); maxTimes = 1;
+        }};
+    }
+
     @Test
-    public void clearAllData() {
+    public void multipleTransportersMultipleTransports() throws Exception {
 
-        ArrayList<TransportView> _tvs = new ArrayList<TransportView>();
-        //Mock a couple transporters, then ask to clear data???
-        _bp.clearTransports();
+        final String origin = "Lisboa";
+        final String destination = "Santarém";
+        String ideven = "0";
+        String idodd = "1";
+        int budgetjvodd = 25;
+        int budgetjveven = 20;
+        int jobPricejvodd = 15;
+        int jobPricejveven = 10;
+        JobView jv2 = createJobView(JobStateView.PROPOSED, jobPricejveven, origin, destination, ideven, _upa2);
+        JobView jv1 = createJobView(JobStateView.PROPOSED, jobPricejvodd, origin, destination, idodd, _upa1);
+        JobView jv3 = createJobView(JobStateView.PROPOSED, jobPricejvodd, origin, destination, idodd, _upa3);
+        ArrayList<JobView> listjvodd = new ArrayList<JobView>();
+        listjvodd.add(jv1);
+        listjvodd.add(jv3);
+
+        new Expectations() {{
+            _tca.requestJob(origin, destination, budgetjveven);
+            result = jv2;
+            _tca.decideJob(ideven, true);
+            jv2.setJobState(JobStateView.ACCEPTED);
+            _tca.jobStatus(ideven);
+            result = jv2;
+
+            _tca.requestJob(origin, destination, budgetjvodd);
+            result = listjvodd;
+            _tca.decideJob(idodd, true);
+            jv1.setJobState(JobStateView.ACCEPTED);
+            _tca.jobStatus(idodd);
+            result = jv1;
+        }};
+
+        BrokerPort bp = new BrokerPort(_tca);
+
+        String idOfEvenJob = bp.requestTransport(origin, destination, budgetjveven);
+        String idOfOddJob = bp.requestTransport(origin, destination, budgetjvodd);
+
+        TransportView outputTvEvenJob = bp.viewTransport(ideven);
+        TransportView outputTvOddJob = bp.viewTransport(idodd);;
+
+        new Verifications() {{
+            _tca.requestJob(origin, destination, budgetjveven); maxTimes = 1;
+            _tca.decideJob(ideven, true); maxTimes = 1;
+            _tca.jobStatus(ideven); maxTimes = 1;
+            _tca.requestJob(origin, destination, budgetjvodd); maxTimes = 1;
+            _tca.decideJob(idodd, true); maxTimes = 1;
+            _tca.jobStatus(idodd); maxTimes = 1;
+        }};
+
+        assertEquals("The Correct ID for Even Transporter was not returned.", ideven, idOfEvenJob);
+        assertEquals("The Correct ID for Odd Transporter was not returned.", idodd, idOfOddJob);
+
+        List<TransportView> tvs = bp.listTransports();
+        assertEquals(2,tvs.size());
+
+        for(TransportView tv : tvs){
+            if(tv.getId().equals(ideven)){
+                assertTrue(comparateTransportsViews(outputTvEvenJob,tv));
+                assertEquals(TransportStateView.BOOKED, tv.getState());
+            }
+            if(tv.getId().equals(idodd)){
+                assertTrue(comparateTransportsViews(outputTvOddJob,tv));
+                assertEquals(TransportStateView.BOOKED, tv.getState());
+            }
+        }
     }
 
+    @Test
+    public void multipleTransportersMultipleStates() throws Exception {
 
-*/
+        final String originJob1 = "Castelo Branco";
+        final String originJob2 = "Lisboa";
+        final String originJob3 = "Viana do Castelo";
+        final String destinationForAllJobs = "Guarda";
+        final String id1 = "0";
+        final String id2 = "1";
+        final String id3 = "2";
+        final int budget1 = 25;
+        final int budget2 = 20;
+        final int budget3 = 10;
+        final int jobPrice1 = 10;
+        final int jobPrice2 = 10;
+        final int jobPrice3 = 8;
+
+        JobView jv1 = createJobView(JobStateView.PROPOSED, jobPrice1, originJob1, destinationForAllJobs, id1, _upa1);
+        JobView jv2 = createJobView(JobStateView.PROPOSED, jobPrice2, originJob2, destinationForAllJobs, id2, _upa2);
+        JobView jv3 = createJobView(JobStateView.PROPOSED, jobPrice3, originJob3, destinationForAllJobs, id3, _upa3);
+
+        ArrayList<JobView> listjvall = new ArrayList<JobView>();
+        listjvall.add(jv1);
+        listjvall.add(jv2);
+        listjvall.add(jv3);
+
+        new Expectations() {{
+            //Expectations for the 1st Job
+            _tca.requestJob(originJob1, destinationForAllJobs, budget1);
+            result = jv1;
+            _tca.decideJob(id1, true);
+            jv1.setJobState(JobStateView.ACCEPTED);
+            _tca.jobStatus(id1);
+            result = jv1;
+
+            //Expectations for the 2nd Job
+            _tca.requestJob(originJob2, destinationForAllJobs, budget2);
+            result = jv2;
+            _tca.decideJob(id2, true);
+            jv2.setJobState(JobStateView.ACCEPTED);
+            _tca.jobStatus(id2);
+            {
+                jv2.setJobState(JobStateView.HEADING);
+                result = jv2;
+            }
+
+            //Expectations for the 3rd Job
+            _tca.requestJob(originJob3, destinationForAllJobs, budget3);
+            result = listjvall;
+            _tca.decideJob(id3, true);
+            jv3.setJobState(JobStateView.ACCEPTED);
+            _tca.jobStatus(id3);
+            {
+                jv3.setJobState(JobStateView.COMPLETED);
+                result = jv3;
+            }
+        }};
+
+        BrokerPort bp = new BrokerPort(_tca);
+
+        String idOfJob1 = bp.requestTransport(originJob1, destinationForAllJobs, budget1);
+        String idOfJob2 = bp.requestTransport(originJob2, destinationForAllJobs, budget2);
+        String idOfJob3 = bp.requestTransport(originJob3, destinationForAllJobs, budget3);
+
+        TransportView outputTvJob1 = bp.viewTransport(id1);
+        TransportView outputTvJob2 = bp.viewTransport(id2);
+        TransportView outputTvJob3 = bp.viewTransport(id3);
+
+        new Verifications() {{
+            _tca.requestJob(originJob1, destinationForAllJobs, budget1); maxTimes = 1;
+            _tca.decideJob(id1, true); maxTimes = 1;
+            _tca.jobStatus(id1); maxTimes = 1;
+            _tca.requestJob(originJob2, destinationForAllJobs, budget2); maxTimes = 1;
+            _tca.decideJob(id2, true); maxTimes = 1;
+            _tca.jobStatus(id2); maxTimes = 1;
+            _tca.requestJob(originJob3, destinationForAllJobs, budget3); maxTimes = 1;
+            _tca.decideJob(id3, true); maxTimes = 1;
+            _tca.jobStatus(id3); maxTimes = 1;
+        }};
+
+        assertEquals("The Correct ID for UpaTransporter1 was not returned.", id1, idOfJob1);
+        assertEquals("The Correct ID for UpaTransporter2 was not returned.", id2, idOfJob2);
+        assertEquals("The Correct ID for UpaTransporter3 was not returned.", id3, idOfJob3);
+
+        List<TransportView> tvs = bp.listTransports();
+        assertEquals(3,tvs.size());
+
+        for(TransportView tv : tvs){
+            if(tv.getId().equals(id1)){
+                assertTrue(comparateTransportsViews(outputTvJob1,tv));
+                assertEquals(TransportStateView.BOOKED, tv.getState());
+            }
+            if(tv.getId().equals(id2)){
+                assertTrue(comparateTransportsViews(outputTvJob2,tv));
+                assertEquals(TransportStateView.HEADING, tv.getState());
+            }
+            if(tv.getId().equals(id3)){
+                assertTrue(comparateTransportsViews(outputTvJob3,tv));
+                assertEquals(TransportStateView.COMPLETED, tv.getState());
+            }
+        }
+    }
+
+    @Test
+    public void clearTransportsSuccessfully() throws Exception{
+
+        final String origin = "Lisboa";
+        final String destination = "Santarém";
+        String ideven = "0";
+        String idodd = "1";
+        int budgetjvodd = 25;
+        int budgetjveven = 20;
+        int jobPricejvodd = 15;
+        int jobPricejveven = 10;
+        JobView jv2 = createJobView(JobStateView.PROPOSED, jobPricejveven, origin, destination, ideven, _upa2);
+        JobView jv1 = createJobView(JobStateView.PROPOSED, jobPricejvodd, origin, destination, idodd, _upa1);
+        JobView jv3 = createJobView(JobStateView.PROPOSED, jobPricejvodd, origin, destination, idodd, _upa3);
+        ArrayList<JobView> listjvodd = new ArrayList<JobView>();
+        listjvodd.add(jv1);
+        listjvodd.add(jv3);
+
+        new Expectations() {{
+            _tca.requestJob(origin, destination, budgetjveven);
+            result = jv2;
+            _tca.decideJob(ideven, true);
+            jv2.setJobState(JobStateView.ACCEPTED);
+            _tca.jobStatus(ideven);
+            result = jv2;
+
+            _tca.requestJob(origin, destination, budgetjvodd);
+            result = listjvodd;
+            _tca.decideJob(idodd, true);
+            jv1.setJobState(JobStateView.ACCEPTED);
+            _tca.jobStatus(idodd);
+            result = jv1;
+
+            _tca.clearTransports();
+            result = null;
+        }};
+
+        BrokerPort bp = new BrokerPort(_tca);
+
+        String idOfEvenJob = bp.requestTransport(origin, destination, budgetjveven);
+        String idOfOddJob = bp.requestTransport(origin, destination, budgetjvodd);
+
+        TransportView outputTvEvenJob = bp.viewTransport(ideven);
+        TransportView outputTvOddJob = bp.viewTransport(idodd);
+
+        assertEquals("Transporter State is incorrect.", TransportStateView.BOOKED , outputTvEvenJob.getState());
+        assertEquals("Transporter State is incorrect.", TransportStateView.BOOKED , outputTvOddJob.getState());
+
+        assertEquals("The Correct ID for Even Transporter was not returned.", ideven, idOfEvenJob);
+        assertEquals("The Correct ID for Odd Transporter was not returned.", idodd, idOfOddJob);
+
+        bp.clearTransports();
+
+        new Verifications() {{
+            _tca.requestJob(origin, destination, budgetjveven); maxTimes = 1;
+            _tca.decideJob(ideven, true); maxTimes = 1;
+            _tca.jobStatus(ideven); maxTimes = 1;
+            _tca.requestJob(origin, destination, budgetjvodd); maxTimes = 1;
+            _tca.decideJob(idodd, true); maxTimes = 1;
+            _tca.jobStatus(idodd); maxTimes = 1;
+            _tca.clearTransports(); maxTimes = 1;
+        }};
+
+        List<TransportView> tvs = bp.listTransports();
+        assertEquals(0,tvs.size());
+    }
+
 
     /* Aux functions */
 
@@ -305,7 +609,5 @@ public List<TransportView> listTransports() {
         return tv1.getState() == tv2.getState() && tv1.getPrice() == tv2.getPrice() && tv1.getDestination().equals(tv2.getDestination()) &&
                 tv1.getOrigin().equals(tv2.getOrigin()) && tv1.getTransporterCompany().equals(tv2.getTransporterCompany());
     }
-
-
 
 }

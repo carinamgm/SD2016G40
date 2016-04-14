@@ -77,7 +77,7 @@ public class TransporterPort implements TransporterPortType {
         else {
             BadLocationFault blf = new BadLocationFault();
             blf.setLocation(origin + " " + destination);
-            throw new BadLocationFault_Exception("Invalid routes" + origin + " " + destination, blf);
+            throw new BadLocationFault_Exception("Invalid routes" + origin + " - " + destination, blf);
         }
     }
 

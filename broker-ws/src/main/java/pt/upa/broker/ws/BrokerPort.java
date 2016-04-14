@@ -69,12 +69,13 @@ public class BrokerPort implements BrokerPortType {
         	throw new UnavailableTransportFault_Exception("There are no transports available", utf);
         }
         
-        tv.setState(TransportStateView.BOOKED);
+        tv.setState(TransportStateView.BUDGETED);
         chosenJobView = searchBestOffer(proposals);
 
         tv.setPrice(chosenJobView.getJobPrice());
     	tv.setTransporterCompany(chosenJobView.getCompanyName());
     	tv.setId(chosenJobView.getJobIdentifier());
+        _tvs.add(tv);
 
         if(chosenJobView.getJobPrice() <= price){
         	try {
@@ -92,7 +93,6 @@ public class BrokerPort implements BrokerPortType {
         	throw new UnavailableTransportPriceFault_Exception("There are no transports available for that price", utp);
         }
 
-        _tvs.add(tv);
         return tv.getId();
     }
 
