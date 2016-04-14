@@ -46,7 +46,7 @@ public class BrokerPort implements BrokerPortType {
         tv.setState(TransportStateView.REQUESTED);
 		tv.setOrigin(origin);
 		tv.setDestination(destination);
-		
+
         try{
             proposals = _tca.requestJob(origin,destination,price);
         }

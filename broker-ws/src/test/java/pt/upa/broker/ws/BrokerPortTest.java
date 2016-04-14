@@ -1,41 +1,48 @@
 package pt.upa.broker.ws;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+
+import mockit.*;
+import org.junit.*;
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import pt.upa.transporter.ws.*;
+import pt.upa.transporter.ws.cli.TransporterClient;
+
 
 
 public class BrokerPortTest {
 
 	// static members
+    @Mocked TransporterClient _tca;
 
-    BrokerPort _bp;
 	// one-time initialization and clean-up
 
 
     @BeforeClass
     public static void oneTimeSetUp() {
-
     }
 
     @AfterClass
     public static void oneTimeTearDown() {
-
     }
 
-    // members
+
+	/*String[][] regions = {{"Porto", "Braga", "Viana do Castelo", "Vila Real", "Bragança"},
+			{"Lisboa","Leiria", "Santarém", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"},
+			{"Setúbal", "Évora", "Portalegre", "Beja", "Faro"}};
+	*/
+	// members
 
 
     // initialization and clean-up for each test
 
     @Before
     public void setUp() {
-    	
-    	String[][] regions = {{"Porto", "Braga", "Viana do Castelo", "Vila Real", "Bragança"},
-    			{"Lisboa","Leiria", "Santarém", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"},
-    			{"Setúbal", "Évora", "Portalegre", "Beja", "Faro"}};   	
-    }
+
+	}
 
    @After
     public void tearDown() {
@@ -43,45 +50,80 @@ public class BrokerPortTest {
     }
 
 
-    // Mocking Transporters, Transporter clis
+    // Mocking Transporter clis
     /*
 
+	@Mocked TransporterClient transClient
+
+	@Mocked
+
+	private ArrayList<TransportView> _tvs = new ArrayList<TransportView>();
+    private TransporterClient _tca;
 
 
+	requestTransport
+
+    proposals = _tca.requestJob(origin,destination,price);
+
+    _tca.decideJob(chosenJobView.getJobIdentifier(), true);
+
+    viewTransport!!!!!!!
+
+    jv = _tca.jobStatus(id);
 
 
+public List<TransportView> listTransports() {
+        return _tvs;
+    }
 
 
-/*
-
-
+    public void clearTransports()
+*/
     // tests
 
-    @Test(expected = UnknownLocationFault_Exception.class)
-    public void wrongOrigin(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport)
-    		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
-    		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception{
-    	
+    @Test
+    public void successfullyScheduled() throws BadPriceFault_Exception,
+			BadLocationFault_Exception, InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
+			UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception{
+
+        BrokerPort _bp = new BrokerPort();
     	final String ORIGIN = "Lisboa";
-    	final String DEST = "Caldas da Rainha";
-    	final int PRICE = 30;    	
-    	
-    //	transporter = new TransporterPortType("Lisboa, Castelo Branco", "UpaTransporte1");
-    	ArrayList<TransporterPort> _ports = new ArrayList<TransporterPort>();
-    	Collection<String> wsUrls;
+    	final String DEST = "Braga";
+    	final int PRICE = 30;
+		String endresult;
+
+        ArrayList<JobView> offers = new ArrayList<JobView>();
+        JobView jv = new JobView();
+
+        jv.setCompanyName("UpaTransporter2");
+        jv.setJobDestination(DEST);
+        jv.setJobIdentifier("0");
+        jv.setJobOrigin(ORIGIN);
+        jv.setJobPrice(20);
+        jv.setJobState(JobStateView.PROPOSED);
+        offers.add(jv);
+
+		new NonStrictExpectations() {{
+            _tca.requestJob(ORIGIN, DEST, PRICE); result = offers;
+		}};
+
+        endresult = _bp.requestTransport(ORIGIN, DEST, PRICE);
+
+        assertEquals("0", endresult);
+
+	//	ArrayList<TransporterPort> _ports = new ArrayList<TransporterPort>();
+    //	Collection<String> wsUrls;
+
 	//UpaTransporter1;
     //	UpaTransporter2;
     //	transport;
     //	wsUrls.add();
-	
-    	BrokerPort broker = new BrokerPort(transClient);
-    	
-    	// Getting a NullPointerException
-    	broker.requestTransport(ORIGIN, DEST, PRICE);
+
     }
-     
+
+    /*
     @Test(expected = InvalidPriceFault_Exception.class)
-    public void wrongPrice(@Mocked final TransporterClient transClient, @Mocked final TransporterPort transport)
+    public void wrongPrice(){}
     		throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
     		UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
     	
@@ -173,7 +215,6 @@ public class BrokerPortTest {
     	// 1 ONGOING
     	
     	// listTransports();
-    	
     }
     
     @Test
@@ -184,8 +225,5 @@ public class BrokerPortTest {
         _bp.clearTransports();
     }
 */
+
 }
-
-
-
-
