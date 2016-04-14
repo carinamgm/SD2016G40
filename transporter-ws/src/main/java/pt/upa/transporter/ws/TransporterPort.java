@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Timer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @WebService(
@@ -22,7 +23,7 @@ public class TransporterPort implements TransporterPortType {
     private final String _defaultName = "UpaTransporter";
     private int _transporterNumber;
     private String _companyName;
-    private int _identifier = 0;
+    private AtomicInteger _identifier = new AtomicInteger(0);
 
     public TransporterPort(){
     }
@@ -46,18 +47,6 @@ public class TransporterPort implements TransporterPortType {
         for(int i = begin; i < limit; i++)
             for(int j = 0; j < regions[i].length; j++)
                 _regions.add(regions[i][j]);
-    }
-
-    public int getTransporterNumber(){
-        return _transporterNumber;
-    }
-
-    public String getCompanyName(){
-        return _companyName;
-    }
-
-    public ArrayList<String> getRegions(){
-        return  _regions;
     }
 
     @Override
@@ -151,13 +140,11 @@ public class TransporterPort implements TransporterPortType {
     @Override
     public void clearJobs(){
         _jobsList.clear();
-        _identifier = 0;
+        _identifier.set(0);
     }
 
     private String generateId(){
-        int toGive = _identifier;
-        _identifier++;
-        return String.valueOf(toGive);
+        return Integer.toString(_identifier.getAndIncrement());
     }
 
     private long generateRandomLong(){
