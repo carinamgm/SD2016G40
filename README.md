@@ -62,7 +62,7 @@ mvn clean install
 mvn exec:java
 ```
 
-[6] Construir e executar o servidor do **Broker*
+[6] Construir e executar o servidor do **Broker**
 
 ```
 cd ...-ws
