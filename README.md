@@ -56,18 +56,18 @@ mvn clean install
 
 ### Servidores e testes unitários
 
-[5] Construir o servidor do **Transporter** e executar testes
+[5] Construir e executar o servidor do **Transporter** com testes
 
 ```
-cd ...-ws
+cd transporter-ws
 mvn clean install
 mvn exec:java
 ```
 
-[6] Construir o servidor do **Broker** e executar testes
+[6] Construir e executar o servidor do **Broker** com testes
 
 ```
-cd ...-ws
+cd broker-ws
 mvn clean install
 mvn exec:java
 ```
@@ -77,14 +77,14 @@ mvn exec:java
 
 
 ```
-cd ...-ws-cli
+cd broker-ws-cli
 mvn clean install
 ```
 
 [8] Construir o cliente do **Transporter** e executar testes
 
 ```
-cd ...-ws-cli
+cd transporter-ws-cli
 mvn clean install
 ```
 
