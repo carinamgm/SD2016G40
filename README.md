@@ -34,8 +34,8 @@ Na linha de comandos, executar o seguinte comando: ./startup.sh
 [2] Criar pasta temporária
 
 ```
-cd ...
-mkdir ...
+mkdir SD_R1_A_40
+cd SD_R1_A_40
 ```
 
 
@@ -60,7 +60,7 @@ mvn clean install
 
 ```
 cd transporter-ws
-mvn clean install
+mvn clean generate-sources install
 mvn exec:java
 ```
 
@@ -68,7 +68,7 @@ mvn exec:java
 
 ```
 cd broker-ws
-mvn clean install
+mvn clean generate-sources install
 mvn exec:java
 ```
 ### Clientes e testes de integração
@@ -78,14 +78,14 @@ mvn exec:java
 
 ```
 cd broker-ws-cli
-mvn clean install
+mvn clean generate-sources install
 ```
 
 [8] Construir o cliente do **Transporter** e executar testes
 
 ```
 cd transporter-ws-cli
-mvn clean install
+mvn clean generate-sources install
 ```
 
 ...
