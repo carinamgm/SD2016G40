@@ -42,7 +42,7 @@ mkdir ...
 [3] Obter código fonte do projeto (versão entregue)
 
 ```
-git clone https://github.com/tecnico-distsys/A_40-project
+$ git clone -b SD_R1 https://github.com/tecnico-distsys/A_40-project/
 ```
 
 
