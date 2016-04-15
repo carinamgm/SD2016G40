@@ -54,7 +54,9 @@ cd uddi-naming
 mvn clean install
 ```
 
-[5] Construir e executar o servidor do **Transporter**
+### Servidores e testes unitários
+
+[5] Construir o servidor do **Transporter** e executar testes
 
 ```
 cd ...-ws
@@ -62,13 +64,14 @@ mvn clean install
 mvn exec:java
 ```
 
-[6] Construir e executar o servidor do **Broker**
+[6] Construir o servidor do **Broker** e executar testes
 
 ```
 cd ...-ws
 mvn clean install
 mvn exec:java
 ```
+### Clientes e testes de integração
 
 [7] Construir o cliente do **Broker** e executar testes
 
