@@ -169,7 +169,7 @@ public class RequestTransportIT {
         _bcp.getBrokerClient().schedule("!(%#)=", "Viseu", 50);
     }
 
-    @Test(expected = UnknownLocationFault_Exception.class)
+    @Test(expected = UnavailableTransportFault_Exception.class)
     public void originDestinationTooFarApart() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
 

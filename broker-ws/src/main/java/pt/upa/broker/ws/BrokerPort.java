@@ -8,6 +8,7 @@ import pt.upa.transporter.ws.cli.TransporterClient;
 
 import javax.jws.WebService;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,7 +21,9 @@ import java.util.List;
         serviceName="BrokerService"
 )
 public class BrokerPort implements BrokerPortType {
-	
+
+    private List<String> _north = Arrays.asList("Porto", "Braga", "Viana do Castelo", "Vila Real", "Bragança");
+    private List<String> _south = Arrays.asList("Setúbal", "Évora", "Portalegre", "Beja", "Faro");
 	private List<TransportView> _tvs = Collections.synchronizedList(new ArrayList<TransportView>());
     private TransporterClient _tca;
 
@@ -39,6 +42,14 @@ public class BrokerPort implements BrokerPortType {
     public String requestTransport(String origin, String destination, int price)
             throws UnknownLocationFault_Exception, InvalidPriceFault_Exception,
             UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception {
+
+        if((_north.contains(origin) && _south.contains(destination)) || (_north.contains(destination) && _south.contains(origin))){
+            UnavailableTransportFault utf = new UnavailableTransportFault();
+            utf.setOrigin(origin);
+            utf.setDestination(destination);
+            throw new UnavailableTransportFault_Exception("North and south is not possible",utf);
+        }
+
 
         ArrayList<JobView> proposals = null;
         TransportView tv = new TransportView();
@@ -160,6 +171,5 @@ public class BrokerPort implements BrokerPortType {
     	_tvs.clear();
     	_tca.clearTransports();
     }
-
 
 }
