@@ -17,9 +17,13 @@
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-      
 
-        <mainclass>pt.upa.broker.CaApplication</mainclass>
+        <ws.name>ca-ws</ws.name>
+        <uddi.url>http://localhost:9090</uddi.url>
+        <ws.url>http://localhost:8090/ca-ws/endpoint</ws.url>
+        <keys.loc>src/main/java/pt/upa/ca/keys</keys.loc>
+
+        <mainclass>pt.upa.ca.CaApplication</mainclass>
     </properties>
 
     <dependencies>
@@ -113,6 +117,7 @@
                         <argument>${uddi.url}</argument>
                         <argument>${ws.name}</argument>
                         <argument>${ws.url}</argument>
+                        <argument>${keys.loc}</argument>
                     </arguments>
                 </configuration>
             </plugin>
