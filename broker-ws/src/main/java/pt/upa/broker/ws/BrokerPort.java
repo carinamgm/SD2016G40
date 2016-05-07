@@ -14,7 +14,7 @@ import java.util.List;
 
 @WebService(
         endpointInterface="pt.upa.broker.ws.BrokerPortType",
-        wsdlLocation="broker.1_0.wsdl",
+        wsdlLocation="broker.2_0.wsdl",
         name="UpaBroker",
         portName="BrokerPort",
         targetNamespace="http://ws.broker.upa.pt/",
@@ -170,6 +170,13 @@ public class BrokerPort implements BrokerPortType {
     public void clearTransports(){
     	_tvs.clear();
     	_tca.clearTransports();
+    	updateSecondaryBroker();
     }
+
+	@Override
+	public void updateSecondaryBroker() {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
