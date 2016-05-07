@@ -2,6 +2,7 @@ package pt.upa.transporter.ws.cli;
 
 import pt.upa.transporter.ws.*;
 
+import javax.jws.HandlerChain;
 import javax.xml.ws.BindingProvider;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
-
+@HandlerChain(file="/handler-chain.xml")
 public class TransporterClient {
 
     private ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();

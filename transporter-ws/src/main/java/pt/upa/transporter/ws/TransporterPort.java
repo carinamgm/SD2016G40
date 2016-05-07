@@ -1,5 +1,6 @@
 package pt.upa.transporter.ws;
 
+import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         targetNamespace="http://ws.transporter.upa.pt/",
         serviceName="TransporterService"
 )
+@HandlerChain(file="/handler-chain.xml")
 public class TransporterPort implements TransporterPortType {
 
     private final ArrayList<String> _regions = new ArrayList<String>();

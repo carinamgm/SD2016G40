@@ -1,5 +1,6 @@
-package example.ws.handler;
+package pt.upa.handler.ws;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -16,18 +17,7 @@ import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-/**
- *  This SOAPHandler shows how to set/get values from headers in
- *  inbound/outbound SOAP messages.
- *
- *  A header is created in an outbound message and is read on an
- *  inbound message.
- *
- *  The value that is read from the header
- *  is placed in a SOAP message context property
- *  that can be accessed by other handlers or by the application.
- */
-public class HeaderHandler implements SOAPHandler<SOAPMessageContext> {
+public class TransporterHandler implements SOAPHandler<SOAPMessageContext> {
 
     public static final String CONTEXT_PROPERTY = "my.property";
 
@@ -39,6 +29,8 @@ public class HeaderHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     public boolean handleMessage(SOAPMessageContext smc) {
+
+        //getPrivateKey();
         System.out.println("AddHeaderHandler: Handling message.");
 
         Boolean outboundElement = (Boolean) smc
@@ -52,7 +44,7 @@ public class HeaderHandler implements SOAPHandler<SOAPMessageContext> {
                 SOAPMessage msg = smc.getMessage();
                 SOAPPart sp = msg.getSOAPPart();
                 SOAPEnvelope se = sp.getEnvelope();
-
+                
                 // add header
                 SOAPHeader sh = se.getHeader();
                 if (sh == null)
@@ -120,6 +112,16 @@ public class HeaderHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     public void close(MessageContext messageContext) {
+    }
+
+    private void getPrivateKey(){
+        File f = new File(".");
+        if(f.equals(null))
+            System.out.println("tnand");
+
+        for(File s : f.listFiles()){
+            System.out.println(s.getName());
+        }
     }
 
 }

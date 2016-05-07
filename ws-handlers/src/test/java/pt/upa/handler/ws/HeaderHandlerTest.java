@@ -1,4 +1,4 @@
-package example.ws.handler;
+package pt.upa.handler.ws;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,7 +29,7 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
 
     // tests
 
-    @Test
+    /*@Test
     public void testHeaderHandlerOutbound(
         @Mocked final SOAPMessageContext soapMessageContext)
         throws Exception {
@@ -117,6 +117,6 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
         assertTrue(handleResult);
 
         //soapMessage.writeTo(System.out);
-    }
+    }*/
 
 }
