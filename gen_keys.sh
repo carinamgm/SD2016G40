@@ -63,28 +63,28 @@ do
 done
 
 #Removing old key folders
-rm -r ca-ws/src/main/java/pt/upa/ca/keys
-rm -r broker-ws/src/main/java/pt/upa/broker/keys
-rm -r transporter-ws/src/main/java/pt/upa/transporter/keys
-mkdir broker-ws/src/main/java/pt/upa/broker/keys
-mkdir transporter-ws/src/main/java/pt/upa/transporter/keys
-mkdir ca-ws/src/main/java/pt/upa/ca/keys
+rm -r ca-ws/keys
+rm -r broker-ws/keys
+rm -r transporter-ws/keys
+mkdir broker-ws/keys
+mkdir transporter-ws/keys
+mkdir ca-ws/keys
 
 #Copying the password to open the .jks aka keystore
-echo "$STORE_PASS" > broker-ws/src/main/java/pt/upa/broker/keys/KeyStorePwd
-echo "$STORE_PASS" > transporter-ws/src/main/java/pt/upa/transporter/keys/KeyStorePwd
+echo "$STORE_PASS" > broker-ws/keys/KeyStorePwd
+echo "$STORE_PASS" > transporter-ws/keys/KeyStorePwd
 
 #Copying the correct information to the correct folders
 cd keys
 for d in * ; do
     if [ "$d" = "UpaBroker" ]
 	then
-		cp $d/* ../broker-ws/src/main/java/pt/upa/broker/keys
+		cp $d/* ../broker-ws/keys
 	elif [ "$d" = "ca" ]
 	then
-		rsync -av --exclude='*.jks' . ../ca-ws/src/main/java/pt/upa/ca/keys
+		rsync -av --exclude='*.jks' . ../ca-ws/keys
 	else
-		cp -r $d ../transporter-ws/src/main/java/pt/upa/transporter/keys
+		cp -r $d ../transporter-ws/keys
 	fi
 done
 cd ..
