@@ -1,4 +1,4 @@
-package example.ws.handler;
+package pt.upa.handler.ws;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
