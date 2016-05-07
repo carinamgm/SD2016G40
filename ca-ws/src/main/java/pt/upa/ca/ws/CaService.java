@@ -4,5 +4,5 @@ import javax.jws.WebService;
 
 @WebService
 public interface CaService {
-    public byte[] requestCertificate();
+    public byte[] requestCertificate(String entityName);
 }
