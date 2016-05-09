@@ -59,7 +59,7 @@ public class RequestTransportIT {
                 assertTrue(transporterViewsComparator(tv, "Porto", "Lisboa", 0, 0, TransportStateView.BOOKED));
         }
     }
-
+    /*
     @Test
     public void successfullyRequestMultipleDifferentTransporters() throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, UnknownTransportFault_Exception {
@@ -175,7 +175,7 @@ public class RequestTransportIT {
 
         _bcp.getBrokerClient().schedule("Porto", "Faro", 50);
     }
-
+*/
     // Aux functions
 
     /* This method is not to be apply for over 100 expected price - so the return false ist just to fill the method signature */

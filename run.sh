@@ -1,3 +1,5 @@
+gnome-terminal -x bash -c "cd ws-handlers; mvn install"
+sleep 5
 gnome-terminal -x bash -c "./gen_keys.sh UpaBroker UpaTransporter1 UpaTransporter2"
 sleep 5
 gnome-terminal -x bash -c "cd ca-ws ; mvn clean compile exec:java"

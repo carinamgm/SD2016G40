@@ -29,7 +29,7 @@ public class CaImpl implements  CaService{
             for(File child : parent.listFiles()) {
                 if(pattern.matcher(child.getName()).find()) {
                     try{
-                        _certificates.put(child.getName(),readCertificateFile(child.getPath()));
+                        _certificates.put(child.getName().toLowerCase(),readCertificateFile(child.getPath()));
                     }
                     catch (Exception e) {}
                 }

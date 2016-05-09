@@ -1,36 +1,20 @@
 package pt.upa.handler.ws;
 
-import java.io.File;
-import java.util.Iterator;
-import java.util.Set;
-
-import javax.xml.namespace.QName;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPHeaderElement;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
+import javax.xml.soap.*;
 import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.MessageContext.Scope;
-import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.security.KeyPair;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.util.Iterator;
 
-public class TransporterHandler implements SOAPHandler<SOAPMessageContext> {
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 
-    public static final String CONTEXT_PROPERTY = "my.property";
-
-    //
-    // Handler interface methods
-    //
-    public Set<QName> getHeaders() {
-        return null;
-    }
+public class TransporterHandler extends AbstractHandler {
 
     public boolean handleMessage(SOAPMessageContext smc) {
-
-        //getPrivateKey();
         System.out.println("AddHeaderHandler: Handling message.");
 
         Boolean outboundElement = (Boolean) smc
@@ -38,13 +22,13 @@ public class TransporterHandler implements SOAPHandler<SOAPMessageContext> {
 
         try {
             if (outboundElement.booleanValue()) {
-                System.out.println("Writing header in outbound SOAP message...");
+                /*System.out.println("Writing header in outbound SOAP message...");
 
                 // get SOAP envelope
                 SOAPMessage msg = smc.getMessage();
                 SOAPPart sp = msg.getSOAPPart();
                 SOAPEnvelope se = sp.getEnvelope();
-                
+
                 // add header
                 SOAPHeader sh = se.getHeader();
                 if (sh == null)
@@ -57,7 +41,7 @@ public class TransporterHandler implements SOAPHandler<SOAPMessageContext> {
                 // add header element value
                 int value = 22;
                 String valueString = Integer.toString(value);
-                element.addTextNode(valueString);
+                element.addTextNode(valueString);*/
 
             } else {
                 System.out.println("Reading header in inbound SOAP message...");
@@ -75,8 +59,15 @@ public class TransporterHandler implements SOAPHandler<SOAPMessageContext> {
                 }
 
                 // get first header element
-                Name name = se.createName("myHeader", "d", "http://demo");
+                Name name = se.createName("HmKsUpaBroker", "Upa", "http://upa");
                 Iterator it = sh.getChildElements(name);
+
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                msg.writeTo(out);
+                String strMsg = new String(out.toByteArray());
+                System.out.println(strMsg);
+
+
                 // check header element
                 if (!it.hasNext()) {
                     System.out.println("Header element not found.");
@@ -86,16 +77,15 @@ public class TransporterHandler implements SOAPHandler<SOAPMessageContext> {
 
                 // get header element value
                 String valueString = element.getValue();
-                int value = Integer.parseInt(valueString);
 
-                // print received header
-                System.out.println("Header value is " + value);
+                // request certificate to ca
+                byte[] result = requestCertificate("upabroker");
+                CertificateFactory cf   = CertificateFactory.getInstance("X.509");
+                Certificate brokerCer = cf.generateCertificate(new ByteArrayInputStream(result));
+                KeyPair kp = new KeyPair(brokerCer.getPublicKey(),null);
 
-                // put header in a property context
-                smc.put(CONTEXT_PROPERTY, value);
-                // set property scope to application client/server class can access it
-                smc.setScope(CONTEXT_PROPERTY, Scope.APPLICATION);
-
+                // verifiy if brokerCer is signed by ca
+                verifyDigitalSignature(parseBase64Binary(valueString),convertDocString(se.getBody().extractContentAsDocument()).getBytes(),kp);
             }
         } catch (Exception e) {
             System.out.print("Caught exception in handleMessage: ");
@@ -106,22 +96,5 @@ public class TransporterHandler implements SOAPHandler<SOAPMessageContext> {
         return true;
     }
 
-    public boolean handleFault(SOAPMessageContext smc) {
-        System.out.println("Ignoring fault message...");
-        return true;
-    }
-
-    public void close(MessageContext messageContext) {
-    }
-
-    private void getPrivateKey(){
-        File f = new File(".");
-        if(f.equals(null))
-            System.out.println("tnand");
-
-        for(File s : f.listFiles()){
-            System.out.println(s.getName());
-        }
-    }
 
 }

@@ -1,36 +1,19 @@
 package pt.upa.handler.ws;
 
-import java.io.File;
-import java.util.Iterator;
-import java.util.Set;
-
-import javax.xml.namespace.QName;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPHeaderElement;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
+import javax.xml.soap.*;
 import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.MessageContext.Scope;
-import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.security.KeyPair;
 
-public class BrokerHandler implements SOAPHandler<SOAPMessageContext> {
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
-    public static final String CONTEXT_PROPERTY = "my.property";
-
-    //
-    // Handler interface methods
-    //
-    public Set<QName> getHeaders() {
-        return null;
-    }
+public class BrokerHandler extends AbstractHandler {
 
     public boolean handleMessage(SOAPMessageContext smc) {
 
-        //getPrivateKey();
         System.out.println("AddHeaderHandler: Handling message.");
 
         Boolean outboundElement = (Boolean) smc
@@ -50,17 +33,37 @@ public class BrokerHandler implements SOAPHandler<SOAPMessageContext> {
                 if (sh == null)
                     sh = se.addHeader();
 
-                // add header element (name, namespace prefix, namespace)
-                Name name = se.createName("myHeader", "d", "http://demo");
-                SOAPHeaderElement element = sh.addHeaderElement(name);
+                // sign and digest
+                KeyPair kp = getKeyPair("keys/UpaBroker.jks","keys/KeyStorePwd","upabroker");
+                SOAPBody sb = se.getBody();
+                String bodyString = convertDocString(sb.extractContentAsDocument());
+                String encodedSignedBody = printBase64Binary(makeDigitalSignature(bodyString.getBytes(),kp));
 
-                // add header element value
-                int value = 22;
-                String valueString = Integer.toString(value);
-                element.addTextNode(valueString);
+                // add header element
+                Name name = se.createName("HmKsUpaBroker", "Upa", "http://upa");
+                SOAPHeaderElement element = sh.addHeaderElement(name);
+                element.addTextNode(encodedSignedBody);
+
+                // make the changes permanent
+                msg.saveChanges();
+
+                /*ByteArrayOutputStream out = new ByteArrayOutputStream();
+                msg.writeTo(out);
+                String strMsg = new String(out.toByteArray());
+                System.out.println(strMsg);
+
+                MessageFactory factory = MessageFactory.newInstance();
+                SOAPMessage newMessage = factory.createMessage(msg.getMimeHeaders(), new ByteArrayInputStream(out.toByteArray()));
+                msg.getSOAPPart().setContent(newMessage.getSOAPPart().getContent());*/
+
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                msg.writeTo(out);
+                String strMsg = new String(out.toByteArray());
+                System.out.println(strMsg);
+
 
             } else {
-                System.out.println("Reading header in inbound SOAP message...");
+                /*System.out.println("Reading header in inbound SOAP message...");
 
                 // get SOAP envelope header
                 SOAPMessage msg = smc.getMessage();
@@ -94,7 +97,7 @@ public class BrokerHandler implements SOAPHandler<SOAPMessageContext> {
                 // put header in a property context
                 smc.put(CONTEXT_PROPERTY, value);
                 // set property scope to application client/server class can access it
-                smc.setScope(CONTEXT_PROPERTY, Scope.APPLICATION);
+                smc.setScope(CONTEXT_PROPERTY, Scope.APPLICATION);*/
 
             }
         } catch (Exception e) {
@@ -104,21 +107,6 @@ public class BrokerHandler implements SOAPHandler<SOAPMessageContext> {
         }
 
         return true;
-    }
-
-    public boolean handleFault(SOAPMessageContext smc) {
-        System.out.println("Ignoring fault message...");
-        return true;
-    }
-
-    public void close(MessageContext messageContext) {
-    }
-
-    private void getPrivateKey(){
-        File f = new File(".");
-        for(File s : f.listFiles()){
-            System.out.println(s.getName());
-        }
     }
 
 }

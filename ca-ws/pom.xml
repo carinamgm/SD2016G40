@@ -21,7 +21,7 @@
         <ws.name>ca-ws</ws.name>
         <uddi.url>http://localhost:9090</uddi.url>
         <ws.url>http://localhost:8090/ca-ws/endpoint</ws.url>
-        <keys.loc>src/main/java/pt/upa/ca/keys</keys.loc>
+        <keys.loc>keys</keys.loc>
 
         <mainclass>pt.upa.ca.CaApplication</mainclass>
     </properties>
