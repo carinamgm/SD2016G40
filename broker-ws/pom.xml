@@ -19,14 +19,20 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 
         <wsdl.directory>src/main/resources</wsdl.directory>
-        <wsdl.filename>broker.1_0.wsdl</wsdl.filename>
+        <wsdl.filename>broker.2_0.wsdl</wsdl.filename>
 
         <mainclass>pt.upa.broker.BrokerApplication</mainclass>
 
-        <ws.url>http://localhost:8080/broker-ws/endpoint</ws.url>
+        <!-- instance number - redefine using -D option - e.g. mvn -Dws.i=2 exec:java -->
+        <ws.i>4</ws.i>
 
-        <ws.name>UpaBroker</ws.name>
+        <ws.host>localhost</ws.host>
+        <ws.port>808${ws.i}</ws.port>
+        <ws.url>http://${ws.host}:${ws.port}/broker-ws/endpoint</ws.url>
+
+        <ws.name>UpaBroker{ws.i}</ws.name>
         <uddi.url>http://localhost:9090</uddi.url>
+
     </properties>
 
     <dependencies>
