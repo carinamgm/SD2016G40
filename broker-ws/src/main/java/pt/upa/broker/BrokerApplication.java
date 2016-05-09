@@ -31,7 +31,17 @@ public class BrokerApplication {
 		try {
 			uddiNaming = new UDDINaming(uddiURL);
 			Collection<String> wsUrls = uddiNaming.list("UpaTransporter"+"%");
-			BrokerPort port = new BrokerPort(new TransporterClient(wsUrls));
+			String secBrokerUrl = "";
+			BrokerPort port = null;
+			if(name.equals("UpaBroker0")){
+				Collection<String> seqUrl = uddiNaming.list("UpaBrokerSec");
+				String[] aux = seqUrl.toArray(new String[1]);
+				secBrokerUrl = aux[0];
+				port = new BrokerPort(new TransporterClient(wsUrls), secBrokerUrl);
+			}
+			else {
+				port = new BrokerPort(new TransporterClient(wsUrls));
+			}
 
 			endpoint = Endpoint.create(port);
 

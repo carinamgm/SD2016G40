@@ -120,7 +120,10 @@
         
         
          	<xs:complexType name="updateSecondaryBroker">
-                <xs:sequence />
+                <xs:sequence>
+	                <xs:element name="func" type="xs:string" minOccurs="0" />
+	                <xs:element name="list" type="tns:transportView" minOccurs="0" maxOccurs="unbounded" />
+            	</xs:sequence>
             </xs:complexType>
             <xs:element name="updateSecondaryBroker" type="tns:updateSecondaryBroker" />
         
