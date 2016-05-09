@@ -5,9 +5,15 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.security.KeyPair;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.util.Collection;
+import java.util.Iterator;
 
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 public class BrokerHandler extends AbstractHandler {
@@ -33,11 +39,12 @@ public class BrokerHandler extends AbstractHandler {
                 if (sh == null)
                     sh = se.addHeader();
 
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                msg.writeTo(out);
+
                 // sign and digest
                 KeyPair kp = getKeyPair("keys/UpaBroker.jks","keys/KeyStorePwd","upabroker");
-                SOAPBody sb = se.getBody();
-                String bodyString = convertDocString(sb.extractContentAsDocument());
-                String encodedSignedBody = printBase64Binary(makeDigitalSignature(bodyString.getBytes(),kp));
+                String encodedSignedBody = printBase64Binary(makeDigitalSignature(out.toByteArray(),kp));
 
                 // add header element
                 Name name = se.createName("HmKsUpaBroker", "Upa", "http://upa");
@@ -47,23 +54,8 @@ public class BrokerHandler extends AbstractHandler {
                 // make the changes permanent
                 msg.saveChanges();
 
-                /*ByteArrayOutputStream out = new ByteArrayOutputStream();
-                msg.writeTo(out);
-                String strMsg = new String(out.toByteArray());
-                System.out.println(strMsg);
-
-                MessageFactory factory = MessageFactory.newInstance();
-                SOAPMessage newMessage = factory.createMessage(msg.getMimeHeaders(), new ByteArrayInputStream(out.toByteArray()));
-                msg.getSOAPPart().setContent(newMessage.getSOAPPart().getContent());*/
-
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                msg.writeTo(out);
-                String strMsg = new String(out.toByteArray());
-                System.out.println(strMsg);
-
-
             } else {
-                /*System.out.println("Reading header in inbound SOAP message...");
+                System.out.println("Reading header in inbound SOAP message...");
 
                 // get SOAP envelope header
                 SOAPMessage msg = smc.getMessage();
@@ -78,26 +70,41 @@ public class BrokerHandler extends AbstractHandler {
                 }
 
                 // get first header element
-                Name name = se.createName("myHeader", "d", "http://demo");
+                Name name = se.createName("name", "Upa", "http://upa");
                 Iterator it = sh.getChildElements(name);
-                // check header element
+
                 if (!it.hasNext()) {
                     System.out.println("Header element not found.");
                     return true;
                 }
+
                 SOAPElement element = (SOAPElement) it.next();
+                String entity = element.getValue();
+
+                name = se.createName("HmKs"+entity, "Upa", "http://upa");
+                it = sh.getChildElements(name);
+
+                if (!it.hasNext()) {
+                    System.out.println("Header element not found1.");
+                    return true;
+                }
+
+                element = (SOAPElement) it.next();
 
                 // get header element value
                 String valueString = element.getValue();
-                int value = Integer.parseInt(valueString);
 
-                // print received header
-                System.out.println("Header value is " + value);
+                // request certificate to ca
+                byte[] result = requestCertificate(entity);
+                CertificateFactory cf   = CertificateFactory.getInstance("X.509");
+                Certificate brokerCer = cf.generateCertificate(new ByteArrayInputStream(result));
+                KeyPair kp = new KeyPair(brokerCer.getPublicKey(),null);
 
-                // put header in a property context
-                smc.put(CONTEXT_PROPERTY, value);
-                // set property scope to application client/server class can access it
-                smc.setScope(CONTEXT_PROPERTY, Scope.APPLICATION);*/
+
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                msg.writeTo(out);
+                // verifiy if brokerCer is signed by ca
+                verifyDigitalSignature(parseBase64Binary(valueString),out.toByteArray(),kp);
 
             }
         } catch (Exception e) {
@@ -108,5 +115,6 @@ public class BrokerHandler extends AbstractHandler {
 
         return true;
     }
+
 
 }

@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
+@HandlerChain(file="/broker_handler-chain-binding.xml")
 public class TransporterClient {
 
     private ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();

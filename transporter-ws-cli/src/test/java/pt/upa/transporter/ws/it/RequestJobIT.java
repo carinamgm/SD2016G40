@@ -50,7 +50,6 @@ public class RequestJobIT{
         testSucess("Porto","Lisboa",0,0);
     }
 
-    @Test
     public void unsucessPairLocation() throws BadPriceFault_Exception, BadLocationFault_Exception{
         testUnsucess("Lisboa","Faro",0,0);
     }

@@ -61,19 +61,6 @@ public abstract class AbstractHandler implements SOAPHandler<SOAPMessageContext>
         return ks.getCertificate("ca").getPublicKey();
     }
 
-    /* Converts a document from body into string */
-    protected String convertDocString(Document doc) throws TransformerException {
-        DOMSource domSource = new DOMSource(doc);
-        StringWriter writer = new StringWriter();
-        StreamResult result = new StreamResult(writer);
-        TransformerFactory tf = TransformerFactory.newInstance();
-
-        Transformer transformer = tf.newTransformer();
-        transformer.transform(domSource, result);
-
-        return writer.toString();
-    }
-
     protected byte[] makeDigitalSignature(byte[] bytes, KeyPair keyPair) throws Exception {
 
         // get a signature object using the SHA-1 and RSA combo

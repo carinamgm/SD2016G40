@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
@@ -29,7 +30,7 @@ public class CaImpl implements  CaService{
             for(File child : parent.listFiles()) {
                 if(pattern.matcher(child.getName()).find()) {
                     try{
-                        _certificates.put(child.getName().toLowerCase(),readCertificateFile(child.getPath()));
+                        _certificates.put(child.getName().toLowerCase().substring(0,child.getName().toLowerCase().indexOf(".")),readCertificateFile(child.getPath()));
                     }
                     catch (Exception e) {}
                 }
@@ -39,7 +40,7 @@ public class CaImpl implements  CaService{
 
     @Override
     public byte[] requestCertificate(String entityName) {
-       byte[] output = null;
+        byte[] output = null;
         try{
            output =  _certificates.get(entityName).getEncoded();
         } catch (Exception e){}

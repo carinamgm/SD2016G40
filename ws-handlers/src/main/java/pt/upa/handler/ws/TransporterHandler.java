@@ -11,10 +11,14 @@ import java.security.cert.CertificateFactory;
 import java.util.Iterator;
 
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 public class TransporterHandler extends AbstractHandler {
 
+    public static String transporterName = "";
+
     public boolean handleMessage(SOAPMessageContext smc) {
+
         System.out.println("AddHeaderHandler: Handling message.");
 
         Boolean outboundElement = (Boolean) smc
@@ -22,7 +26,7 @@ public class TransporterHandler extends AbstractHandler {
 
         try {
             if (outboundElement.booleanValue()) {
-                /*System.out.println("Writing header in outbound SOAP message...");
+                System.out.println("Writing header in outbound SOAP message...");
 
                 // get SOAP envelope
                 SOAPMessage msg = smc.getMessage();
@@ -34,14 +38,25 @@ public class TransporterHandler extends AbstractHandler {
                 if (sh == null)
                     sh = se.addHeader();
 
-                // add header element (name, namespace prefix, namespace)
-                Name name = se.createName("myHeader", "d", "http://demo");
-                SOAPHeaderElement element = sh.addHeaderElement(name);
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                msg.writeTo(out);
 
-                // add header element value
-                int value = 22;
-                String valueString = Integer.toString(value);
-                element.addTextNode(valueString);*/
+                // sign and digest
+                KeyPair kp = getKeyPair("keys/"+transporterName+"/"+transporterName+".jks","keys/KeyStorePwd",transporterName.toLowerCase());
+                String encodedSignedBody = printBase64Binary(makeDigitalSignature(out.toByteArray(),kp));
+
+                // add name to header in order to inform broker who is the transporter
+                Name name = se.createName("name", "Upa", "http://upa");
+                SOAPHeaderElement element = sh.addHeaderElement(name);
+                element.addTextNode(transporterName.toLowerCase());
+
+                // add header element
+                name = se.createName("HmKs"+transporterName.toLowerCase(), "Upa", "http://upa");
+                element = sh.addHeaderElement(name);
+                element.addTextNode(encodedSignedBody);
+
+                // make the changes permanent
+                msg.saveChanges();
 
             } else {
                 System.out.println("Reading header in inbound SOAP message...");
@@ -62,12 +77,6 @@ public class TransporterHandler extends AbstractHandler {
                 Name name = se.createName("HmKsUpaBroker", "Upa", "http://upa");
                 Iterator it = sh.getChildElements(name);
 
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                msg.writeTo(out);
-                String strMsg = new String(out.toByteArray());
-                System.out.println(strMsg);
-
-
                 // check header element
                 if (!it.hasNext()) {
                     System.out.println("Header element not found.");
@@ -84,8 +93,11 @@ public class TransporterHandler extends AbstractHandler {
                 Certificate brokerCer = cf.generateCertificate(new ByteArrayInputStream(result));
                 KeyPair kp = new KeyPair(brokerCer.getPublicKey(),null);
 
+
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                msg.writeTo(out);
                 // verifiy if brokerCer is signed by ca
-                verifyDigitalSignature(parseBase64Binary(valueString),convertDocString(se.getBody().extractContentAsDocument()).getBytes(),kp);
+                verifyDigitalSignature(parseBase64Binary(valueString),out.toByteArray(),kp);
             }
         } catch (Exception e) {
             System.out.print("Caught exception in handleMessage: ");

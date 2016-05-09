@@ -64,14 +64,14 @@ done
 
 #Removing old key folders
 rm -r ca-ws/keys
-rm -r broker-ws/keys
+rm -r transporter-ws-cli/keys
 rm -r transporter-ws/keys
-mkdir broker-ws/keys
+mkdir transporter-ws-cli/keys
 mkdir transporter-ws/keys
 mkdir ca-ws/keys
 
 #Copying the password to open the .jks aka keystore
-echo "$STORE_PASS\n$KEY_PASS" > broker-ws/keys/KeyStorePwd
+echo "$STORE_PASS\n$KEY_PASS" > transporter-ws-cli/keys/KeyStorePwd
 echo "$STORE_PASS\n$KEY_PASS" > transporter-ws/keys/KeyStorePwd
 
 #Copying the correct information to the correct folders
@@ -79,7 +79,7 @@ cd keys
 for d in * ; do
     if [ "$d" = "UpaBroker" ]
 	then
-		cp $d/* ../broker-ws/keys
+		cp $d/* ../transporter-ws-cli/keys
 	elif [ "$d" = "ca" ]
 	then
 		rsync -av --exclude='*.jks' . ../ca-ws/keys
