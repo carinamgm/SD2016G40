@@ -21,7 +21,6 @@ import java.util.List;
         targetNamespace="http://ws.broker.upa.pt/",
         serviceName="BrokerService"
 )
-@HandlerChain(file="/handler-chain.xml")
 public class BrokerPort implements BrokerPortType {
 
     private List<String> _north = Arrays.asList("Porto", "Braga", "Viana do Castelo", "Vila Real", "Bragança");

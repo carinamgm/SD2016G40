@@ -15,7 +15,7 @@ public class BrokerClientApplication {
     private static BrokerClient _bc;
     private static String _endpointAddress;
     private static final String _uddiURL= "http://localhost:9090";
-    private static final String _serviceName = "UpaBroker";
+    private static final String _serviceName = "UpaBroker0";
 
 	public static void main(String[] args) throws Exception {
 
