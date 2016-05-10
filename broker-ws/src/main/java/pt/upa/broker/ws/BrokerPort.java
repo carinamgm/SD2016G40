@@ -3,6 +3,8 @@ package pt.upa.broker.ws;
 import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.BadLocationFault_Exception;
 import pt.upa.transporter.ws.BadPriceFault_Exception;
+import pt.upa.transporter.ws.ChangeState;
+import pt.upa.transporter.ws.JobStateView;
 import pt.upa.transporter.ws.JobView;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
@@ -14,6 +16,9 @@ import java.util.List;
 
 import javax.xml.ws.BindingProvider;
 import java.util.Map;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
@@ -33,6 +38,9 @@ public class BrokerPort implements BrokerPortType {
 	private List<TransportView> _auxUpdate = new ArrayList<TransportView>();
     private TransporterClient _tca;
     private BrokerPortType _sb = null;
+    Timer _notify = new Timer();
+    Timer _timeout = new Timer();
+    
     
     public BrokerPort(){}
 
@@ -41,7 +49,7 @@ public class BrokerPort implements BrokerPortType {
     }
 
     public BrokerPort(TransporterClient tca, String url){
-        _tca = tca;
+    	_tca = tca;
         if(!url.equals("")){
     	  BrokerService service = new BrokerService();
           _sb = service.getBrokerPort();
@@ -50,8 +58,30 @@ public class BrokerPort implements BrokerPortType {
           Map<String, Object> requestContext = bindingProvider.getRequestContext();
           requestContext.put(ENDPOINT_ADDRESS_PROPERTY, url);
         }
+        _notify.schedule(new ProofTimerTask(this), 1*1000); //1 secs
     }
 
+    @Override
+    public void imAlive(){
+    	if(isPrimaryBroker()){
+    		System.out.println("Sending alive proof");
+    		_sb.imAlive();	
+    	}
+    	else{
+    		System.out.println("Primary Broker is alive;");
+    		_timeout.cancel();
+    		_timeout.schedule(new ProofTimerTask(this), 2*1000); //2secs
+    	}
+    }
+  
+    private void takeControl(){
+    	
+    }
+    
+    private boolean isPrimaryBroker(){
+    	return _sb == null ? false : true;
+    }
+    
     @Override
 	public String ping(String message){
         return message;
@@ -123,7 +153,7 @@ public class BrokerPort implements BrokerPortType {
         }
 
         _tvs.add(tv);
-        if(_sb == null){
+        if(_sb != null){
         	_auxUpdate.add(tv);
         	updateSecondaryBroker("request", _auxUpdate);
         }
@@ -176,7 +206,7 @@ public class BrokerPort implements BrokerPortType {
                             tv.setState(TransportStateView.COMPLETED);
                             break;
                     }
-                    if(_sb == null){
+                    if(_sb != null){
                     	_auxUpdate.add(tv);
                     	updateSecondaryBroker("view", _auxUpdate);
                     }
@@ -197,13 +227,13 @@ public class BrokerPort implements BrokerPortType {
     public void clearTransports(){
     	_tvs.clear();
     	_tca.clearTransports();
-    	if(_sb == null)
+    	if(_sb != null)
     		updateSecondaryBroker("clear", _tvs);
     }
 
 	@Override
 	public void updateSecondaryBroker(String func, List<TransportView> auxUpdate) {
-		if(_sb != null){
+		if(_sb == null){
 			if(func.equals("clear"))
 				_sb.clearTransports();
 			else{
