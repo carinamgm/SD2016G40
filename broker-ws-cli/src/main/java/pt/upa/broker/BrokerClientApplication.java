@@ -1,8 +1,7 @@
 package pt.upa.broker;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-import pt.upa.broker.ws.BrokerPortType;
-import pt.upa.broker.ws.BrokerService;
+import pt.upa.broker.ws.*;
 import pt.upa.broker.ws.cli.BrokerClient;
 
 import javax.xml.ws.BindingProvider;
@@ -32,7 +31,7 @@ public class BrokerClientApplication {
         setup();
 	}
 
-    public static void setup(){
+    public static void setup() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
         System.out.println("EndPointAddress: " + _endpointAddress);
 
         System.out.println("Creating stub ...");
@@ -44,7 +43,7 @@ public class BrokerClientApplication {
         Map<String, Object> requestContext = bindingProvider.getRequestContext();
         requestContext.put(ENDPOINT_ADDRESS_PROPERTY, _endpointAddress);
 
-        int connectionTimeout = 10000;
+        int connectionTimeout = 5000;
         // The connection timeout property has different names in different versions of JAX-WS
         // Set them all to avoid compatibility issues
         final List<String> CONN_TIME_PROPS = new ArrayList<String>();
@@ -56,7 +55,7 @@ public class BrokerClientApplication {
             requestContext.put(propName, connectionTimeout);
         System.out.printf("Set connection timeout to %d milliseconds%n", connectionTimeout);
 
-        int receiveTimeout = 10000;
+        int receiveTimeout = 2000;
         // The receive timeout property has alternative names
         // Again, set them all to avoid compability issues
         final List<String> RECV_TIME_PROPS = new ArrayList<String>();
@@ -69,6 +68,7 @@ public class BrokerClientApplication {
         System.out.printf("Set receive timeout to %d milliseconds%n", receiveTimeout);
 
         _bc = new BrokerClient(port);
+
     }
 
     public static void testSetup(){

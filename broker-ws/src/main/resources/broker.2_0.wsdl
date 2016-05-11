@@ -126,24 +126,12 @@
             	</xs:sequence>
             </xs:complexType>
             <xs:element name="updateSecondaryBroker" type="tns:updateSecondaryBroker" />
-        
-            <xs:complexType name="updateSecondaryBrokerResponse">
-                <xs:sequence />
-            </xs:complexType>
-            <xs:element name="updateSecondaryBrokerResponse" type="tns:updateSecondaryBrokerResponse" />
-        
-        
+
             <xs:complexType name="imAlive">
                 <xs:sequence />
             </xs:complexType>
             <xs:element name="imAlive" type="tns:imAlive" />
-        
-            <xs:complexType name="imAliveResponse">
-                <xs:sequence />
-            </xs:complexType>
-            <xs:element name="imAliveResponse" type="tns:imAliveResponse" />
-      
-        
+
             <xs:complexType name="UnknownLocationFault">
                 <xs:sequence>
                     <xs:element name="location" type="xs:string" minOccurs="0" />
@@ -222,15 +210,9 @@
     <message name="updateSecondaryBroker">
         <part name="parameters" element="tns:updateSecondaryBroker" />
     </message>
-    <message name="updateSecondaryBrokerResponse">
-        <part name="parameters" element="tns:updateSecondaryBrokerResponse" />
-    </message>
     
     <message name="imAlive">
         <part name="parameters" element="tns:imAlive" />
-    </message>
-    <message name="imAliveResponse">
-        <part name="parameters" element="tns:imAliveResponse" />
     </message>
 
     <message name="UnknownLocationFault">
@@ -310,18 +292,12 @@
             <input
                 wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateSecondaryBrokerRequest"
                 message="tns:updateSecondaryBroker" />
-            <output
-                wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateSecondaryBrokerResponse"
-                message="tns:updateSecondaryBrokerResponse" />
         </operation>
         
             <operation name="imAlive">
             <input
                 wsam:Action="http://ws.broker.upa.pt/BrokerPort/imAliveRequest"
                 message="tns:imAlive" />
-            <output
-                wsam:Action="http://ws.broker.upa.pt/BrokerPort/imAliveResponse"
-                message="tns:imAliveResponse" />
         </operation>
         
     </portType>
@@ -403,9 +379,6 @@
             <input>
                 <soap:body use="literal" />
             </input>
-            <output>
-                <soap:body use="literal" />
-            </output>
         </operation>
         
         <operation name="imAlive">
@@ -413,9 +386,6 @@
             <input>
                 <soap:body use="literal" />
             </input>
-            <output>
-                <soap:body use="literal" />
-            </output>
         </operation>
         
     </binding>

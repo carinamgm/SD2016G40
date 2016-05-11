@@ -22,15 +22,15 @@ public class BrokerClient {
 
 	public String ping(String msg) {
         String result = "";
+
         try {
             result = _upaBroker.ping(msg);
         } catch(WebServiceException wse) {
             handleException(wse);
-            result = ping(msg);
+            result = _upaBroker.ping(msg);
         }
-        finally {
-            return result;
-        }
+
+        return result;
     }
 
     public String schedule(String origin, String destination, int price)
@@ -38,40 +38,41 @@ public class BrokerClient {
             UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception{
 
         String result = "";
+
         try {
             result = _upaBroker.requestTransport(origin, destination, price);
         } catch(WebServiceException wse) {
             handleException(wse);
             result = _upaBroker.requestTransport(origin, destination, price);
         }
-        finally {
-            return result;
-        }
+
+        return result;
     }
 
     public TransportView checkTransportState(String id) throws UnknownTransportFault_Exception{
         TransportView result = null;
+
         try {
             result = _upaBroker.viewTransport(id);
         } catch(WebServiceException wse) {
             handleException(wse);
             result = _upaBroker.viewTransport(id);
         }
-        finally {
-            return result;
-        }
+
+        return result;
     }
 
     public List<TransportView> listScheduleTransports() {
         List<TransportView> result = null;
+
         try {
             result = _upaBroker.listTransports();
         } catch (WebServiceException wse) {
             handleException(wse);
             result = _upaBroker.listTransports();
-        } finally {
-            return result;
         }
+
+        return result;
     }
 
     public void clearTransports() {
@@ -86,6 +87,7 @@ public class BrokerClient {
     private void changeBinding(){
         UDDINaming uddiNaming = null;
         String endpointAddress;
+        _upaBroker = null;
         try {
             uddiNaming = new UDDINaming(BrokerClientApplication._uddiURL);
             endpointAddress = uddiNaming.lookup(BrokerClientApplication._serviceName);
@@ -108,11 +110,6 @@ public class BrokerClient {
         Throwable cause = wse.getCause();
         if (cause != null && cause instanceof SocketTimeoutException) {
             System.out.println("The cause was a timeout exception: " + cause);
-        }
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
         changeBinding();
     }
