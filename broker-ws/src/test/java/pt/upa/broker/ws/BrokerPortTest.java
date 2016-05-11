@@ -1,19 +1,15 @@
 package pt.upa.broker.ws;
 
 
-import com.sun.corba.se.pept.broker.Broker;
 import mockit.Expectations;
 import mockit.Mocked;
-import mockit.NonStrictExpectations;
 import mockit.Verifications;
 import org.junit.*;
 import pt.upa.transporter.ws.*;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.TreeMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

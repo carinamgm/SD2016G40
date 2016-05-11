@@ -1,18 +1,9 @@
 package pt.upa.transporter.ws;
 
-import org.w3c.dom.Element;
-
-import javax.annotation.Resource;
 import javax.jws.HandlerChain;
 import javax.jws.WebService;
-import javax.xml.ws.EndpointReference;
-import javax.xml.ws.WebServiceContext;
-import java.nio.file.WatchEvent;
-import java.security.Principal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.handler.MessageContext;
 
 
 @WebService(

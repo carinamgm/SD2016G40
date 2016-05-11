@@ -1,22 +1,19 @@
 package pt.upa.handler.ws;
 
-import org.w3c.dom.Document;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.ca.ws.CaImplService;
 import pt.upa.ca.ws.CaService;
 
 import javax.xml.namespace.QName;
 import javax.xml.registry.JAXRException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.Map;

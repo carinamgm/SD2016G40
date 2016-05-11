@@ -4,16 +4,13 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.BadLocationFault_Exception;
 import pt.upa.transporter.ws.BadPriceFault_Exception;
-import pt.upa.transporter.ws.ChangeState;
-import pt.upa.transporter.ws.JobStateView;
 import pt.upa.transporter.ws.JobView;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
 import javax.jws.WebService;
-import java.util.*;
-
 import javax.xml.registry.JAXRException;
 import javax.xml.ws.BindingProvider;
+import java.util.*;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
@@ -38,8 +35,8 @@ public class BrokerPort implements BrokerPortType {
 
     Timer _notify = new Timer();
     Timer _timeout = new Timer();
-    private int TIMENOTIFY = 4000; //1sec
-    private int TIMETIMEOUT = 6000; //2sec
+    private int TIMENOTIFY = 4000;
+    private int TIMETIMEOUT = 6000;
     private int TIMETOINIT = 15000; //15secs for the first iteration, since secondary broker is launched first.
     
     public BrokerPort(){}
@@ -69,7 +66,7 @@ public class BrokerPort implements BrokerPortType {
           Map<String, Object> requestContext = bindingProvider.getRequestContext();
           requestContext.put(ENDPOINT_ADDRESS_PROPERTY, url);
         }
-        _notify.schedule(new ProofTimerTask(this), TIMENOTIFY); //1 secs
+        _notify.schedule(new ProofTimerTask(this), TIMENOTIFY);
     }
 
     @Override
@@ -77,7 +74,8 @@ public class BrokerPort implements BrokerPortType {
     	if(isPrimaryBroker()){
     		System.out.println("Sending alive proof");
     		_sb.imAlive();
-            _notify.schedule(new ProofTimerTask(this), TIMENOTIFY); //1 secs
+            _notify = new Timer();
+            _notify.schedule(new ProofTimerTask(this), TIMENOTIFY);
     	}
     	else{
     		System.out.println("Primary Broker is alive;");
@@ -88,16 +86,19 @@ public class BrokerPort implements BrokerPortType {
                 public void run() {
                     takeControl();
                 }
-            }, TIMETIMEOUT); //2secs
+            }, TIMETIMEOUT);
     	}
     }
   
     private void takeControl() {
-        try {
-            UDDINaming uddiNaming = new UDDINaming(_args[0]);
-            uddiNaming.rebind("UpaBroker",_args[2]);
-        } catch (JAXRException e) {
-            e.printStackTrace();
+        if(!isPrimaryBroker()) {
+            System.out.println("Taking UpaBroker Position");
+            try {
+                UDDINaming uddiNaming = new UDDINaming(_args[0]);
+                uddiNaming.rebind("UpaBroker", _args[2]);
+            } catch (JAXRException e) {
+                e.printStackTrace();
+            }
         }
     }
     
@@ -237,14 +238,6 @@ public class BrokerPort implements BrokerPortType {
         throw new UnknownTransportFault_Exception(id, utf);
     }
 
-    private void updateDataToShip(String operation, TransportView tv){
-        if(isPrimaryBroker()){
-            if(tv != null)
-                _auxUpdate.add(tv);
-            updateSecondaryBroker(operation);
-        }
-    }
-
     @Override
     public List<TransportView> listTransports() {
         return _tvs;
@@ -255,25 +248,36 @@ public class BrokerPort implements BrokerPortType {
     	_tvs.clear();
     	_tca.clearTransports();
     	if(isPrimaryBroker())
-    		updateSecondaryBroker("clear");
+    		updateSecondaryBroker("clear",null);
     }
 
 	@Override
-	public void updateSecondaryBroker(String operation) {
-		if(!isPrimaryBroker()){
-			if(operation.equals("clear"))
-				_sb.clearTransports();
-			else{
-				stateAlreadyInTVS();
-				_tvs.addAll(_auxUpdate);
-                _auxUpdate.clear();
-			}
-		}	
+	public void updateSecondaryBroker(String operation, List<TransportView> update) {
+        if(isPrimaryBroker()){
+            _sb.updateSecondaryBroker(operation,_auxUpdate);
+            _auxUpdate.clear();
+        }
+        else{
+            if(operation.equals("clear"))
+                clearTransports();
+            else{
+                stateAlreadyInTVS(update);
+                _tvs.addAll(update);
+            }
+        }
 	}
-	
-	private void stateAlreadyInTVS() {
+
+    private void updateDataToShip(String operation, TransportView tv){
+        if(isPrimaryBroker()){
+            if(tv != null)
+                _auxUpdate.add(tv);
+            updateSecondaryBroker(operation,_auxUpdate);
+        }
+    }
+
+    private void stateAlreadyInTVS(List<TransportView> update) {
         if (!isPrimaryBroker()) {
-            for (TransportView tvi : _auxUpdate) {
+            for (TransportView tvi : update) {
                 for (TransportView tvj : _tvs) {
                     if (tvi.getId() == tvj.getId())
                         _tvs.remove(tvj);
