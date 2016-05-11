@@ -27,7 +27,6 @@ public class BrokerPort implements BrokerPortType {
     private List<String> _north = Arrays.asList("Porto", "Braga", "Viana do Castelo", "Vila Real", "Bragança");
     private List<String> _south = Arrays.asList("Setúbal", "Évora", "Portalegre", "Beja", "Faro");
 	private List<TransportView> _tvs = Collections.synchronizedList(new ArrayList<TransportView>());
-	private List<TransportView> _auxUpdate = new ArrayList<TransportView>();
     private TransporterClient _tca;
     private BrokerPortType _sb = null;
 
@@ -220,17 +219,27 @@ public class BrokerPort implements BrokerPortType {
 
     // One way operation
 	@Override
-	public void updateSecondaryBroker(String operation, List<TransportView> update) {
+	public void updateSecondaryBroker(String operation, TransportView update) {
         if(isPrimaryBroker()){
-            _sb.updateSecondaryBroker(operation,_auxUpdate);
-            _auxUpdate.clear();
+            if(operation.equals("clear"))
+                System.out.println("----- send clear transports ------");
+            else{
+                System.out.println("----- sending element ------");
+                System.out.println("Origin: " + update.getOrigin() + " Destination: " + update.getDestination() + " Price: " + update.getPrice() + " ID: " + update.getId());
+                System.out.println("---------------------------");
+            }
+            _sb.updateSecondaryBroker(operation,update);
         }
         else{
-            if(operation.equals("clear"))
+            if(operation.equals("clear")) {
+                System.out.println("----- received clear transports ------");
                 clearTransports();
+            }
             else{
+                System.out.println("----- adding element ------");
+                System.out.println("Origin: " + update.getOrigin() + " Destination: " + update.getDestination() + " Price: " + update.getPrice() + " ID: " + update.getId());
+                System.out.println("---------------------------");
                 stateAlreadyInTVS(update);
-                _tvs.addAll(update);
             }
         }
 	}
@@ -273,19 +282,15 @@ public class BrokerPort implements BrokerPortType {
 
     private void updateDataToShip(String operation, TransportView tv){
         if(isPrimaryBroker()){
-            if(tv != null)
-                _auxUpdate.add(tv);
-            updateSecondaryBroker(operation,_auxUpdate);
+            updateSecondaryBroker(operation,tv);
         }
     }
 
-    private void stateAlreadyInTVS(List<TransportView> update) {
+    private void stateAlreadyInTVS(TransportView update) {
         if (!isPrimaryBroker()) {
-            for (TransportView tvi : update) {
-                for (TransportView tvj : _tvs) {
-                    if (tvi.getId() == tvj.getId())
-                        _tvs.remove(tvj);
-                }
+            for(int i = 0; i < _tvs.size(); i++) {
+                if(_tvs.get(i).getId() == update.getId())
+                    _tvs.set(i,update);
             }
         }
     }
