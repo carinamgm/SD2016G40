@@ -130,6 +130,7 @@ public class Handler extends AbstractHandler {
                 element = (SOAPElement) it.next();
                 String hmks = element.getValue();
 
+
                 // getting the nounce
                 name = se.createName("TimeStampNonce", "Upa", "http://upa");
                 it = sh.getChildElements(name);
@@ -140,6 +141,7 @@ public class Handler extends AbstractHandler {
                 }
 
                 element = (SOAPElement) it.next();
+
                 String nounce = element.getValue();
 
                 // verify the freshness of nounce

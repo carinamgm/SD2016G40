@@ -36,7 +36,6 @@ public class TransporterClient {
             Map<String, Object> requestContext = bindingProvider.getRequestContext();
             requestContext.put(ENDPOINT_ADDRESS_PROPERTY, ws[i]);
         }
-        Handler.serviceName = "UpaBroker";
     }
 
     public ArrayList<TransporterPortType> getPorts(){
