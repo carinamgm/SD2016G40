@@ -24,6 +24,7 @@ public abstract class AbstractHandlerTest {
             "xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
             "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
             "<SOAP-ENV:Header>" +
+                "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>" +
             "</SOAP-ENV:Header>" +
             "<S:Body>" +
                 "<ns2:requestJob xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
@@ -39,7 +40,7 @@ public abstract class AbstractHandlerTest {
             "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
             "<SOAP-ENV:Header>" +
                 "<Upa:name xmlns:Upa=\"http://upa\">upatransporter2</Upa:name>" +
-                "<Upa:HmKs xmlns:Upa=\"http://upa\">ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</Upa:HmKs>" +
+                "<Upa:HmKs xmlns:Upa=\"http://upa\"></Upa:HmKs>" +
                 "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>" +
             "</SOAP-ENV:Header>" +
             "<S:Body>" +
@@ -76,7 +77,6 @@ public abstract class AbstractHandlerTest {
             "xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
             "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
             "<SOAP-ENV:Header>" +
-                "" +
             "<SOAP-ENV:Header>" +
             "<S:Body>" +
                 "<ns2:requestJobResponse xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +

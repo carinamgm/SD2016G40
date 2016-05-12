@@ -1,9 +1,11 @@
 package pt.upa.handler.ws;
 
+import mockit.Expectations;
 import mockit.Mocked;
-import mockit.StrictExpectations;
 import org.junit.After;
 import org.junit.Test;
+import mockit.StrictExpectations;
+import static org.junit.Assert.*;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -22,7 +24,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.util.Iterator;
 
-import static org.junit.Assert.*;
+
 
 
 /**
@@ -101,13 +103,18 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
 
 
         final String soapText = SOAP_RESPONSE;
-        char[] cenas = new char[9999];
-        Arrays.fill(cenas, 'f');
         String nonce = (new Timestamp(System.currentTimeMillis())).toString();
+
+        byte[] cenasFixes = new byte[256];
+        Arrays.fill(cenasFixes, (byte) 2);
+        String cenasFixesAux = cenasFixes.toString();
+        soapText.replace("<Upa:HmKs xmlns:Upa=\"http://upa\"></Upa:HmKs>",
+                "<Upa:HmKs xmlns:Upa=\"http://upa\">" + cenasFixesAux + "</Upa:HmKs>");
+
         soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
                 "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonce + "</Upa:TimeStampNonce>");
         soapText.replace("<Upa:HmKs xmlns:Upa=\"http://upa\"></Upa:HmKs>",
-                "<Upa:HmKs xmlns:Upa=\"http://upa\">" + cenas.toString() + "</Upa:HmKs>");
+                "<Upa:HmKs xmlns:Upa=\"http://upa\">" + cenasFixesAux + "</Upa:HmKs>");
 
         final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
         final Boolean soapOutbound = false;
@@ -134,19 +141,23 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
         //soapMessage.writeTo(System.out);
     }
 
-    @Test
+/*    @Test
     public void testHeaderHandlerWrongTimer(
             @Mocked final SOAPMessageContext soapMessageContext)
             throws Exception {
 
         final String soapText = SOAP_REQUEST_INBOUND;
-        char[] cenas = new char[9999];
-        Arrays.fill(cenas, 'f');
+        final String soapTextAux = SOAP_REQUEST;
+
         String nonce = (new Timestamp(1241514214)).toString();
+        byte[] cenasFixes = new byte[256];
+        Arrays.fill(cenasFixes, (byte) 2);
+        String cenasFixesAux = cenasFixes.toString();
+
         soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
                 "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonce + "</Upa:TimeStampNonce>");
         soapText.replace("<Upa:HmKs xmlns:Upa=\"http://upa\"></Upa:HmKs>",
-                "<Upa:HmKs xmlns:Upa=\"http://upa\">" + cenas.toString() + "</Upa:HmKs>");
+                "<Upa:HmKs xmlns:Upa=\"http://upa\">" + cenasFixesAux + "</Upa:HmKs>");
 
         final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
         final Boolean soapOutbound = false;
@@ -169,40 +180,72 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
 
         // Additional verification code, if any, either here or before the verification block.
         // assert that message would proceed normally
-        assertTrue(handleResult);
+        assertNull(handleResult);
 
         //soapMessage.writeTo(System.out);
     }
 
     @Test
     public void testHeaderHandlerWrongMessage(
-            @Mocked final SOAPMessageContext soapMessageContext)
+            @Mocked final SOAPMessageContext soapMessageContext, @Mocked SOAPElement element)
             throws Exception {
 
         // Preparation code not specific to JMockit, if any.
-        final String soapText = SOAP_REQUEST;
-        final String soapTextAux = WRONG_SOAP_RESPONSE;
 
-        final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
         final Boolean soapOutbound = false;
-        _handler.serviceName = "UpaBroker";
+        String soapText = SOAP_REQUEST;
+        String soapTextAux = SOAP_RESPONSE;
+        byte[] cenasFixes = new byte[256];
+        Arrays.fill(cenasFixes, (byte) 2);
+        String cenasFixesAux = cenasFixes.toString();
+        _handler.serviceName = "UpaTransporter2";
+
+        String nonce = (new Timestamp(System.currentTimeMillis()).toString());
+        soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
+                "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonce + "</Upa:TimeStampNonce>");
+
+        String nonceAux = (new Timestamp(System.currentTimeMillis()).toString());
+        soapTextAux.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
+                "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonceAux + "</Upa:TimeStampNonce>");
+
+        soapTextAux.replace("<Upa:HmKs xmlns:Upa=\"http://upa\"></Upa:HmKs>",
+                "<Upa:HmKs xmlns:Upa=\"http://upa\">dasdjaspdjaspodjaspodjaspdja</Upa:HmKs>");
+
+        SOAPMessage soapMessageOut = byteArrayToSOAPMessage(soapText.getBytes());
+        SOAPMessage soapMessageIn = byteArrayToSOAPMessage(soapTextAux.getBytes());
+
+        //String encodedSignedBody = printBase64Binary(makeDigitalSignature(out.toByteArray(), kp));
+        //first outbound = true, so it can do the necessary things, then = false to do the rest
+
+        //Try to make a call for inbound first
+        //Use transporter-ws-cli and mock transporter-ws??? Could be done...
+
         // an "expectation block"
         // One or more invocations to mocked types, causing expectations to be recorded.
-        new StrictExpectations() {{
+        new Expectations() {{
             soapMessageContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-            result = soapOutbound;
+            returns(true, soapOutbound);
 
             soapMessageContext.getMessage();
-            result = soapMessage;
+            returns(soapMessageOut, soapMessageIn);
+
+            element.getValue();
+            returns("meeeeeep");
         }};
+        soapMessageIn.writeTo(System.out);
+
 
         // Unit under test is exercised.
         boolean handleResult = _handler.handleMessage(soapMessageContext);
+        assertTrue(handleResult);
 
+        _handler.serviceName = "UpaBroker";
+
+        handleResult = _handler.handleMessage(soapMessageContext);
+        assertNull(handleResult);
         // Additional verification code, if any, either here or before the verification block.
 
         // assert that message would proceed normally
-        assertTrue(handleResult);
     }
-
+*/
 }

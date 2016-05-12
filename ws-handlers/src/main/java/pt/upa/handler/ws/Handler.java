@@ -119,9 +119,8 @@ public class Handler extends AbstractHandler {
                     return true;
                 }
 
-                element = (SOAPElement) it.next();
-
                 // get header element value
+                element = (SOAPElement) it.next();
                 String valueString = element.getValue();
 
                 // request certificate to ca
@@ -139,7 +138,8 @@ public class Handler extends AbstractHandler {
                 msg.writeTo(out);
 
                 // verifiy if brokerCer is signed by ca
-                verifyDigitalSignature(parseBase64Binary(valueString), out.toByteArray(), kp);
+                if(!(verifyDigitalSignature(parseBase64Binary(valueString), out.toByteArray(), kp)))
+                    return false;
 
                 // Nounces check
                 name = se.createName("TimeStampNonce", "Upa", "http://upa");
@@ -166,8 +166,6 @@ public class Handler extends AbstractHandler {
                     listTimeStamps.add(nonce);
                 else
                     return false;
-
-                return true;
             }
         } catch (Exception e) {
             System.out.print("Caught exception in handleMessage: ");
