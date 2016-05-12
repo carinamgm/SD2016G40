@@ -21,6 +21,7 @@ import java.util.Set;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
+import java.security.cert.Certificate;
 
 public abstract class AbstractHandler implements SOAPHandler<SOAPMessageContext> {
 
@@ -45,7 +46,7 @@ public abstract class AbstractHandler implements SOAPHandler<SOAPMessageContext>
         String keyPass = passwords.substring(storePass.length()+1,passwords.length()-1);
 
         ks.load(new FileInputStream(new File(filepath)),storePass.toCharArray());
-        return new KeyPair((PublicKey) ks.getCertificate(certificate).getPublicKey(), (PrivateKey) ks.getKey(certificate,keyPass.toCharArray()));
+        return new KeyPair(ks.getCertificate(certificate).getPublicKey(), (PrivateKey) ks.getKey(certificate,keyPass.toCharArray()));
     }
 
     protected PublicKey extractCaCertificateKey(String filepath, String pwdPath) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
@@ -112,6 +113,17 @@ public abstract class AbstractHandler implements SOAPHandler<SOAPMessageContext>
             System.err.println("Caught exception while verifying " + se);
             return false;
         }
+    }
+
+
+    public static boolean verifySignedCertificate(Certificate certificate, PublicKey caPublicKey) {
+        try {
+            certificate.verify(caPublicKey);
+        } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
+                | SignatureException e) {
+            return false;
+        }
+        return true;
     }
 
 }

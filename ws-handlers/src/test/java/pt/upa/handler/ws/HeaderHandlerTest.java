@@ -108,13 +108,13 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
         byte[] cenasFixes = new byte[256];
         Arrays.fill(cenasFixes, (byte) 2);
         String cenasFixesAux = cenasFixes.toString();
-        soapText.replace("<Upa:HmKs xmlns:Upa=\"http://upa\"></Upa:HmKs>",
-                "<Upa:HmKs xmlns:Upa=\"http://upa\">" + cenasFixesAux + "</Upa:HmKs>");
+        soapText.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
+                "<Upa:hmks xmlns:Upa=\"http://upa\">" + cenasFixesAux + "</Upa:hmks>");
 
         soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
                 "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonce + "</Upa:TimeStampNonce>");
-        soapText.replace("<Upa:HmKs xmlns:Upa=\"http://upa\"></Upa:HmKs>",
-                "<Upa:HmKs xmlns:Upa=\"http://upa\">" + cenasFixesAux + "</Upa:HmKs>");
+        soapText.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
+                "<Upa:hmks xmlns:Upa=\"http://upa\">" + cenasFixesAux + "</Upa:hmks>");
 
         final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
         final Boolean soapOutbound = false;
@@ -140,8 +140,8 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
 
         //soapMessage.writeTo(System.out);
     }
-
-/*    @Test
+/*
+    @Test
     public void testHeaderHandlerWrongTimer(
             @Mocked final SOAPMessageContext soapMessageContext)
             throws Exception {
@@ -156,8 +156,8 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
 
         soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
                 "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonce + "</Upa:TimeStampNonce>");
-        soapText.replace("<Upa:HmKs xmlns:Upa=\"http://upa\"></Upa:HmKs>",
-                "<Upa:HmKs xmlns:Upa=\"http://upa\">" + cenasFixesAux + "</Upa:HmKs>");
+        soapText.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
+                "<Upa:hmks xmlns:Upa=\"http://upa\">" + cenasFixesAux + "</Upa:hmks>");
 
         final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
         final Boolean soapOutbound = false;
@@ -193,8 +193,8 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
         // Preparation code not specific to JMockit, if any.
 
         final Boolean soapOutbound = false;
-        String soapText = SOAP_REQUEST;
-        String soapTextAux = SOAP_RESPONSE;
+        final String soapText = SOAP_REQUEST;
+        final String soapTextAux = SOAP_RESPONSE;
         byte[] cenasFixes = new byte[256];
         Arrays.fill(cenasFixes, (byte) 2);
         String cenasFixesAux = cenasFixes.toString();
@@ -208,8 +208,8 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
         soapTextAux.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
                 "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonceAux + "</Upa:TimeStampNonce>");
 
-        soapTextAux.replace("<Upa:HmKs xmlns:Upa=\"http://upa\"></Upa:HmKs>",
-                "<Upa:HmKs xmlns:Upa=\"http://upa\">dasdjaspdjaspodjaspodjaspdja</Upa:HmKs>");
+        soapTextAux.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
+                "<Upa:hmks xmlns:Upa=\"http://upa\">dasdjaspdjaspodjaspodjaspdja</Upa:hmks>");
 
         SOAPMessage soapMessageOut = byteArrayToSOAPMessage(soapText.getBytes());
         SOAPMessage soapMessageIn = byteArrayToSOAPMessage(soapTextAux.getBytes());
@@ -229,10 +229,10 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
             soapMessageContext.getMessage();
             returns(soapMessageOut, soapMessageIn);
 
-            element.getValue();
-            returns("meeeeeep");
+//            element.getValue();
+//            returns("meeeeeep");
         }};
-        soapMessageIn.writeTo(System.out);
+        //soapMessageIn.writeTo(System.out);
 
 
         // Unit under test is exercised.
