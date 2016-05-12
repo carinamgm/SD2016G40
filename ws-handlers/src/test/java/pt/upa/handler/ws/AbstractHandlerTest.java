@@ -18,27 +18,101 @@ public abstract class AbstractHandlerTest {
 
     // static members
 
-    /** hello-ws SOAP request message captured with LoggingHandler */
-    protected static final String HELLO_SOAP_REQUEST = "<S:Envelope " +
-    "xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
-    "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-    "<SOAP-ENV:Header/>" +
-    "<S:Body>" +
-    "<ns2:sayHello xmlns:ns2=\"http://ws.example/\">" +
-    "<arg0>friend</arg0>" +
-    "</ns2:sayHello>" +
-    "</S:Body></S:Envelope>";
+    /** Correct SOAP request message captured with LoggingHandler */
 
-    /** hello-ws SOAP response message captured with LoggingHandler */
-    protected static final String HELLO_SOAP_RESPONSE = "<S:Envelope " +
-    "xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
-    "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-    "<SOAP-ENV:Header/>" +
-    "<S:Body>" +
-    "<ns2:sayHelloResponse xmlns:ns2=\"http://ws.example/\">" +
-    "<return>Hello friend!</return>" +
-    "</ns2:sayHelloResponse>" +
-    "</S:Body></S:Envelope>";
+    //Not everything is needed, testing faults needed??? Depends... Test case when false is returned on the inbound...
+
+    protected static final String SOAP_REQUEST = "<S:Envelope " +
+            "xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+            "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<SOAP-ENV:Header>" +
+            "</SOAP-ENV:Header>" +
+            "<S:Body>" +
+            "<ns2:requestJob xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
+                "<origin>Lisboa</origin>" +
+                "<destination>Porto</destination>" +
+                "<price>20</price>" +
+            "</ns2:requestJob>" +
+            "</S:Body></S:Envelope>";
+
+    /** Correct SOAP response message captured with LoggingHandler */
+    protected static final String SOAP_RESPONSE = "<S:Envelope " +
+            "xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+            "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<SOAP-ENV:Header/>" +
+            "<S:Body>" +
+            "<ns2:requestJobResponse xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
+            "<return>" +
+            "<JobState>PROPOSED</JobState>" +
+            "<CompanyName>UpaTransporter2</CompanyName>" +
+            "<JobDestination>Porto</JobDestination>" +
+            "<JobOrigin>Lisboa</JobOrigin>" +
+            "<JobPrice>16</JobPrice>" +
+            "<JobIdentifier>1</JobIdentifier>" +
+            "</return>" +
+            "</ns2:requestJobResponse>" +
+            "</S:Body></S:Envelope>";
+
+    /** Wrong SOAP request message captured with LoggingHandler */
+    protected static final String WRONG_SOAP_REQUEST = "<S:Envelope " +
+            "xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+            "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<SOAP-ENV:Header/>" +
+            "<S:Body>" +
+            "<ns2:requestJob xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
+            "<origin>Lisoa</origin>" +
+            "<destination>Poto</destination>" +
+            "<price>20</price>" +
+            "</ns2:requestJob>" +
+            "</S:Body></S:Envelope>";
+
+    /** Wrong SOAP response message captured with LoggingHandler */
+    protected static final String WRONG_SOAP_RESPONSE = "<S:Envelope " +
+            "xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+            "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<SOAP-ENV:Header/>" +
+            "<S:Body>" +
+            "<ns2:requestJobResponse xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
+            "<return>" +
+            "<JobState>PROPOSED</JobState>" +
+            "<CompanyName>UpaTransporter2</CompanyName>" +
+            "<JobDestination>Poro</JobDestination>" +
+            "<JobOrigin>Liboa</JobOrigin>" +
+            "<JobPrice>16</JobPrice>" +
+            "<JobIdentifier>1</JobIdentifier>" +
+            "</return>" +
+            "</ns2:requestJobResponse>" +
+            "</S:Body></S:Envelope>";
+
+    /** Correct SOAP request message, with origin on RegiaoNorte and destination on RegiaoSul */
+    protected static final String FAULTY_SOAP_REQUEST = "<S:Envelope " +
+            "xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+            "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<SOAP-ENV:Header/>" +
+            "<S:Body>" +
+            "<ns2:requestJob xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
+            "<origin>Porto</origin>" +
+            "<destination>Faro</destination>" +
+            "<price>30</price>" +
+            "</ns2:requestJob>" +
+            "</S:Body></S:Envelope>";
+
+    /** Wrong SOAP response message captured with LoggingHandler */
+    protected static final String FAULTY_SOAP_RESPONSE = "<S:Envelope " +
+            "xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+            "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<SOAP-ENV:Header/>" +
+            "<S:Body>" +
+            "<S:Fault>" +
+                "<faultcode>S:TransporterPort</faultcode>" +
+                "<faultstring>Invalid Routes Porto - Faro</faultstring>" +
+                "<detail>" +
+                    "<ns2:BadLocationFault xmlns:ns2=\"http:// \">" +
+                        "<message>Invalid Routes Porto - Faro</message>" +
+                    "</ns2:BadLocationFault>" +
+                "</detail>" +
+            "</S:Fault>" +
+            "</S:Body></S:Envelope>";
 
     /** SOAP message factory */
     protected static final MessageFactory MESSAGE_FACTORY;
@@ -57,7 +131,7 @@ public abstract class AbstractHandlerTest {
     protected static SOAPMessage byteArrayToSOAPMessage(byte[] msg) throws Exception {
         ByteArrayInputStream byteInStream = new ByteArrayInputStream(msg);
         StreamSource source = new StreamSource(byteInStream);
-        SOAPMessage newMsg = newMsg = MESSAGE_FACTORY.createMessage();
+        SOAPMessage newMsg = MESSAGE_FACTORY.createMessage();
         SOAPPart soapPart = newMsg.getSOAPPart();
         soapPart.setContent(source);
         return newMsg;
