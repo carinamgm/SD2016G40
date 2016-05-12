@@ -9,16 +9,16 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import pt.upa.handler.ws.Handler;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
-@HandlerChain(file="broker_handler-chain-binding.xml")
+@HandlerChain(file="/broker_handler-chain-binding.xml")
 public class TransporterClient {
 
     private ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();
     private ConcurrentHashMap<String,Identifier> _jobsMap = new ConcurrentHashMap<String,Identifier>();
     private AtomicInteger _identifier = new AtomicInteger(0);
-
 
     public TransporterClient(Collection<String> wsUrls){
         for(int i = 0; i < wsUrls.size(); i++){
@@ -33,6 +33,7 @@ public class TransporterClient {
             Map<String, Object> requestContext = bindingProvider.getRequestContext();
             requestContext.put(ENDPOINT_ADDRESS_PROPERTY, ws[i]);
         }
+        Handler.serviceName = "UpaBroker";
     }
 
     public ArrayList<TransporterPortType> getPorts(){

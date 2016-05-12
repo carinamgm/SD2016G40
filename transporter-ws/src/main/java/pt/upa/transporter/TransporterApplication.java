@@ -1,7 +1,7 @@
 package pt.upa.transporter;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-import pt.upa.handler.ws.TransporterHandler;
+import pt.upa.handler.ws.Handler;
 import pt.upa.transporter.ws.TransporterPort;
 
 import javax.xml.ws.Endpoint;
@@ -45,7 +45,7 @@ public class TransporterApplication {
 			uddiNaming = new UDDINaming(uddiURL);
 			uddiNaming.rebind(name, url);
 
-			TransporterHandler.transporterName = name;
+			Handler.serviceName = name;
 
 			// wait
 			System.out.println("Awaiting connections");

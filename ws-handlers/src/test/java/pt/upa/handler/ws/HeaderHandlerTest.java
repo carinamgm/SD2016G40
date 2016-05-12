@@ -12,6 +12,7 @@ import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import mockit.Mocked;
+import org.junit.After;
 import org.junit.Test;
 import mockit.StrictExpectations;
 import static org.junit.Assert.assertEquals;
@@ -24,7 +25,13 @@ import static org.junit.Assert.assertTrue;
  */
 public class HeaderHandlerTest extends AbstractHandlerTest {
 
+    private static Handler _handler = new Handler();
     // tests
+
+    @After
+    public void tearDown() {
+        _handler.serviceName = "";
+    }
 
     @Test
     public void testHeaderHandlerOutbound(
@@ -44,16 +51,14 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
             soapMessageContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
             result = soapOutbound;
 
-            Handler.serviceName.equals("UpaBroker");
-            result = true;
-
             soapMessageContext.getMessage();
             result = soapMessage;
         }};
 
         // Unit under test is exercised.
-        Handler handler = new Handler();
-        boolean handleResult = handler.handleMessage(soapMessageContext);
+        _handler.serviceName = "UpaBroker";
+        boolean handleResult = _handler.handleMessage(soapMessageContext);
+
 
         // Additional verification code, if any, either here or before the verification block.
 
