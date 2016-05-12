@@ -4,16 +4,13 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.BadLocationFault_Exception;
 import pt.upa.transporter.ws.BadPriceFault_Exception;
-import pt.upa.transporter.ws.ChangeState;
-import pt.upa.transporter.ws.JobStateView;
 import pt.upa.transporter.ws.JobView;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
 import javax.jws.WebService;
-import java.util.*;
-
 import javax.xml.registry.JAXRException;
 import javax.xml.ws.BindingProvider;
+import java.util.*;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
@@ -30,7 +27,6 @@ public class BrokerPort implements BrokerPortType {
     private List<String> _north = Arrays.asList("Porto", "Braga", "Viana do Castelo", "Vila Real", "Bragança");
     private List<String> _south = Arrays.asList("Setúbal", "Évora", "Portalegre", "Beja", "Faro");
 	private List<TransportView> _tvs = Collections.synchronizedList(new ArrayList<TransportView>());
-	private List<TransportView> _auxUpdate = new ArrayList<TransportView>();
     private TransporterClient _tca;
     private BrokerPortType _sb = null;
 
@@ -38,9 +34,9 @@ public class BrokerPort implements BrokerPortType {
 
     Timer _notify = new Timer();
     Timer _timeout = new Timer();
-    private int TIMENOTIFY = 4000; //1sec
-    private int TIMETIMEOUT = 6000; //2sec
-    private int TIMETOINIT = 15000; //15secs for the first iteration, since secondary broker is launched first.
+    private int TIMENOTIFY = 4000;
+    private int TIMETIMEOUT = 6000;
+    private int TIMETOINIT = 12000; //15secs for the first iteration, since secondary broker is launched first.
     
     public BrokerPort(){}
 
@@ -69,36 +65,7 @@ public class BrokerPort implements BrokerPortType {
           Map<String, Object> requestContext = bindingProvider.getRequestContext();
           requestContext.put(ENDPOINT_ADDRESS_PROPERTY, url);
         }
-        _notify.schedule(new ProofTimerTask(this), TIMENOTIFY); //1 secs
-    }
-
-    @Override
-    public void imAlive(){
-    	if(isPrimaryBroker()){
-    		System.out.println("Sending alive proof");
-    		_sb.imAlive();
-            _notify.schedule(new ProofTimerTask(this), TIMENOTIFY); //1 secs
-    	}
-    	else{
-    		System.out.println("Primary Broker is alive;");
-    		_timeout.cancel();
-            _timeout = new Timer();
-    		_timeout.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    takeControl();
-                }
-            }, TIMETIMEOUT); //2secs
-    	}
-    }
-  
-    private void takeControl() {
-        try {
-            UDDINaming uddiNaming = new UDDINaming(_args[0]);
-            uddiNaming.rebind("UpaBroker",_args[2]);
-        } catch (JAXRException e) {
-            e.printStackTrace();
-        }
+        _notify.schedule(new ProofTimerTask(this), TIMENOTIFY);
     }
     
     private boolean isPrimaryBroker(){
@@ -237,14 +204,6 @@ public class BrokerPort implements BrokerPortType {
         throw new UnknownTransportFault_Exception(id, utf);
     }
 
-    private void updateDataToShip(String operation, TransportView tv){
-        if(isPrimaryBroker()){
-            if(tv != null)
-                _auxUpdate.add(tv);
-            updateSecondaryBroker(operation);
-        }
-    }
-
     @Override
     public List<TransportView> listTransports() {
         return _tvs;
@@ -255,29 +214,83 @@ public class BrokerPort implements BrokerPortType {
     	_tvs.clear();
     	_tca.clearTransports();
     	if(isPrimaryBroker())
-    		updateSecondaryBroker("clear");
+    		updateSecondaryBroker("clear",null);
     }
 
+    // One way operation
 	@Override
-	public void updateSecondaryBroker(String operation) {
-		if(!isPrimaryBroker()){
-			if(operation.equals("clear"))
-				_sb.clearTransports();
-			else{
-				stateAlreadyInTVS();
-				_tvs.addAll(_auxUpdate);
-                _auxUpdate.clear();
-			}
-		}	
+	public void updateSecondaryBroker(String operation, TransportView update) {
+        if(isPrimaryBroker()){
+            if(operation.equals("clear"))
+                System.out.println("----- send clear transports ------");
+            else{
+                System.out.println("----- sending element ------");
+                System.out.println("Origin: " + update.getOrigin() + " Destination: " + update.getDestination() + " Price: " + update.getPrice() + " ID: " + update.getId());
+                System.out.println("---------------------------");
+            }
+            _sb.updateSecondaryBroker(operation,update);
+        }
+        else{
+            if(operation.equals("clear")) {
+                System.out.println("----- received clear transports ------");
+                clearTransports();
+            }
+            else{
+                System.out.println("----- adding element ------");
+                System.out.println("Origin: " + update.getOrigin() + " Destination: " + update.getDestination() + " Price: " + update.getPrice() + " ID: " + update.getId());
+                System.out.println("---------------------------");
+                stateAlreadyInTVS(update);
+            }
+        }
 	}
-	
-	private void stateAlreadyInTVS() {
-        if (!isPrimaryBroker()) {
-            for (TransportView tvi : _auxUpdate) {
-                for (TransportView tvj : _tvs) {
-                    if (tvi.getId() == tvj.getId())
-                        _tvs.remove(tvj);
+
+    // One way operation
+    @Override
+    public void imAlive(){
+        if(isPrimaryBroker()){
+            System.out.println("Sending alive proof");
+            _sb.imAlive();
+            _notify = new Timer();
+            _notify.schedule(new ProofTimerTask(this), TIMENOTIFY);
+        }
+        else{
+            System.out.println("Primary Broker is alive;");
+            _timeout.cancel();
+            _timeout = new Timer();
+            _timeout.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    takeControl();
                 }
+            }, TIMETIMEOUT);
+        }
+    }
+
+    // Aux functions
+
+    private void takeControl() {
+        if(!isPrimaryBroker()) {
+            System.out.println("Taking UpaBroker Position");
+            try {
+                UDDINaming uddiNaming = new UDDINaming(_args[0]);
+                uddiNaming.rebind("UpaBroker", _args[2]);
+            } catch (JAXRException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void updateDataToShip(String operation, TransportView tv){
+        if(isPrimaryBroker()){
+            updateSecondaryBroker(operation,tv);
+        }
+    }
+
+    private void stateAlreadyInTVS(TransportView update) {
+        if (!isPrimaryBroker()) {
+            for(int i = 0; i < _tvs.size(); i++) {
+                if(_tvs.get(i).getId() == update.getId())
+                    _tvs.set(i,update);
             }
         }
     }

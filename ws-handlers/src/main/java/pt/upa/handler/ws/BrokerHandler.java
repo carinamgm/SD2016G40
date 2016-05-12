@@ -5,18 +5,17 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
 import java.security.KeyPair;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
-import java.util.Collection;
 import java.util.Iterator;
 
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 public class BrokerHandler extends AbstractHandler {
+
+    public static final String CONTEXT_PROPERTY = "my.property";
 
     public boolean handleMessage(SOAPMessageContext smc) {
 
@@ -105,6 +104,11 @@ public class BrokerHandler extends AbstractHandler {
                 msg.writeTo(out);
                 // verifiy if brokerCer is signed by ca
                 verifyDigitalSignature(parseBase64Binary(valueString),out.toByteArray(),kp);
+
+                // put header in a property context
+                smc.put(CONTEXT_PROPERTY, out.toByteArray());
+                // set property scope to application client/server class can access it
+                smc.setScope(CONTEXT_PROPERTY, MessageContext.Scope.APPLICATION);
 
             }
         } catch (Exception e) {
