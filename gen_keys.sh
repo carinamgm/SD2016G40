@@ -79,7 +79,7 @@ cd keys
 for d in * ; do
     if [ "$d" = "UpaBroker" ]
 	then
-		cp $d/* ../transporter-ws-cli/keys
+		cp -r $d ../transporter-ws-cli/keys
 	elif [ "$d" = "ca" ]
 	then
 		rsync -av --exclude='*.jks' . ../ca-ws/keys

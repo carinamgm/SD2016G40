@@ -1,5 +1,6 @@
 package pt.upa.transporter.ws.cli;
 
+import pt.upa.handler.ws.Handler;
 import pt.upa.transporter.ws.*;
 
 import javax.jws.HandlerChain;
@@ -21,6 +22,7 @@ public class TransporterClient {
     private AtomicInteger _identifier = new AtomicInteger(0);
 
     public TransporterClient(Collection<String> wsUrls){
+        Handler.serviceName = "UpaBroker";
         for(int i = 0; i < wsUrls.size(); i++){
             TransporterService ts = new TransporterService();
             TransporterPortType port = ts.getTransporterPort();
@@ -33,7 +35,6 @@ public class TransporterClient {
             Map<String, Object> requestContext = bindingProvider.getRequestContext();
             requestContext.put(ENDPOINT_ADDRESS_PROPERTY, ws[i]);
         }
-        Handler.serviceName = "UpaBroker";
     }
 
     public ArrayList<TransporterPortType> getPorts(){
