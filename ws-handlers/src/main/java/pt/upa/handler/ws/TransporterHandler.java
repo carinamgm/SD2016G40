@@ -79,7 +79,7 @@ public class TransporterHandler extends AbstractHandler {
 
                 // check header element
                 if (!it.hasNext()) {
-                    System.out.println("Header element not found.");
+                    System.out.println("Header element not found.valueString");
                     return true;
                 }
                 SOAPElement element = (SOAPElement) it.next();
@@ -89,7 +89,7 @@ public class TransporterHandler extends AbstractHandler {
 
                 // request certificate to ca
                 byte[] result = requestCertificate("upabroker");
-                CertificateFactory cf   = CertificateFactory.getInstance("X.509");
+                CertificateFactory cf = CertificateFactory.getInstance("X.509");
                 Certificate brokerCer = cf.generateCertificate(new ByteArrayInputStream(result));
                 KeyPair kp = new KeyPair(brokerCer.getPublicKey(),null);
 
