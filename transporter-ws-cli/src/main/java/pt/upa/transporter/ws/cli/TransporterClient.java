@@ -12,12 +12,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
-@HandlerChain(file="/broker_handler-chain-binding.xml")
+@HandlerChain(file="broker_handler-chain-binding.xml")
 public class TransporterClient {
 
     private ArrayList<TransporterPortType> _ports = new ArrayList<TransporterPortType>();
     private ConcurrentHashMap<String,Identifier> _jobsMap = new ConcurrentHashMap<String,Identifier>();
     private AtomicInteger _identifier = new AtomicInteger(0);
+
 
     public TransporterClient(Collection<String> wsUrls){
         for(int i = 0; i < wsUrls.size(); i++){

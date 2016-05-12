@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public class CaApplication {
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		// Check arguments
 		if (args.length < 4) {
 			System.err.println("Argument(s) missing!");

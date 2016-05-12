@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         targetNamespace="http://ws.transporter.upa.pt/",
         serviceName="TransporterService"
 )
-//@HandlerChain(file="handler-chain.xml")
+@HandlerChain(file="handler-chain.xml")
 public class TransporterPort implements TransporterPortType {
 
     private final ArrayList<String> _regions = new ArrayList<String>();

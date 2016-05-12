@@ -6,5 +6,8 @@
     <javaee:handler>
       <javaee:handler-class>pt.upa.handler.ws.TransporterHandler</javaee:handler-class>
     </javaee:handler>
+    <javaee:handler>
+      <javaee:handler-class>pt.upa.handler.ws.LoggingHandler</javaee:handler-class>
+    </javaee:handler>
   </javaee:handler-chain>
 </javaee:handler-chains>
