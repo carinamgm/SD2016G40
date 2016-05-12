@@ -1,5 +1,6 @@
 package pt.upa.handler.ws;
 
+import java.sql.Timestamp;
 import java.util.Iterator;
 import javax.xml.soap.Name;
 import javax.xml.soap.SOAPElement;
@@ -44,6 +45,7 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
 
         final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
         final Boolean soapOutbound = true;
+        _handler.serviceName = "UpaBroker";
 
         // an "expectation block"
         // One or more invocations to mocked types, causing expectations to be recorded.
@@ -56,9 +58,7 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
         }};
 
         // Unit under test is exercised.
-        _handler.serviceName = "UpaBroker";
         boolean handleResult = _handler.handleMessage(soapMessageContext);
-
 
         // Additional verification code, if any, either here or before the verification block.
 
@@ -83,20 +83,28 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
         //assertEquals("22", valueString);
     }
 
-/*    @Test
+    @Test
     public void testHeaderHandlerInbound(
         @Mocked final SOAPMessageContext soapMessageContext)
         throws Exception {
 
         // Preparation code not specific to JMockit, if any.
-        final String soapText = SOAP_REQUEST.replace("<SOAP-ENV:Header/>",
+       /* final String soapText = SOAP_REQUEST.replace("<SOAP-ENV:Header/>",
             "<SOAP-ENV:Header>" +
             "<d:myHeader xmlns:d=\"http://demo\">22</d:myHeader>" +
-            "</SOAP-ENV:Header>");
+            "</SOAP-ENV:Header>"); */
         //System.out.println(soapText);
 
+
+        final String soapText = SOAP_RESPONSE;
+        String nonce = (new Timestamp(System.currentTimeMillis())).toString();
+        soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
+                "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonce + "</Upa:TimeStampNonce>");
         final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
         final Boolean soapOutbound = false;
+
+        _handler.serviceName = "UpaBroker";
+
 
         // an "expectation block"
         // One or more invocations to mocked types, causing expectations to be recorded.
@@ -106,14 +114,10 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
 
             soapMessageContext.getMessage();
             result = soapMessage;
-
-            //soapMessageContext.put(TransporterHandler.transporterName, 22);
-            //soapMessageContext.setScope(TransporterHandler.transporterName, Scope.APPLICATION);
         }};
         // Unit under test is exercised.
-        Handler handler = new Handler();
-        //handler.transporterName = "UpaTransporter2";
-        boolean handleResult = handler.handleMessage(soapMessageContext);
+
+        boolean handleResult = _handler.handleMessage(soapMessageContext);
 
         // Additional verification code, if any, either here or before the verification block.
         // assert that message would proceed normally
@@ -121,7 +125,7 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
 
         //soapMessage.writeTo(System.out);
     }
-*//*
+/*
     @Test
     public void testHeaderHandlerWrongInbound(
             @Mocked final SOAPMessageContext soapMessageContext)

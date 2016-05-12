@@ -103,8 +103,11 @@ public abstract class AbstractHandler implements SOAPHandler<SOAPMessageContext>
     protected boolean verifyDigitalSignature(byte[] cipherDigest, byte[] bytes, KeyPair keyPair) throws Exception {
 
         // verify the signature with the public key
+        System.out.println("Header TIMESCALLEDCA name not found.");
         Signature sig = Signature.getInstance("SHA1WithRSA");
+        System.out.println("Header TIMESCALLEDCA name not found.");
         sig.initVerify(keyPair.getPublic());
+        System.out.println("Header TIMESCALLEDCA name not found.");
         sig.update(bytes);
         try {
             return sig.verify(cipherDigest);

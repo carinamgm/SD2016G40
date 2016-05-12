@@ -28,29 +28,33 @@ public abstract class AbstractHandlerTest {
             "<SOAP-ENV:Header>" +
             "</SOAP-ENV:Header>" +
             "<S:Body>" +
-            "<ns2:requestJob xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
-                "<origin>Lisboa</origin>" +
-                "<destination>Porto</destination>" +
-                "<price>20</price>" +
-            "</ns2:requestJob>" +
+                "<ns2:requestJob xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
+                    "<origin>Lisboa</origin>" +
+                    "<destination>Porto</destination>" +
+                    "<price>20</price>" +
+                "</ns2:requestJob>" +
             "</S:Body></S:Envelope>";
 
     /** Correct SOAP response message captured with LoggingHandler */
     protected static final String SOAP_RESPONSE = "<S:Envelope " +
             "xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
             "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-            "<SOAP-ENV:Header/>" +
+            "<SOAP-ENV:Header>" +
+                "<Upa:name xmlns:Upa=\"http://upa\">upatransporter2</Upa:name>" +
+                "<Upa:HmKsupatransporter2 xmlns:Upa=\"http://upa\"></Upa:HmKsupatransporter2>" +
+                "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>" +
+            "</SOAP-ENV:Header>" +
             "<S:Body>" +
-            "<ns2:requestJobResponse xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
-            "<return>" +
-            "<JobState>PROPOSED</JobState>" +
-            "<CompanyName>UpaTransporter2</CompanyName>" +
-            "<JobDestination>Porto</JobDestination>" +
-            "<JobOrigin>Lisboa</JobOrigin>" +
-            "<JobPrice>16</JobPrice>" +
-            "<JobIdentifier>1</JobIdentifier>" +
-            "</return>" +
-            "</ns2:requestJobResponse>" +
+                "<ns2:requestJobResponse xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
+                    "<return>" +
+                        "<JobState>PROPOSED</JobState>" +
+                        "<CompanyName>UpaTransporter2</CompanyName>" +
+                        "<JobDestination>Porto</JobDestination>" +
+                        "<JobOrigin>Lisboa</JobOrigin>" +
+                        "<JobPrice>16</JobPrice>" +
+                        "<JobIdentifier>1</JobIdentifier>" +
+                    "</return>" +
+                "</ns2:requestJobResponse>" +
             "</S:Body></S:Envelope>";
 
     /** Wrong SOAP request message captured with LoggingHandler */

@@ -117,6 +117,7 @@ public class Handler extends AbstractHandler {
                 }
 
                 if(serviceName.equals("UpaBroker")) {
+
                     // get first header element
                     Name name = se.createName("name", "Upa", "http://upa");
                     Iterator it = sh.getChildElements(name);
@@ -141,7 +142,6 @@ public class Handler extends AbstractHandler {
 
                     // get header element value
                     String valueString = element.getValue();
-
                     // request certificate to ca
                     if (timesCalledCa == 10) {
                         result = requestCertificate(entity);
@@ -153,10 +153,8 @@ public class Handler extends AbstractHandler {
                     Certificate brokerCer = cf.generateCertificate(new ByteArrayInputStream(result));
                     KeyPair kp = new KeyPair(brokerCer.getPublicKey(), null);
 
-
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     msg.writeTo(out);
-
                     // verifiy if brokerCer is signed by ca
                     verifyDigitalSignature(parseBase64Binary(valueString), out.toByteArray(), kp);
                 }
