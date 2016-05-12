@@ -5,6 +5,7 @@ import pt.upa.transporter.ws.*;
 
 import javax.jws.HandlerChain;
 import javax.xml.ws.BindingProvider;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;

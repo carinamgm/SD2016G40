@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
@@ -39,6 +40,7 @@ public class CaImpl implements  CaService{
 
     @Override
     public byte[] requestCertificate(String entityName) {
+        System.out.println("Serving request to: " + entityName + ".cer");
         byte[] output = null;
         try{
            output =  _certificates.get(entityName).getEncoded();
