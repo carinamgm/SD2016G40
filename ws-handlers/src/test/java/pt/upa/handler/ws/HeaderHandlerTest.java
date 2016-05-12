@@ -1,20 +1,14 @@
 package pt.upa.handler.ws;
 
-import java.util.Iterator;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
-import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.MessageContext.Scope;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
-
 import mockit.Mocked;
-import org.junit.Test;
 import mockit.StrictExpectations;
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+
+import javax.xml.soap.*;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.util.Iterator;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 

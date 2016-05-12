@@ -1,5 +1,6 @@
 package pt.upa.transporter.ws.cli;
 
+import pt.upa.handler.ws.Handler;
 import pt.upa.transporter.ws.*;
 
 import javax.jws.HandlerChain;
@@ -21,6 +22,7 @@ public class TransporterClient {
 
 
     public TransporterClient(Collection<String> wsUrls){
+        Handler.serviceName = "UpaBroker";
         for(int i = 0; i < wsUrls.size(); i++){
             TransporterService ts = new TransporterService();
             TransporterPortType port = ts.getTransporterPort();
