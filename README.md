@@ -55,6 +55,14 @@ cd uddi-naming
 mvn clean install
 ```
 
+**[5]** Gerar chaves
+
+```
+./gen_keys.sh UpaBroker UpaTransporter$
+
+(onde $ é o número das transportadores que se vai criar adiante)
+```
+
 ### CA
 
 **[5]** Correr a CA
