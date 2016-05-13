@@ -65,7 +65,7 @@ mvn clean install
 
 ### CA
 
-**[5]** Correr a CA
+**[6]** Correr a CA
 
 ```
 cd ca-ws
@@ -81,7 +81,7 @@ mvn install
 
 ### Handlers
 
-**[6]** Instalar os handlers criados, assegurando que o processo de ca-ws continua aberto
+**[7]** Instalar os handlers criados, assegurando que o processo de ca-ws continua aberto
 
 
 ```
@@ -91,7 +91,7 @@ mvn install
 
 ### Transporters
 
-**[7]** Construir e executar o(s) servidor(es) do **Transporter**
+**[8]** Construir e executar o(s) servidor(es) do **Transporter**
 
 
 ```
@@ -102,18 +102,18 @@ mvn clean compile -Dws.i=$ exec:java
 (onde $ é o último dígito do porto)
 ```
 
-**[8]** Executar o cliente do transporter, assegurando que os processos dos transporter-ws continuam abertos
+**[9]** Executar o cliente do transporter, assegurando que os processos dos transporter-ws continuam abertos
 
 ### Transporter-Cli
 
-```
+`
 cd transporter-ws-cli
 mvn install
 ```
 
 ### Brokers
 
-**[9]** Construir e executar os servidores do **Broker**, assegurando que os processos do transporter-ws continuam abertos
+**[10]** Construir e executar os servidores do **Broker**, assegurando que os processos do transporter-ws continuam abertos
 
 ##### Broker Secundário
 
@@ -133,7 +133,7 @@ mvn clean compile exec:java
 
 ### Broker-Cli
 
-**[10]** Instalar o cliente, assegurando que os processos do transporter-ws e broker-ws continuam abertos
+**[11]** Instalar o cliente, assegurando que os processos do transporter-ws e broker-ws continuam abertos
 
 ```
 cd broker-ws-cli
