@@ -118,6 +118,13 @@ mvn clean compile exec:java
 
 **[9]** Instalar os clientes, assegurando que os processos do transporter-ws e broker-ws continuam abertos
 
+##### Transporter-Cli
+
+```
+cd transporter-ws-cli
+mvn install
+```
+
 ##### Broker-Cli
 
 ```
@@ -125,12 +132,6 @@ cd broker-ws-cli
 mvn install
 ```
 
-##### Transporter-Cli
-
-```
-cd transporter-ws-cli
-mvn install
-```
 
 
 
