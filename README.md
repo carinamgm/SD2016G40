@@ -39,10 +39,10 @@ cd SD_R1_A_40
 ```
 
 
-[3] Obter código fonte do projeto (versão entregue)
+[3] Obter código fonte do projeto (segunda versão entregue)
 
 ```
-$ git clone -b SD_R1 https://github.com/tecnico-distsys/A_40-project/
+$ git clone -b SD_R2 https://github.com/tecnico-distsys/A_40-project/
 ```
 
 
@@ -54,39 +54,78 @@ cd uddi-naming
 mvn clean install
 ```
 
-### Servidores e testes unitários
+[5] Correr a CA
 
-[5] Construir e executar o servidor do **Transporter** com testes
+#### CA
+
+```
+cd ca-ws
+mvn clean install
+mvn exec:java
+```
+
+
+```
+cd ca-ws-cli
+mvn install
+```
+
+[6] Instalar os handlers criados, assegurando que o processo de ca-ws continua aberto
+
+#### HANDLERS
+
+```
+cd ws-handlers
+mvn install
+```
+
+[7] Construir e executar o(s) servidor(es) do **Transporter**
+
+#### Transporter
 
 ```
 cd transporter-ws
-mvn clean generate-sources install
-mvn exec:java
+mvn install
+mvn clean compile -Dws.i=$ exec:java
+
+(onde $ é o último dígito do porto)
 ```
 
-[6] Construir e executar o servidor do **Broker** com testes
+[8] Construir e executar os servidores do **Broker**, assegurando que os processos do transporter-ws continuam abertos
+
+#### Broker Secundário
 
 ```
 cd broker-ws
-mvn clean generate-sources install
-mvn exec:java
+mvn install
+mvn clean compile -Dws.i=4 -Dws.name=UpaBrokerSec exec:java
 ```
-### Clientes e testes de integração
 
-[7] Construir o cliente do **Broker** e executar testes
+#### Broker Primário
 
+```
+cd broker-ws
+mvn install
+mvn clean compile exec:java
+```
+
+[9] Instalar os clientes, assegurando que os processos do transporter-ws e broker-ws continuam abertos
+
+#### Broker-Cli
 
 ```
 cd broker-ws-cli
-mvn clean generate-sources install
+mvn install
 ```
 
-[8] Construir o cliente do **Transporter** e executar testes
+#### Transporter-Cli
 
 ```
 cd transporter-ws-cli
-mvn clean generate-sources install
+mvn install
 ```
+
+
 
 ...
 
