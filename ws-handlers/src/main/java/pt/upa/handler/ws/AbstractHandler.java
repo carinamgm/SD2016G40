@@ -1,6 +1,7 @@
 package pt.upa.handler.ws;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.upa.ca.CaClient;
 import pt.upa.ca.ws.CaImplService;
 import pt.upa.ca.ws.CaService;
 
@@ -84,21 +85,10 @@ public abstract class AbstractHandler implements SOAPHandler<SOAPMessageContext>
         return content;
     }
 
-    protected byte[] requestCertificate(String entity) throws JAXRException {
-        UDDINaming uddiNaming = null;
-        String endpointAddress;
+    protected byte[] requestCertificate(String entity) {
+        CaClient caCli = new CaClient();
 
-        uddiNaming = new UDDINaming("http://localhost:9090");
-        endpointAddress = uddiNaming.lookup("ca-ws");
-
-        CaImplService service = new CaImplService();
-        CaService port = service.getCaImplPort();
-
-        BindingProvider bindingProvider = (BindingProvider) port;
-        Map<String, Object> requestContext = bindingProvider.getRequestContext();
-        requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
-
-        return port.requestCertificate(entity);
+        return caCli.requestCertificate(entity);
     }
 
     protected boolean verifyDigitalSignature(byte[] cipherDigest, byte[] bytes, KeyPair keyPair) throws Exception {

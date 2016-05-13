@@ -62,6 +62,12 @@ do
   rm "$server_folder/$server_name.csr"
 done
 
+
+#Sending keys to ws-handlers to tests
+rm -r ws-handlers/keys/
+cp -r keys ws-handlers
+rm -r ws-handlers/keys/ca
+
 #Removing old key folders
 rm -r ca-ws/keys
 rm -r transporter-ws-cli/keys
@@ -73,6 +79,7 @@ mkdir ca-ws/keys
 #Copying the password to open the .jks aka keystore
 echo "$STORE_PASS\n$KEY_PASS" > transporter-ws-cli/keys/KeyStorePwd
 echo "$STORE_PASS\n$KEY_PASS" > transporter-ws/keys/KeyStorePwd
+echo "$STORE_PASS\n$KEY_PASS" > ws-handlers/keys/KeyStorePwd
 
 #Copying the correct information to the correct folders
 cd keys
