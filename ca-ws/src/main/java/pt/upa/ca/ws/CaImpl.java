@@ -32,7 +32,9 @@ public class CaImpl implements  CaService{
                     try{
                         _certificates.put(child.getName().toLowerCase().substring(0,child.getName().toLowerCase().indexOf(".")),readCertificateFile(child.getPath()));
                     }
-                    catch (Exception e) {}
+                    catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
                 }
             }
         }
@@ -44,13 +46,17 @@ public class CaImpl implements  CaService{
         byte[] output = null;
         try{
            output =  _certificates.get(entityName).getEncoded();
-        } catch (Exception e){}
+        } catch (Exception e){
+            System.out.println("Error:" + e.getMessage());
+        }
         finally {
             return output;
         }
     }
 
     private Certificate readCertificateFile(String certificateFilePath) throws Exception {
+        System.out.println(certificateFilePath);
+
         FileInputStream fis;
 
         try {

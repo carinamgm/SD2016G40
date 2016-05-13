@@ -85,7 +85,7 @@ public abstract class AbstractHandler implements SOAPHandler<SOAPMessageContext>
         return content;
     }
 
-    protected byte[] requestCertificate(String entity) {
+    public static byte[] requestCertificate(String entity) {
         CaClient caCli = new CaClient();
 
         return caCli.requestCertificate(entity);

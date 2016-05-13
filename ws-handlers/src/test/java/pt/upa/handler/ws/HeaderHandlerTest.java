@@ -7,6 +7,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import mockit.StrictExpectations;
+import sun.util.resources.ca.CalendarData_ca;
 
 import static java.sql.Timestamp.valueOf;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
@@ -319,15 +320,14 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
 
             soapMessageContext.getMessage();
             returns(soapMessage);
-
-   //         _certificates.get(entity);
-   //         returns(byteAux);
         }};
+
+        _handler._certificates.put("upabroker",_handler.requestCertificate("rougue"));
 
         // Missing generating certificate
         // Unit under test is exercised.
         boolean handleResult = _handler.handleMessage(soapMessageContext);
-        assertTrue(handleResult);
+        assertTrue(!handleResult);
     }
 
 }

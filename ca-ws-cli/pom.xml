@@ -21,6 +21,9 @@
         <uddi.url>http://localhost:9090</uddi.url>
         <ws.name>ca-ws</ws.name>
 
+        <ws.url>http://localhost:8090/ca-ws/endpoint</ws.url>
+        <wsdl.url>${ws.url}?WSDL</wsdl.url>
+
         <mainclass>pt.upa.broker.CaClientApplication</mainclass>
     </properties>
 
@@ -51,11 +54,6 @@
             <artifactId>uddi-naming</artifactId>
             <version>1.0</version>
         </dependency>
-        <dependency>
-            <groupId>pt.upa.a40</groupId>
-            <artifactId>ca-ws</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -83,6 +81,13 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <!-- https://jax-ws-commons.java.net/jaxws-maven-plugin/wsimport-mojo.html-->
+                    <wsdlUrls>
+                        <wsdlUrl>${wsdl.url}
+                        </wsdlUrl>
+                    </wsdlUrls>
+                </configuration>
                 <dependencies>
                     <dependency>
                         <groupId>com.sun.xml.ws</groupId>

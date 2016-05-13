@@ -62,11 +62,14 @@ do
   rm "$server_folder/$server_name.csr"
 done
 
-
 #Sending keys to ws-handlers to tests
 rm -r ws-handlers/keys/
 cp -r keys ws-handlers
 rm -r ws-handlers/keys/ca
+
+#Sending keys to broke-ws from when the iteration stars from broker-ws-cli
+rm -r broker-ws/keys
+mkdir broker-ws/keys
 
 #Removing old key folders
 rm -r ca-ws/keys
@@ -77,6 +80,7 @@ mkdir transporter-ws/keys
 mkdir ca-ws/keys
 
 #Copying the password to open the .jks aka keystore
+echo "$STORE_PASS\n$KEY_PASS" > broker-ws/keys/KeyStorePwd
 echo "$STORE_PASS\n$KEY_PASS" > transporter-ws-cli/keys/KeyStorePwd
 echo "$STORE_PASS\n$KEY_PASS" > transporter-ws/keys/KeyStorePwd
 echo "$STORE_PASS\n$KEY_PASS" > ws-handlers/keys/KeyStorePwd
@@ -87,6 +91,7 @@ for d in * ; do
     if [ "$d" = "UpaBroker" ]
 	then
 		cp -r $d ../transporter-ws-cli/keys
+		cp -r $d ../broker-ws/keys
 	elif [ "$d" = "ca" ]
 	then
 		rsync -av --exclude='*.jks' . ../ca-ws/keys
@@ -95,5 +100,14 @@ for d in * ; do
 	fi
 done
 cd ..
+
+#Generate rougue certificate
+rm -r ca-ws/keys/Rougue
+mkdir ca-ws/keys/Rougue
+SUBJROGUE="/CN=AMS/OU=DEEC/O=IST/L=Barcelos/C=PT"
+openssl req -new -x509 -keyout ca-ws/keys/Rougue/rogue-key.pem -out ca-ws/keys/Rougue/Rougue.pem -days $KEYS_VALIDITY -passout pass:$CA_CERTIFICATE_PASS -subj $SUBJ
+rm ca-ws/keys/Rougue/rogue-key.pem
+openssl x509 -inform PEM -in ca-ws/keys/Rougue/Rougue.pem -outform DER -out ca-ws/keys/Rougue/Rougue.cer
+rm ca-ws/keys/Rougue/Rougue.pem
 
 rm -r keys
