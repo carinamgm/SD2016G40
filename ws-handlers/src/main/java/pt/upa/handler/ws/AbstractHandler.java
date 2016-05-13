@@ -34,7 +34,7 @@ public abstract class AbstractHandler implements SOAPHandler<SOAPMessageContext>
     protected KeyPair getKeyPair(String filepath,String pwdPath,String certificate) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException {
         KeyStore ks = KeyStore.getInstance("jks");
         String passwords = readPasswordFile(pwdPath);
-        String storePass = passwords.substring(0,passwords.indexOf("\n"));
+        String storePass = passwords.substring(0,passwords.indexOf(" "));
         String keyPass = passwords.substring(storePass.length()+1,passwords.length()-1);
 
         ks.load(new FileInputStream(new File(filepath)),storePass.toCharArray());
@@ -44,7 +44,7 @@ public abstract class AbstractHandler implements SOAPHandler<SOAPMessageContext>
     protected PublicKey extractCaCertificateKey(String filepath, String pwdPath) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
         KeyStore ks = KeyStore.getInstance("jks");
         String passwords = readPasswordFile(pwdPath);
-        String storePass = passwords.substring(0,passwords.indexOf("\n"));
+        String storePass = passwords.substring(0,passwords.indexOf(" "));
 
         ks.load(new FileInputStream(new File(filepath)),storePass.toCharArray());
 

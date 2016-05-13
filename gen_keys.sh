@@ -80,10 +80,10 @@ mkdir transporter-ws/keys
 mkdir ca-ws/keys
 
 #Copying the password to open the .jks aka keystore
-echo "$STORE_PASS\n$KEY_PASS" > broker-ws/keys/KeyStorePwd
-echo "$STORE_PASS\n$KEY_PASS" > transporter-ws-cli/keys/KeyStorePwd
-echo "$STORE_PASS\n$KEY_PASS" > transporter-ws/keys/KeyStorePwd
-echo "$STORE_PASS\n$KEY_PASS" > ws-handlers/keys/KeyStorePwd
+echo "$STORE_PASS $KEY_PASS" > broker-ws/keys/KeyStorePwd
+echo "$STORE_PASS $KEY_PASS" > transporter-ws-cli/keys/KeyStorePwd
+echo "$STORE_PASS $KEY_PASS" > transporter-ws/keys/KeyStorePwd
+echo "$STORE_PASS $KEY_PASS" > ws-handlers/keys/KeyStorePwd
 
 #Copying the correct information to the correct folders
 cd keys
