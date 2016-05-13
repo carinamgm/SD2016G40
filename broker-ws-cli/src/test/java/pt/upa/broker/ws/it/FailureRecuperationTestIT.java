@@ -50,18 +50,17 @@ public class FailureRecuperationTestIT {
     	
     	List<TransportView> result = null;
     	String[] ids = new String[4];
-    	
-    	
+
     	ids[0] = _bcp.getBrokerClient().schedule("Lisboa", "Santarém", 0);
     	ids[1] = _bcp.getBrokerClient().schedule("Faro", "Portalegre", 0);
     	ids[2] = _bcp.getBrokerClient().schedule("Viseu", "Porto", 0);
     	ids[3] = _bcp.getBrokerClient().schedule("Braga", "Viana do Castelo", 0);
-    	
+
     	Thread.sleep(12*1000);
-    
+
     	result = _bcp.getBrokerClient().listScheduleTransports();
-    	
-    	assertTrue("Size not corresponding",result.size() == 4);
+
+        assertTrue("Size not corresponding",result.size() == 4);
     	
     	for(TransportView tv : result){
     		ids = (String[]) ArrayUtils.removeElement(ids, tv.getId());	

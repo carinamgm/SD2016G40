@@ -36,7 +36,7 @@ public class BrokerPort implements BrokerPortType {
     Timer _timeout = new Timer();
     private int TIMENOTIFY = 4000;
     private int TIMETIMEOUT = 6000;
-    private int TIMETOINIT = 12000; //15secs for the first iteration, since secondary broker is launched first.
+    private int TIMETOINIT = 20000; //20secs for the first iteration, since secondary broker is launched first.
     
     public BrokerPort(){}
 
@@ -240,6 +240,7 @@ public class BrokerPort implements BrokerPortType {
                 System.out.println("Origin: " + update.getOrigin() + " Destination: " + update.getDestination() + " Price: " + update.getPrice() + " ID: " + update.getId());
                 System.out.println("---------------------------");
                 stateAlreadyInTVS(update);
+                _tvs.add(update);
             }
         }
 	}
