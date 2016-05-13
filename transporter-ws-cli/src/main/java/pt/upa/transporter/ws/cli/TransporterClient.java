@@ -5,13 +5,11 @@ import pt.upa.transporter.ws.*;
 
 import javax.jws.HandlerChain;
 import javax.xml.ws.BindingProvider;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import pt.upa.handler.ws.Handler;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 

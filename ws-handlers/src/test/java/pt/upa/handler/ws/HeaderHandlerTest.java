@@ -2,34 +2,23 @@ package pt.upa.handler.ws;
 
 import mockit.Expectations;
 import mockit.Mocked;
+import mockit.StrictExpectations;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import mockit.StrictExpectations;
-import sun.util.resources.ca.CalendarData_ca;
+
+import javax.xml.soap.*;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.io.ByteArrayOutputStream;
+import java.security.KeyPair;
+import java.sql.Timestamp;
+import java.util.Iterator;
 
 import static java.sql.Timestamp.valueOf;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 import static org.junit.Assert.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.security.KeyPair;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Iterator;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
-import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 /**
  *  Handler test suite

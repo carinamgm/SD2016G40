@@ -1,13 +1,8 @@
 package pt.upa.handler.ws;
 
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.ca.CaClient;
-import pt.upa.ca.ws.CaImplService;
-import pt.upa.ca.ws.CaService;
 
 import javax.xml.namespace.QName;
-import javax.xml.registry.JAXRException;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
@@ -16,13 +11,9 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.security.*;
-import java.security.cert.CertificateException;
-import java.util.Map;
-import java.util.Set;
-
-import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
-
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.util.Set;
 
 public abstract class AbstractHandler implements SOAPHandler<SOAPMessageContext> {
 
