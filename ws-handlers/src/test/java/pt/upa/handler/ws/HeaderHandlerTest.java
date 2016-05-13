@@ -232,20 +232,7 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         out.write(nonce.getBytes());
 
-        //JobPrice has wrong value
-        String body = "<S:Body>" +
-                "<ns2:requestJobResponse xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
-                "<return>" +
-                "<JobState>PROPOSED</JobState>" +
-                "<CompanyName>UpaTransporter2</CompanyName>" +
-                "<JobDestination>Porto</JobDestination>" +
-                "<JobOrigin>Lisboa</JobOrigin>" +
-                "<JobPrice>32</JobPrice>" +
-                "<JobIdentifier>1</JobIdentifier>" +
-                "</return>" +
-                "</ns2:requestJobResponse>" +
-                "</S:Body>";
-        out.write(body.getBytes());
+        out.write(soapText.getBytes());
 
         // sign and digest
         KeyPair kp = _handler.getKeyPair("keys/" + _handler.serviceName + "/" + _handler.serviceName + ".jks", "keys/KeyStorePwd", _handler.serviceName.toLowerCase());
@@ -255,6 +242,7 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
                 "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonce + "</Upa:TimeStampNonce>");
         soapText = soapText.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
                 "<Upa:hmks xmlns:Upa=\"http://upa\">" + encodedSignedBody + "</Upa:hmks>");
+        soapText = soapText.replace("<JobPrice>16</JobPrice>", "<JobPrice>32</JobPrice>");
 
         final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
 

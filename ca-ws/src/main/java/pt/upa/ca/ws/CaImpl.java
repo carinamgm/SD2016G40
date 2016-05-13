@@ -55,8 +55,6 @@ public class CaImpl implements  CaService{
     }
 
     private Certificate readCertificateFile(String certificateFilePath) throws Exception {
-        System.out.println(certificateFilePath);
-
         FileInputStream fis;
 
         try {
