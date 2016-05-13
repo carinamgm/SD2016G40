@@ -102,11 +102,12 @@ mvn clean compile -Dws.i=$ exec:java
 (onde $ é o último dígito do porto)
 ```
 
+
 **[9]** Executar o cliente do transporter, assegurando que os processos dos transporter-ws continuam abertos
 
 ### Transporter-Cli
 
-`
+```
 cd transporter-ws-cli
 mvn install
 ```
