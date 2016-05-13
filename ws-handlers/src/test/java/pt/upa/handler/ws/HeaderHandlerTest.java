@@ -3,10 +3,21 @@ package pt.upa.handler.ws;
 import mockit.Expectations;
 import mockit.Mocked;
 import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import mockit.StrictExpectations;
+
+import static java.sql.Timestamp.valueOf;
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.security.KeyPair;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -19,21 +30,23 @@ import javax.xml.soap.SOAPPart;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import javax.xml.soap.*;
-import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
-import java.util.Iterator;
-
-
-
-
 /**
  *  Handler test suite
  */
 public class HeaderHandlerTest extends AbstractHandlerTest {
 
-    private static Handler _handler = new Handler();
+    private static Handler _handler;
     // tests
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        _handler = new Handler();
+    }
+
+    @AfterClass
+    public static void oneTimeTearDown() {
+        _handler = null;
+    }
 
     @After
     public void tearDown() {
@@ -46,8 +59,7 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
         throws Exception {
 
         // Preparation code not specific to JMockit, if any.
-        final String soapText = SOAP_REQUEST;
-        // System.out.println(soapText);
+        String soapText = SOAP_REQUEST;
 
         final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
         final Boolean soapOutbound = true;
@@ -66,8 +78,6 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
         // Unit under test is exercised.
         boolean handleResult = _handler.handleMessage(soapMessageContext);
 
-        // Additional verification code, if any, either here or before the verification block.
-
         // assert that message would proceed normally
         assertTrue(handleResult);
 
@@ -77,16 +87,21 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
         SOAPHeader soapHeader = soapEnvelope.getHeader();
         assertNotNull(soapHeader);
 
-        // assert header element
+        // assert header elements and their values
         Name name = soapEnvelope.createName("TimeStampNonce", "Upa", "http://upa");
         Iterator it = soapHeader.getChildElements(name);
         assertTrue(it.hasNext());
-
-        // assert header element value
         SOAPElement element = (SOAPElement) it.next();
         String valueString = element.getValue();
-        //soapMessage.writeTo(System.out);
-        assertNotEquals(new Timestamp(System.currentTimeMillis()).toString(), valueString);
+
+        //assert veracity of nonce TimeStamp
+        String nonceStringAux = (new Timestamp(System.currentTimeMillis())).toString();
+        Timestamp currentTime = valueOf(nonceStringAux);
+        long diffTime = currentTime.getTime() - valueOf(valueString).getTime();
+        diffTime = diffTime / (60 * 1000);
+        assertTrue((0 <= diffTime) && (diffTime <= 1));
+
+        //test veracity of ca, verifyDigSig
     }
 
     @Test
@@ -95,32 +110,40 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
         throws Exception {
 
         // Preparation code not specific to JMockit, if any.
-       /* final String soapText = SOAP_REQUEST.replace("<SOAP-ENV:Header/>",
-            "<SOAP-ENV:Header>" +
-            "<d:myHeader xmlns:d=\"http://demo\">22</d:myHeader>" +
-            "</SOAP-ENV:Header>"); */
-        //System.out.println(soapText);
 
-
-        final String soapText = SOAP_RESPONSE;
+        _handler.serviceName = "UpaTransporter2";
+        String soapText = SOAP_RESPONSE;
         String nonce = (new Timestamp(System.currentTimeMillis())).toString();
+        final Boolean soapOutbound = false;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        byte[] cenasFixes = new byte[256];
-        Arrays.fill(cenasFixes, (byte) 2);
-        String cenasFixesAux = cenasFixes.toString();
-        soapText.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
-                "<Upa:hmks xmlns:Upa=\"http://upa\">" + cenasFixesAux + "</Upa:hmks>");
+        out.write(nonce.getBytes());
+        String body = "<S:Body>" +
+                "<ns2:requestJobResponse xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
+                "<return>" +
+                "<JobState>PROPOSED</JobState>" +
+                "<CompanyName>UpaTransporter2</CompanyName>" +
+                "<JobDestination>Porto</JobDestination>" +
+                "<JobOrigin>Lisboa</JobOrigin>" +
+                "<JobPrice>16</JobPrice>" +
+                "<JobIdentifier>1</JobIdentifier>" +
+                "</return>" +
+                "</ns2:requestJobResponse>" +
+                "</S:Body>";
+        out.write(body.getBytes());
 
-        soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
+        // sign and digest
+        KeyPair kp = _handler.getKeyPair("keys/" + _handler.serviceName + "/" + _handler.serviceName + ".jks", "keys/KeyStorePwd", _handler.serviceName.toLowerCase());
+        String encodedSignedBody = printBase64Binary(_handler.makeDigitalSignature(out.toByteArray(), kp));
+
+        soapText = soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
                 "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonce + "</Upa:TimeStampNonce>");
-        soapText.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
-                "<Upa:hmks xmlns:Upa=\"http://upa\">" + cenasFixesAux + "</Upa:hmks>");
+        soapText = soapText.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
+                "<Upa:hmks xmlns:Upa=\"http://upa\">" + encodedSignedBody + "</Upa:hmks>");
 
         final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
-        final Boolean soapOutbound = false;
 
         _handler.serviceName = "UpaBroker";
-
         // an "expectation block"
         // One or more invocations to mocked types, causing expectations to be recorded.
         new StrictExpectations() {{
@@ -130,41 +153,52 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
             soapMessageContext.getMessage();
             result = soapMessage;
         }};
-        // Unit under test is exercised.
 
+        // Unit under test is exercised.
         boolean handleResult = _handler.handleMessage(soapMessageContext);
 
-        // Additional verification code, if any, either here or before the verification block.
         // assert that message would proceed normally
         assertTrue(handleResult);
-
-        //soapMessage.writeTo(System.out);
     }
-/*
+
     @Test
     public void testHeaderHandlerWrongTimer(
             @Mocked final SOAPMessageContext soapMessageContext)
             throws Exception {
 
-        final String soapText = SOAP_REQUEST_INBOUND;
-        final String soapTextAux = SOAP_REQUEST;
-
+        _handler.serviceName = "UpaTransporter2";
+        String soapText = SOAP_RESPONSE;
         String nonce = (new Timestamp(1241514214)).toString();
-        byte[] cenasFixes = new byte[256];
-        Arrays.fill(cenasFixes, (byte) 2);
-        String cenasFixesAux = cenasFixes.toString();
+        final Boolean soapOutbound = false;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
+        out.write(nonce.getBytes());
+        String body = "<S:Body>" +
+                "<ns2:requestJobResponse xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
+                "<return>" +
+                "<JobState>PROPOSED</JobState>" +
+                "<CompanyName>UpaTransporter2</CompanyName>" +
+                "<JobDestination>Porto</JobDestination>" +
+                "<JobOrigin>Lisboa</JobOrigin>" +
+                "<JobPrice>16</JobPrice>" +
+                "<JobIdentifier>1</JobIdentifier>" +
+                "</return>" +
+                "</ns2:requestJobResponse>" +
+                "</S:Body>";
+        out.write(body.getBytes());
+
+        // sign and digest
+        KeyPair kp = _handler.getKeyPair("keys/" + _handler.serviceName + "/" + _handler.serviceName + ".jks", "keys/KeyStorePwd", _handler.serviceName.toLowerCase());
+        String encodedSignedBody = printBase64Binary(_handler.makeDigitalSignature(out.toByteArray(), kp));
+
+        soapText = soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
                 "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonce + "</Upa:TimeStampNonce>");
-        soapText.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
-                "<Upa:hmks xmlns:Upa=\"http://upa\">" + cenasFixesAux + "</Upa:hmks>");
+        soapText = soapText.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
+                "<Upa:hmks xmlns:Upa=\"http://upa\">" + encodedSignedBody + "</Upa:hmks>");
 
         final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
-        final Boolean soapOutbound = false;
 
-        _handler.serviceName = "UpaTransporter2";
-
-
+        _handler.serviceName = "UpaBroker";
         // an "expectation block"
         // One or more invocations to mocked types, causing expectations to be recorded.
         new StrictExpectations() {{
@@ -180,72 +214,120 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
 
         // Additional verification code, if any, either here or before the verification block.
         // assert that message would proceed normally
-        assertNull(handleResult);
-
-        //soapMessage.writeTo(System.out);
+        assertFalse(handleResult);
     }
 
     @Test
     public void testHeaderHandlerWrongMessage(
-            @Mocked final SOAPMessageContext soapMessageContext, @Mocked SOAPElement element)
+            @Mocked final SOAPMessageContext soapMessageContext)
             throws Exception {
 
         // Preparation code not specific to JMockit, if any.
-
-        final Boolean soapOutbound = false;
-        final String soapText = SOAP_REQUEST;
-        final String soapTextAux = SOAP_RESPONSE;
-        byte[] cenasFixes = new byte[256];
-        Arrays.fill(cenasFixes, (byte) 2);
-        String cenasFixesAux = cenasFixes.toString();
         _handler.serviceName = "UpaTransporter2";
+        final Boolean soapOutbound = false;
+        String soapText = SOAP_RESPONSE;
 
-        String nonce = (new Timestamp(System.currentTimeMillis()).toString());
-        soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
+        String nonce = (new Timestamp(System.currentTimeMillis())).toString();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(nonce.getBytes());
+
+        //JobPrice has wrong value
+        String body = "<S:Body>" +
+                "<ns2:requestJobResponse xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
+                "<return>" +
+                "<JobState>PROPOSED</JobState>" +
+                "<CompanyName>UpaTransporter2</CompanyName>" +
+                "<JobDestination>Porto</JobDestination>" +
+                "<JobOrigin>Lisboa</JobOrigin>" +
+                "<JobPrice>32</JobPrice>" +
+                "<JobIdentifier>1</JobIdentifier>" +
+                "</return>" +
+                "</ns2:requestJobResponse>" +
+                "</S:Body>";
+        out.write(body.getBytes());
+
+        // sign and digest
+        KeyPair kp = _handler.getKeyPair("keys/" + _handler.serviceName + "/" + _handler.serviceName + ".jks", "keys/KeyStorePwd", _handler.serviceName.toLowerCase());
+        String encodedSignedBody = printBase64Binary(_handler.makeDigitalSignature(out.toByteArray(), kp));
+
+        soapText = soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
                 "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonce + "</Upa:TimeStampNonce>");
+        soapText = soapText.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
+                "<Upa:hmks xmlns:Upa=\"http://upa\">" + encodedSignedBody + "</Upa:hmks>");
 
-        String nonceAux = (new Timestamp(System.currentTimeMillis()).toString());
-        soapTextAux.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
-                "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonceAux + "</Upa:TimeStampNonce>");
+        final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
 
-        soapTextAux.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
-                "<Upa:hmks xmlns:Upa=\"http://upa\">dasdjaspdjaspodjaspodjaspdja</Upa:hmks>");
-
-        SOAPMessage soapMessageOut = byteArrayToSOAPMessage(soapText.getBytes());
-        SOAPMessage soapMessageIn = byteArrayToSOAPMessage(soapTextAux.getBytes());
-
-        //String encodedSignedBody = printBase64Binary(makeDigitalSignature(out.toByteArray(), kp));
-        //first outbound = true, so it can do the necessary things, then = false to do the rest
-
-        //Try to make a call for inbound first
-        //Use transporter-ws-cli and mock transporter-ws??? Could be done...
-
+        _handler.serviceName = "UpaBroker";
         // an "expectation block"
         // One or more invocations to mocked types, causing expectations to be recorded.
         new Expectations() {{
             soapMessageContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-            returns(true, soapOutbound);
+            returns(soapOutbound);
 
             soapMessageContext.getMessage();
-            returns(soapMessageOut, soapMessageIn);
-
-//            element.getValue();
-//            returns("meeeeeep");
+            returns(soapMessage);
         }};
-        //soapMessageIn.writeTo(System.out);
 
+        // Unit under test is exercised.
+        Boolean handleResult = _handler.handleMessage(soapMessageContext);
+        assertFalse(handleResult);
+    }
 
+    @Test
+    public void testHeaderHandlerWrongCa(
+            @Mocked final SOAPMessageContext soapMessageContext)
+            throws Exception {
+
+        // Preparation code not specific to JMockit, if any.
+        _handler.serviceName = "UpaBroker";
+        final Boolean soapOutbound = false;
+
+        // byte[] byteAux = {121};
+        // String entity = "upabroker";
+
+        String soapText = SOAP_REQUEST_INBOUND;
+
+        String nonce = (new Timestamp(System.currentTimeMillis())).toString();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(nonce.getBytes());
+        String body = "<S:Body>" +
+                "<ns2:requestJob xmlns:ns2=\"http://ws.transporter.upa.pt/\">" +
+                "<origin>Lisboa</origin>" +
+                "<destination>Porto</destination>" +
+                "<price>20</price>" +
+                "</ns2:requestJob>" +
+                "</S:Body>";
+        out.write(body.getBytes());
+
+        // sign and digest
+        KeyPair kp = _handler.getKeyPair("keys/" + _handler.serviceName + "/" + _handler.serviceName + ".jks", "keys/KeyStorePwd", _handler.serviceName.toLowerCase());
+        String encodedSignedBody = printBase64Binary(_handler.makeDigitalSignature(out.toByteArray(), kp));
+
+        soapText = soapText.replace("<Upa:TimeStampNonce xmlns:Upa=\"http://upa\"></Upa:TimeStampNonce>",
+                "<Upa:TimeStampNonce xmlns:Upa=\"http://upa\">" + nonce + "</Upa:TimeStampNonce>");
+        soapText = soapText.replace("<Upa:hmks xmlns:Upa=\"http://upa\"></Upa:hmks>",
+                "<Upa:hmks xmlns:Upa=\"http://upa\">" + encodedSignedBody + "</Upa:hmks>");
+
+        final SOAPMessage soapMessage = byteArrayToSOAPMessage(soapText.getBytes());
+
+        _handler.serviceName = "UpaTransporter2";
+        // an "expectation block"
+        // One or more invocations to mocked types, causing expectations to be recorded.
+        new Expectations() {{
+            soapMessageContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+            returns(soapOutbound);
+
+            soapMessageContext.getMessage();
+            returns(soapMessage);
+
+   //         _certificates.get(entity);
+   //         returns(byteAux);
+        }};
+
+        // Missing generating certificate
         // Unit under test is exercised.
         boolean handleResult = _handler.handleMessage(soapMessageContext);
         assertTrue(handleResult);
-
-        _handler.serviceName = "UpaBroker";
-
-        handleResult = _handler.handleMessage(soapMessageContext);
-        assertNull(handleResult);
-        // Additional verification code, if any, either here or before the verification block.
-
-        // assert that message would proceed normally
     }
-*/
+
 }

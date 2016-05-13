@@ -25,7 +25,7 @@ import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 public class Handler extends AbstractHandler {
 
     public static String serviceName = "";
-    private static ConcurrentHashMap<String,byte[]> _certificates = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String,byte[]> _certificates = new ConcurrentHashMap<>();
     private static int _maxCallsToCa = 25;
     private static int _callsToCa = 25;
     private static ArrayList<Timestamp> listTimeStamps = new ArrayList<Timestamp>();
@@ -146,6 +146,7 @@ public class Handler extends AbstractHandler {
 
                 // verify the freshness of nounce
                 if(!freshness(valueOf(nounce))){
+                    System.out.println("TimeStampNonce has rotten TimeStamp!");
                     return false;
                 }
 
@@ -154,9 +155,8 @@ public class Handler extends AbstractHandler {
                     _callsToCa = _maxCallsToCa;
                 }
 
-                if(!_certificates.containsKey(entity)){
+                if(!_certificates.containsKey(entity))
                     _certificates.put(entity,requestCertificate(entity));
-                }
                 else
                     _callsToCa--;
 
@@ -177,7 +177,7 @@ public class Handler extends AbstractHandler {
 
                 // verifiy the digital signature
                 if(!verifyDigitalSignature(parseBase64Binary(hmks), outputStream.toByteArray(), kp)){
-                    System.out.println("Digest doens't match H(M+N)");
+                    System.out.println("Digest doesn't match H(M+N)");
                     return false;
                 }
             }
@@ -196,7 +196,7 @@ public class Handler extends AbstractHandler {
         Timestamp currentTime = valueOf(nonceStringAux);
 
         //Difference between nonce and currentTime to check if it's inside a 1min interval
-        long diffTime = nonce.getTime() - currentTime.getTime();
+        long diffTime = currentTime.getTime() - nonce.getTime();
         diffTime = diffTime / (60 * 1000);
 
 
